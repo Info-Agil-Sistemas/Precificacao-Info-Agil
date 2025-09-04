@@ -344,7 +344,6 @@
 
   <div class="wrap">
     <div class="hero">
-      <h1>💰 Calculadora de Precificação SaaS — Info Ágil</h1>
       <p class="subtle">validações matemáticas, análise de cohort, segmentação de CAC e projeções realistas</p>
     </div>
 
@@ -407,7 +406,7 @@
               <span class="tooltiptext">Salários de funcionários + encargos trabalhistas (FGTS, INSS, férias, 13º). Inclua desenvolvedores, suporte, comercial, etc.</span>
             </span>
           </label>
-          <input id="custosPessoal" type="number" min="0" step="100" value="8000"/>
+          <input id="custosPessoal" type="number" min="0" step="100" value="0"/>
         </div>
         <div>
           <label>Infraestrutura (Servidores + TI) (R$)
@@ -416,7 +415,7 @@
               <span class="tooltiptext">AWS, Google Cloud, Azure, CDN, monitoramento, backups, domínios, certificados SSL, ferramentas de desenvolvimento.</span>
             </span>
           </label>
-          <input id="infraestrutura" type="number" min="0" step="50" value="800"/>
+          <input id="infraestrutura" type="number" min="0" step="50" value="200"/>
         </div>
       </div>
       <div class="row">
@@ -427,7 +426,7 @@
               <span class="tooltiptext">Google Ads, Facebook Ads, ferramentas de email marketing, CRM, automação, produção de conteúdo, agências.</span>
             </span>
           </label>
-          <input id="marketing" type="number" min="0" step="100" value="2000"/>
+          <input id="marketing" type="number" min="0" step="100" value="0"/>
         </div>
         <div>
           <label>Administrativo (Contador, Jurídico) (R$)
@@ -447,7 +446,7 @@
               <span class="tooltiptext">Telefone fixo, celular corporativo, internet banda larga, planos de dados, WhatsApp Business API.</span>
             </span>
           </label>
-          <input id="comunicacao" type="number" min="0" step="10" value="250"/>
+          <input id="comunicacao" type="number" min="0" step="10" value="0"/>
         </div>
         <div>
           <label>Outros (Escritório, Diversos) (R$)
@@ -467,7 +466,7 @@
               <span class="tooltiptext">Licenças de software, white label de terceiros, APIs pagas, integrações, assinaturas de ferramentas essenciais.</span>
             </span>
           </label>
-          <input id="setupAvante" type="number" min="0" step="50" value="792"/>
+          <input id="setupAvante" type="number" min="0" step="50" value="0"/>
         </div>
         <div>
           <label>Reserva de Contingência (R$)
@@ -565,10 +564,10 @@
             <label>Margem de Lucro Desejada (%)
               <span class="tooltip">
                 <span class="help-icon">?</span>
-                <span class="tooltiptext">Percentual de lucro que você deseja ter sobre o faturamento total. Ex: 40% significa que para cada R$ 100 de receita, R$ 40 serão lucro líquido.</span>
+                <span class="tooltiptext">Percentual de lucro que você deseja ter sobre o faturamento total. Ex: 30% significa que para cada R$ 100 de receita, R$ 30 serão lucro líquido.</span>
               </span>
             </label>
-            <input id="margemLucro" type="number" min="0" max="100" step="1" value="40"/>
+            <input id="margemLucro" type="number" min="0" max="100" step="1" value="30"/>
           </div>
           <div>
             <label>Meta de Clientes (mês 12)
@@ -674,7 +673,7 @@
                 <span class="tooltiptext">Comissões para vendedores, afiliados, parceiros de canal, representantes comerciais. Calculado sobre o valor da venda.</span>
               </span>
             </label>
-            <input id="comissoes" type="number" min="0" max="30" step="0.5" value="7"/>
+            <input id="comissoes" type="number" min="0" max="30" step="0.5" value="0"/>
           </div>
         </div>
 
@@ -689,7 +688,12 @@
             <input id="whiteLabelPct" type="number" min="0" max="100" step="1" value="30"/>
           </div>
           <div>
-            <label>Sazonalidade Contábil - Multiplicador</label>
+            <label>Sazonalidade Contábil - Multiplicador
+              <span class="tooltip">
+                <span class="help-icon">?</span>
+                <span class="tooltiptext">Multiplicador para ajustar custos conforme demanda sazonal. Ex: 1.5 = custos 50% maiores em períodos de pico (final do ano, entregas de IR). Varia entre 1.0 (sem sazonalidade) e 3.0 (alta sazonalidade).</span>
+              </span>
+            </label>
             <input id="sazonalidade" type="number" min="1" max="3" step="0.1" value="1.5"/>
           </div>
         </div>
@@ -1102,12 +1106,6 @@
           <strong>📋 Observações:</strong>
           <p id="textoObservacoes" style="margin:5px 0 0 0; color:var(--muted)"></p>
         </div>
-
-        <div class="metric-grid" style="margin-top:15px">
-          <div class="metric"><div class="val" id="valorAnual">R$ 0</div><div class="subtle">Valor Anual</div></div>
-          <div class="metric"><div class="val" id="economiaAnual">R$ 0</div><div class="subtle">Economia vs Tabela</div></div>
-          <div class="metric"><div class="val" id="roiCliente">0%</div><div class="subtle">ROI Estimado Cliente</div></div>
-        </div>
       </div>
     </section>
   </div>
@@ -1459,15 +1457,15 @@
     // FUNÇÕES AUXILIARES E EVENTOS
     function resetarPadrao() {
       const defaults = {
-        'custosPessoal': 8000, 'infraestrutura': 800, 'marketing': 2000, 'contador': 800,
-        'comunicacao': 250, 'outros': 350, 'setupAvante': 792, 'custosContingencia': 500,
+        'custosPessoal': 0, 'infraestrutura': 200, 'marketing': 0, 'contador': 800,
+        'comunicacao': 0, 'outros': 350, 'setupAvante': 0, 'custosContingencia': 500,
         'custoMei': 25, 'custoContador': 30, 'custoBasico': 36, 'custoInter': 56, 'custoPremium': 130,
         'suporteMei': 20, 'suporteContador': 30, 'suporteBasico': 35, 'suporteInter': 50, 'suportePremium': 80,
-        'margemLucro': 40, 'metaClientes': 120,
+        'margemLucro': 30, 'metaClientes': 120,
         'distribMei': 15, 'distribContador': 20, 'distribBasico': 30, 'distribInter': 25, 'distribPremium': 10,
         'churnRate': 4, 'churnMelhorado': 2.5,
         'cacMei': 150, 'cacContador': 200, 'cacBasico': 250, 'cacInter': 350, 'cacPremium': 500,
-        'impostos': 8.5, 'comissoes': 7, 'whiteLabelPct': 30, 'sazonalidade': 1.5,
+        'impostos': 8.5, 'comissoes': 0, 'whiteLabelPct': 30, 'sazonalidade': 1.5,
         'margemAdicionais': 50, 'txMuito': 70, 'txMod': 40, 'txOpc': 20,
         'crescimentoMensal': 8, 'periodoProjecao': 12, 'metaReceitaFinal': 50000
       };
@@ -1591,7 +1589,6 @@
       document.getElementById('orcamentoNome').textContent = nomeCliente;
       document.getElementById('orcamentoData').textContent = new Date().toLocaleDateString('pt-BR');
       document.getElementById('valorTotalOrcamento').textContent = money(valorFinal);
-      document.getElementById('valorAnual').textContent = money(valorFinal * 12);
       
       document.getElementById('resultadoOrcamento').style.display = 'block';
     }
