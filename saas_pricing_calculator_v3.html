@@ -1557,20 +1557,48 @@
       const { parametros } = getInputs();
       
       const nomeCliente = document.getElementById('nomeCliente').value.trim() || 'Não informado';
+      const emailCliente = document.getElementById('emailCliente').value.trim() || '-';
       const planoEscolhido = document.getElementById('planoEscolhido').value;
       const ajustePreco = getValue('ajustePreco') / 100;
       const descontoAdicional = getValue('descontoAdicional');
+      const vigenciaDias = getValue('vigenciaProposta') || 30;
+      const observacoes = document.getElementById('observacoesProposta').value.trim();
+      
+      // Validação para ajuste negativo
+      if (ajustePreco < 0 && !observacoes) {
+        alert('⚠️ Para aplicar desconto no preço, é obrigatório preencher as observações da proposta explicando o motivo do desconto.');
+        document.getElementById('observacoesProposta').focus();
+        return;
+      }
       
       const precoOriginalPlano = dadosCalculados.resultados.planos[planoEscolhido].preco;
       const precoPlanoComAjuste = precoOriginalPlano * (1 + ajustePreco);
 
       const tbody = document.getElementById('tabelaOrcamento');
-      tbody.innerHTML = `<tr>
-        <td>Plano ${planoEscolhido.charAt(0).toUpperCase() + planoEscolhido.slice(1)}</td>
-        <td class="center">1</td>
-        <td class="right">${money(precoPlanoComAjuste)}</td>
-        <td class="right">${money(precoPlanoComAjuste)}</td>
-      </tr>`;
+      
+      // Se há ajuste negativo, mostrar preço original e desconto separadamente
+      if (ajustePreco < 0) {
+        const diferenca = precoOriginalPlano - precoPlanoComAjuste;
+        tbody.innerHTML = `<tr>
+          <td>Plano ${planoEscolhido.charAt(0).toUpperCase() + planoEscolhido.slice(1)}</td>
+          <td class="center">1</td>
+          <td class="right">${money(precoOriginalPlano)}</td>
+          <td class="right">${money(precoOriginalPlano)}</td>
+        </tr>
+        <tr style="color: #22c55e;">
+          <td>&nbsp;&nbsp;↳ Desconto aplicado (${(ajustePreco * 100).toFixed(1)}%)</td>
+          <td class="center">-</td>
+          <td class="right">-${money(diferenca)}</td>
+          <td class="right">-${money(diferenca)}</td>
+        </tr>`;
+      } else {
+        tbody.innerHTML = `<tr>
+          <td>Plano ${planoEscolhido.charAt(0).toUpperCase() + planoEscolhido.slice(1)}</td>
+          <td class="center">1</td>
+          <td class="right">${money(precoPlanoComAjuste)}</td>
+          <td class="right">${money(precoPlanoComAjuste)}</td>
+        </tr>`;
+      }
       
       let totalAdicionais = 0;
       Object.values(adicionaisSelecionados).forEach(item => {
@@ -1587,8 +1615,27 @@
       const valorFinal = precoPlanoComAjuste + totalAdicionais - descontoAdicional;
 
       document.getElementById('orcamentoNome').textContent = nomeCliente;
+      document.getElementById('orcamentoEmail').textContent = emailCliente;
       document.getElementById('orcamentoData').textContent = new Date().toLocaleDateString('pt-BR');
+      document.getElementById('orcamentoValidade').textContent = vigenciaDias;
       document.getElementById('valorTotalOrcamento').textContent = money(valorFinal);
+      
+      // Adicionar observações se houver desconto ou se foram preenchidas
+      if (ajustePreco < 0 || observacoes) {
+        let textoFinal = '';
+        if (ajustePreco < 0) {
+          const descontoPerc = Math.abs(ajustePreco * 100).toFixed(1);
+          textoFinal = `📋 Desconto de ${descontoPerc}% aplicado. `;
+        }
+        if (observacoes) {
+          textoFinal += observacoes;
+        }
+        document.getElementById('textoObservacoes').textContent = textoFinal;
+        document.getElementById('textoObservacoes').style.display = 'block';
+      } else {
+        document.getElementById('textoObservacoes').textContent = '';
+        document.getElementById('textoObservacoes').style.display = 'none';
+      }
       
       document.getElementById('resultadoOrcamento').style.display = 'block';
     }
