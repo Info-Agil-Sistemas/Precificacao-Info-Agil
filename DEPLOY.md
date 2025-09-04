@@ -12,7 +12,7 @@ Este projeto está configurado para deploy automático no Vercel através do Git
 
 ### Setup Inicial
 
-1. **Conectar o repositório ao Vercel:**
+#### 1. **Conectar o repositório ao Vercel:**
    - Acesse [vercel.com](https://vercel.com)
    - Faça login com sua conta GitHub
    - Clique em "New Project"
@@ -20,21 +20,43 @@ Este projeto está configurado para deploy automático no Vercel através do Git
    - Configure as seguintes opções:
      - Framework Preset: `Other`
      - Root Directory: `./` (raiz do projeto)
-     - Build Command: `echo "Static site - no build needed"`
+     - Build Command: Deixe vazio ou `echo "Static site"`
      - Output Directory: `./` (raiz do projeto)
+   - Clique em "Deploy"
 
-2. **Configurar Secrets no GitHub:**
-   - Vá para Settings > Secrets and variables > Actions no repositório GitHub
-   - Adicione o secret: `VERCEL_TOKEN`
-   - Para obter o token:
-     - Vá para Vercel Dashboard > Settings > Tokens
-     - Crie um novo token
-     - Copie e cole no GitHub Secret
+#### 2. **Obter IDs do Projeto (IMPORTANTE):**
+   Após criar o projeto no Vercel:
+   - No Dashboard do Vercel, vá para o projeto
+   - Acesse Settings > General
+   - Copie o **Project ID** (ex: `prj_abc123xyz`)
+   - Na mesma página, copie o **Team ID** ou **Organization ID** (ex: `team_abc123`)
 
-3. **Configurar Variáveis de Ambiente no Vercel:**
-   - No dashboard do Vercel, vá para o projeto
-   - Acesse Settings > Environment Variables
-   - Adicione as variáveis necessárias (se houver)
+#### 3. **Obter Token de Acesso:**
+   - No Vercel Dashboard, vá para Settings > Tokens
+   - Clique em "Create Token"
+   - Digite um nome (ex: "GitHub Actions")
+   - Selecione o escopo desejado
+   - Copie o token gerado (ex: `vercel_abc123xyz...`)
+
+#### 4. **Configurar Secrets no GitHub:**
+   - Vá para o repositório no GitHub
+   - Acesse Settings > Secrets and variables > Actions
+   - Clique em "New repository secret" e adicione:
+     
+     **VERCEL_TOKEN**
+     ```
+     vercel_abc123xyz... (seu token do passo 3)
+     ```
+     
+     **PROJECT_ID**
+     ```
+     prj_abc123xyz (Project ID do passo 2)
+     ```
+     
+     **ORG_ID**
+     ```
+     team_abc123 (Team/Organization ID do passo 2)
+     ```
 
 ### Processo de Deploy
 
@@ -85,20 +107,44 @@ vercel dev
 
 ### Troubleshooting
 
-#### Erro de Token
-Se o deploy falhar por erro de token:
-1. Verifique se o `VERCEL_TOKEN` está configurado no GitHub Secrets
-2. Gere um novo token no Vercel se necessário
+#### ❌ Erro: "No existing credentials found"
+**Causa:** Faltam os secrets no GitHub ou estão incorretos.
 
-#### Erro de Build
-Se houver erro de build:
-1. O projeto é estático, não precisa de build complexo
-2. Verifique se todos os arquivos estão commitados no Git
+**Solução:**
+1. Verifique se os 3 secrets estão configurados no GitHub:
+   - `VERCEL_TOKEN`
+   - `PROJECT_ID` 
+   - `ORG_ID`
+2. Certifique-se que o token do Vercel está válido
+3. Confirme que o Project ID e Organization ID estão corretos
 
-#### Problema de Roteamento
-Se a página não carregar corretamente:
-1. Verifique o arquivo `vercel.json`
-2. Confirme que o `saas_pricing_calculator_v3.html` existe na raiz
+#### ❌ Erro: "Project not found"
+**Causa:** PROJECT_ID ou ORG_ID incorretos.
+
+**Solução:**
+1. No Vercel Dashboard, vá para Settings > General do seu projeto
+2. Copie exatamente o Project ID mostrado
+3. Copie o Team/Organization ID
+4. Atualize os secrets no GitHub
+
+#### ❌ Erro de Build
+**Causa:** Configuração incorreta do projeto.
+
+**Solução:**
+1. No Vercel Dashboard, vá para Settings > General
+2. Configure:
+   - Framework Preset: `Other`
+   - Build Command: Deixe vazio
+   - Output Directory: `./`
+   - Install Command: `npm install` (ou deixe vazio)
+
+#### ❌ Página não carrega corretamente
+**Causa:** Problema de roteamento.
+
+**Solução:**
+1. Verifique se o arquivo `vercel.json` está na raiz
+2. Confirme que `saas_pricing_calculator_v3.html` existe
+3. Teste o roteamento no Vercel Dashboard > Functions
 
 ### Monitoramento
 
