@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Calculadora de Precificação SaaS — Info Ágil v3</title>
+  
+  <!-- Bibliotecas para geração de PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  
+  <!-- CSS Modular -->
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/tooltips.css">
+  <link rel="stylesheet" href="css/app-bar.css">
+  <link rel="stylesheet" href="css/modal.css">
+</head>
+<body>
+  <!-- APP BAR -->
+  <header class="app-bar">
+    <div class="app-bar-content">
+      <h1 class="app-bar-title">
+        <img src="logo-info-agil-sem-fundo.png" 
+            alt="Info Ágil Logo" class="app-bar-logo">
+        InfoÁgil SaaS Pricing Calculator
+        <div class="subtitle"> - Calculadora de Precificação</div>
+      </h1>
+      <div class="app-bar-actions">
+        <button class="app-bar-btn primary" onclick="gerarRelatorioCompleto()" title="Gerar relatório analítico completo em PDF">
+          📄 <span>Relatório Analítico</span>
+        </button>
+        <button class="app-bar-btn" onclick="abrirTreinamento()" title="Abrir tutorial completo de treinamento">
+          🎓 <span>Treinamento</span>
+        </button>
+        <button class="app-bar-btn" onclick="resetarPadrao()" title="Resetar todos os campos para valores padrão">
+          🔄 <span>Resetar Padrão</span>
+        </button>
+        <button class="app-bar-btn" onclick="exportarJSON()" title="Exportar configurações e dados em formato JSON">
+          📤 <span>Exportar JSON</span>
+        </button>
+        <button class="app-bar-btn danger" onclick="debugCompleto()" title="Executar debug completo e abrir console do navegador">
+          🐛 <span>Debug</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTAINER PRINCIPAL -->
+  <div class="wrap">
+    <div class="hero">
+      <h1>Calculadora de Precificação SaaS</h1>
+      <p>Configure custos e parâmetros para calcular preços competitivos</p>
+    </div>
+
+    <!-- ALERTAS DE VALIDAÇÃO -->
+    <div id="alertasValidacao"></div>
+
+    <!-- GRID PRINCIPAL -->
+    <div class="grid">
+      <!-- CUSTOS -->
+      <section class="card">
+        <h2>💰 Custos Mensais</h2>
+        <div class="subtle" style="margin-bottom:10px">Custos fixos e variáveis da operação</div>
+        
+        <h3 style="margin-top:15px; margin-bottom:10px">🏗️ Custos Fixos Mensais</h3>
+        <div class="row">
+          <div>
+            <label>Infraestrutura (R$)</label>
+            <input id="infraestrutura" type="number" min="0" step="50" value="200"/>
+          </div>
+          <div>
+            <label>Pessoal (R$)</label>
+            <input id="custosPessoal" type="number" min="0" step="100" value="0"/>
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label>Marketing (R$)</label>
+            <input id="marketing" type="number" min="0" step="50" value="0"/>
+          </div>
+          <div>
+            <label>Contador/Jurídico (R$)</label>
+            <input id="contador" type="number" min="0" step="50" value="800"/>
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label>Comunicação (R$)</label>
+            <input id="comunicacao" type="number" min="0" step="25" value="0"/>
+          </div>
+          <div>
+            <label>Outros (R$)</label>
+            <input id="outros" type="number" min="0" step="50" value="350"/>
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label>Setup/Licenças (R$)</label>
+            <input id="setupAvante" type="number" min="0" step="50" value="0"/>
+          </div>
+          <div>
+            <label>Reserva de Contingência (R$)</label>
+            <input id="custosContingencia" type="number" min="0" step="100" value="500"/>
+          </div>
+        </div>
+        
+        <h3 style="margin-top:20px; margin-bottom:10px">💰 Custos Variáveis por Cliente/Mês</h3>
+        <div class="subtle" style="margin-bottom:10px">Base + Suporte diferenciados por plano</div>
+        
+        <!-- Custos Base -->
+        <div class="row5">
+          <div><label class="hint">MEI - Base (R$)</label><input id="custoMei" type="number" min="0" step="1" value="25"/></div>
+          <div><label class="hint">Contador - Base (R$)</label><input id="custoContador" type="number" min="0" step="1" value="30"/></div>
+          <div><label class="hint">Básico - Base (R$)</label><input id="custoBasico" type="number" min="0" step="1" value="36"/></div>
+          <div><label class="hint">Inter - Base (R$)</label><input id="custoInter" type="number" min="0" step="1" value="56"/></div>
+          <div><label class="hint">Premium - Base (R$)</label><input id="custoPremium" type="number" min="0" step="1" value="130"/></div>
+        </div>
+        
+        <!-- Custos Suporte -->
+        <div class="row5" style="margin-top:10px">
+          <div><label class="hint">MEI - Suporte (R$)</label><input id="suporteMei" type="number" min="0" step="5" value="20"/></div>
+          <div><label class="hint">Contador - Suporte (R$)</label><input id="suporteContador" type="number" min="0" step="5" value="30"/></div>
+          <div><label class="hint">Básico - Suporte (R$)</label><input id="suporteBasico" type="number" min="0" step="5" value="35"/></div>
+          <div><label class="hint">Inter - Suporte (R$)</label><input id="suporteInter" type="number" min="0" step="5" value="50"/></div>
+          <div><label class="hint">Premium - Suporte (R$)</label><input id="suportePremium" type="number" min="0" step="5" value="80"/></div>
+        </div>
+      </section>
+
+      <!-- PARÂMETROS -->
+      <section class="card">
+        <h2>🎯 Parâmetros de Negócio</h2>
+        <div class="subtle" style="margin-bottom:10px">Valores com validação automática e auto-correção</div>
+
+        <div class="row">
+          <div>
+            <label>Margem de Lucro Desejada (%)</label>
+            <input id="margemLucro" type="number" min="0" max="100" step="1" value="30"/>
+          </div>
+          <div>
+            <label>Meta de Clientes</label>
+            <input id="metaClientes" type="number" min="1" step="5" value="120"/>
+          </div>
+        </div>
+
+        <div>
+          <label>Tipo de Operação</label>
+          <select id="tipoOperacao">
+            <option value="proprio">Próprio</option>
+            <option value="white_label">White Label</option>
+            <option value="hibrido">Híbrido</option>
+          </select>
+        </div>
+
+        <!-- Distribuição dos Planos -->
+        <h3>📊 Distribuição dos Planos (%)</h3>
+        <div class="subtle" style="margin-bottom:10px">Distribuição de clientes por plano - <span id="somaDistribuicao">Total: 100%</span></div>
+        <div class="row5">
+          <div><label class="hint">MEI</label><input id="distribMei" type="number" min="0" max="100" step="1" value="15" oninput="validarDistribuicao()"/></div>
+          <div><label class="hint">Contador</label><input id="distribContador" type="number" min="0" max="100" step="1" value="20" oninput="validarDistribuicao()"/></div>
+          <div><label class="hint">Básico</label><input id="distribBasico" type="number" min="0" max="100" step="1" value="30" oninput="validarDistribuicao()"/></div>
+          <div><label class="hint">Inter</label><input id="distribInter" type="number" min="0" max="100" step="1" value="25" oninput="validarDistribuicao()"/></div>
+          <div><label class="hint">Premium</label><input id="distribPremium" type="number" min="0" max="100" step="1" value="10" oninput="validarDistribuicao()"/></div>
+        </div>
+
+        <!-- Churn e CAC -->
+        <div class="row">
+          <div>
+            <label>Churn Rate (%/mês)</label>
+            <input id="churnRate" type="number" min="0" max="50" step="0.1" value="4"/>
+          </div>
+          <div>
+            <label>Churn Melhorado (%/mês)</label>
+            <input id="churnMelhorado" type="number" min="0" max="50" step="0.1" value="2.5"/>
+          </div>
+        </div>
+
+        <!-- CAC por Plano -->
+        <h3>💸 CAC - Custo de Aquisição por Cliente (R$)</h3>
+        <div class="row5">
+          <div><label class="hint">CAC MEI</label><input id="cacMei" type="number" min="0" step="5" value="150"/></div>
+          <div><label class="hint">CAC Contador</label><input id="cacContador" type="number" min="0" step="5" value="200"/></div>
+          <div><label class="hint">CAC Básico</label><input id="cacBasico" type="number" min="0" step="5" value="250"/></div>
+          <div><label class="hint">CAC Inter</label><input id="cacInter" type="number" min="0" step="5" value="350"/></div>
+          <div><label class="hint">CAC Premium</label><input id="cacPremium" type="number" min="0" step="5" value="500"/></div>
+        </div>
+
+        <!-- Impostos e Comissões -->
+        <div class="row3">
+          <div>
+            <label>Impostos (%)</label>
+            <input id="impostos" type="number" min="0" max="50" step="0.1" value="8.5"/>
+          </div>
+          <div>
+            <label>Comissões (%)</label>
+            <input id="comissoes" type="number" min="0" max="30" step="0.1" value="0"/>
+          </div>
+          <div>
+            <label>White Label (%) <span class="tooltip"><span class="help-icon">?</span><span class="tooltiptext">Sazonalidade Contábil é um fator multiplicador aplicado aos custos durante períodos de alta demanda (ex: fechamento de ano, declaração de IR). Valor 1.2 = 20% mais custos nos picos.</span></span></label>
+            <input id="whiteLabelPct" type="number" min="0" max="50" step="1" value="30"/>
+          </div>
+        </div>
+
+        <div>
+          <label>Sazonalidade
+            <span class="tooltip">
+              <span class="help-icon">?</span>
+              <span class="tooltiptext">Sazonalidade Contábil é um fator multiplicador aplicado aos custos durante períodos de alta demanda (ex: fechamento de ano, declaração de IR). Valor 1.2 = 20% mais custos nos picos.</span>
+            </span>
+          </label>
+          <input id="sazonalidade" type="number" min="1" max="3" step="0.1" value="1.5"/>
+        </div>
+      </section>
+    </div>
+
+    <!-- RESULTADOS -->
+    <div style="margin-top:20px;">
+      <h2 style="text-align:center; margin-bottom:16px;">📊 Resultados da Precificação</h2>
+      
+      <!-- Cards dos Preços -->
+      <div id="cards" class="cards"></div>
+      
+      <!-- Métricas Principais -->
+      <div class="metric-grid">
+        <div class="metric">
+          <div class="subtle">MRR Total</div>
+          <div class="val" id="mrrTotal">R$ 0</div>
+        </div>
+        <div class="metric">
+          <div class="subtle">Custos Fixos</div>
+          <div class="val" id="custosFixosTotal">R$ 0</div>
+        </div>
+        <div class="metric">
+          <div class="subtle">Break-even</div>
+          <div class="val" id="breakEven">0</div>
+          <div class="subtle">clientes</div>
+        </div>
+        <div class="metric">
+          <div class="subtle">LTV Médio</div>
+          <div class="val" id="ltv">R$ 0</div>
+        </div>
+        <div class="metric">
+          <div class="subtle">LTV/CAC Ratio</div>
+          <div class="val" id="ltvCacRatio">0x</div>
+        </div>
+        <div class="metric">
+          <div class="subtle">Receita Anual</div>
+          <div class="val" id="receitaAnual">R$ 0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADICIONAIS -->
+    <div style="margin-top:30px;">
+      <h2 style="margin-bottom:16px;">🧩 Módulos Adicionais</h2>
+      
+      <div class="row3" style="margin-bottom:15px;">
+        <div>
+          <label>Margem Adicionais (%)</label>
+          <input id="margemAdicionais" type="number" min="0" max="200" step="5" value="50"/>
+        </div>
+        <div>
+          <label>Taxa Adesão Muito (%)</label>
+          <input id="txMuito" type="number" min="0" max="100" step="5" value="70"/>
+        </div>
+        <div>
+          <label>Taxa Adesão Moderado (%)</label>
+          <input id="txMod" type="number" min="0" max="100" step="5" value="40"/>
+        </div>
+      </div>
+      
+      <div class="row3" style="margin-bottom:15px;">
+        <div>
+          <label>Taxa Adesão Opcional (%)</label>
+          <input id="txOpc" type="number" min="0" max="100" step="5" value="20"/>
+        </div>
+        <div>
+          <input id="novoAdicional" type="text" placeholder="Nome do adicional"/>
+        </div>
+        <div style="display:flex; gap:5px;">
+          <input id="novoCusto" type="number" placeholder="Custo" value="20"/>
+          <select id="novaCategoria">
+            <option value="muito">Muito</option>
+            <option value="moderado">Moderado</option>
+            <option value="opcional">Opcional</option>
+          </select>
+          <button onclick="adicionarItem()" style="padding:10px;">➕</button>
+        </div>
+      </div>
+
+      <!-- Receita Adicionais -->
+      <div class="metric-grid" style="grid-template-columns: repeat(3,minmax(0,1fr));">
+        <div class="metric">
+          <div class="subtle">Receita Adicionais</div>
+          <div class="val" id="receitaAdicionaisMensal">R$ 0</div>
+          <div class="subtle">mensal</div>
+        </div>
+        <div class="metric">
+          <div class="subtle">Ticket Médio</div>
+          <div class="val" id="ticketMedioComAdicionais">R$ 0</div>
+          <div class="subtle">com adicionais</div>
+        </div>
+        <div class="metric">
+          <div class="subtle">Total Adicionais</div>
+          <div class="val" id="totalAdicionais">0</div>
+          <div class="subtle">itens</div>
+        </div>
+      </div>
+      
+      <!-- Tabelas de Adicionais -->
+      <div id="addonsTables"></div>
+    </div>
+
+    <!-- AÇÕES -->
+    <div class="actions" style="margin-top:30px; justify-content:center;">
+      <button onclick="calcular()" style="font-size:16px; padding:12px 24px;">🔥 Calcular Preços</button>
+      <button class="ghost" onclick="testeRapido()">🧪 Debug Rápido</button>
+    </div>
+  </div>
+
+  <!-- MODAL DE TREINAMENTO (incluído do arquivo original) -->
+  <div id="modalTreinamento" class="modal-overlay">
+    <!-- Modal será carregado via JavaScript para não deixar o HTML muito extenso -->
+  </div>
+
+  <!-- JavaScript Modular -->
+  <script src="js/config.js"></script>
+  <script src="js/validations.js"></script>
+  <script src="js/data-collectors.js"></script>
+  <script src="js/calculations.js"></script>
+  <script src="js/ui-renderer.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/modal-content.js"></script>
+  <script src="js/pdf-reports.js"></script>
+  <script src="js/report-templates.js"></script>
+  <script src="js/main-calculator.js"></script>
+  <script src="js/index.js"></script>
+</body>
+</html>

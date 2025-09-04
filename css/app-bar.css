@@ -1,0 +1,136 @@
+/* ===== APP BAR STYLES ===== */
+.app-bar {
+  background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+  padding: 4px 0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.app-bar-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 16px;
+}
+
+.app-bar-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e40af;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.app-bar-title .subtitle {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 400;
+}
+
+.app-bar-logo {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: none;
+}
+
+.app-bar-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.app-bar-btn {
+  background: rgba(30, 64, 175, 0.1);
+  border: 1px solid rgba(30, 64, 175, 0.2);
+  color: #1e40af;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.app-bar-btn:hover {
+  background: rgba(30, 64, 175, 0.15);
+  border-color: #1e40af;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(30, 64, 175, 0.2);
+}
+
+.app-bar-btn.primary {
+  background: #1e40af;
+  border-color: #1e40af;
+  color: white;
+  font-weight: 600;
+}
+
+.app-bar-btn.primary:hover {
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+}
+
+.app-bar-btn.danger {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #dc2626;
+}
+
+.app-bar-btn.danger:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: #dc2626;
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
+}
+
+/* Responsividade da app bar */
+@media (max-width: 768px) {
+  .app-bar-content {
+    flex-direction: column;
+    gap: 12px;
+    padding: 0 12px;
+  }
+  
+  .app-bar-title {
+    font-size: 16px;
+  }
+  
+  .app-bar-actions {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+  }
+  
+  .app-bar-btn {
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-bar-actions {
+    width: 100%;
+  }
+  
+  .app-bar-btn {
+    flex: 1;
+    justify-content: center;
+    min-width: 0;
+  }
+  
+  .app-bar-btn span {
+    display: none;
+  }
+}

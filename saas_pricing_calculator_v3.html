@@ -2350,13 +2350,15 @@
         const custosFixosTotal = Object.values(dados.inputs.custoFixo).reduce((a,b)=>a+b,0);
         const receitaAnual = dados.resultados.mrrTotal * 12;
         const margemMedia = calcularMargemMedia();
+        const receitaAdicionais = getValue('receitaAdicionaisMensal') || 0;
+        const ticketMedio = getValue('ticketMedioComAdicionais') || 0;
         
         function calcularMargemMedia() {
             let margemPonderada = 0;
             let totalDistribuicao = 0;
             Object.entries(dados.resultados.planos).forEach(([plano, planoData]) => {
                 const distribuicao = dados.inputs.parametros.distribuicao[plano];
-                margemPonderada += planoData.margem * distribuicao;
+                margemPonderada += (planoData.margem || 0) * distribuicao;
                 totalDistribuicao += distribuicao;
             });
             return totalDistribuicao > 0 ? margemPonderada / totalDistribuicao : 0;
@@ -2385,17 +2387,28 @@
             <div style="margin: 25px 0;">
                 <h2 style="color: #007acc; border-bottom: 1px solid #ddd; padding-bottom: 5px;">📋 SUMÁRIO EXECUTIVO</h2>
                 <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 6px;">
-                    <h3>Principais Resultados:</h3>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <h3>🎯 Principais Resultados:</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
                         <div>
-                            <strong>MRR Projetado:</strong> ${money(dados.resultados.mrrTotal || 0)}<br>
-                            <strong>Receita Anual:</strong> ${money(receitaAnual || 0)}<br>
-                            <strong>Break-even:</strong> ${dados.resultados.breakEven || 0} clientes
+                            <strong>💰 Receita</strong><br>
+                            MRR Projetado: ${money(dados.resultados.mrrTotal || 0)}<br>
+                            Receita Anual: ${money(receitaAnual || 0)}<br>
+                            Receita Adicionais: ${money(receitaAdicionais || 0)}<br>
+                            Ticket Médio: ${money(ticketMedio || 0)}
                         </div>
                         <div>
-                            <strong>LTV Médio:</strong> ${money(dados.resultados.ltvPonderado || 0)}<br>
-                            <strong>LTV/CAC Ratio:</strong> ${(dados.resultados.ltvCacRatioPonderado || 0).toFixed(1)}x<br>
-                            <strong>Margem Média:</strong> ${margemMedia.toFixed(1)}%
+                            <strong>📊 Métricas</strong><br>
+                            LTV Médio: ${money(dados.resultados.ltvPonderado || 0)}<br>
+                            LTV/CAC Ratio: ${(dados.resultados.ltvCacRatioPonderado || 0).toFixed(1)}x<br>
+                            Margem Média: ${margemMedia.toFixed(1)}%<br>
+                            Break-even: ${dados.resultados.breakEven || 0} clientes
+                        </div>
+                        <div>
+                            <strong>⚡ Status</strong><br>
+                            ${(dados.resultados.ltvCacRatioPonderado || 0) >= 3 ? '✅ LTV/CAC Saudável' : '⚠️ LTV/CAC Baixo'}<br>
+                            ${margemMedia >= 20 ? '✅ Margem Adequada' : '⚠️ Margem Baixa'}<br>
+                            ${(dados.inputs.parametros.churnRate || 0) <= 5 ? '✅ Churn Controlado' : '⚠️ Churn Alto'}<br>
+                            Total Adicionais: ${adicionaisRaw.length} itens
                         </div>
                     </div>
                 </div>
@@ -2481,14 +2494,101 @@
             </div>
 
             <div style="margin: 25px 0;">
-                <h2 style="color: #007acc; border-bottom: 1px solid #ddd; padding-bottom: 5px;">💡 RECOMENDAÇÕES</h2>
+                <h2 style="color: #007acc; border-bottom: 1px solid #ddd; padding-bottom: 5px;">� MÓDULOS ADICIONAIS DISPONÍVEIS</h2>
+                <div style="background: #f8f9fa; border: 1px solid #dee2e6; padding: 15px; border-radius: 6px;">
+                    ${['muito', 'moderado', 'opcional'].map(tipo => {
+                        const itens = adicionaisRaw.filter(a => a.tipo === tipo);
+                        const tipoNome = {muito: 'Muito Recomendado', moderado: 'Moderadamente Recomendado', opcional: 'Opcional'}[tipo];
+                        const corTipo = {muito: '#28a745', moderado: '#ffc107', opcional: '#6c757d'}[tipo];
+                        return itens.length > 0 ? `
+                            <h4 style="color: ${corTipo}; margin: 15px 0 5px 0;">${tipoNome}</h4>
+                            <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
+                                <tr style="background: #f1f3f4;">
+                                    <th style="border: 1px solid #ddd; padding: 6px; text-align: left;">Módulo</th>
+                                    <th style="border: 1px solid #ddd; padding: 6px; text-align: left;">Custo Base</th>
+                                    <th style="border: 1px solid #ddd; padding: 6px; text-align: left;">Preço Venda</th>
+                                    <th style="border: 1px solid #ddd; padding: 6px; text-align: left;">Margem</th>
+                                </tr>
+                                ${itens.map(item => {
+                                    const precoVenda = Math.round(item.custo * (1 + (dados.inputs.parametros.margemAdicionais || 0.5)));
+                                    const margem = ((precoVenda - item.custo) / precoVenda * 100).toFixed(0);
+                                    return `<tr>
+                                        <td style="border: 1px solid #ddd; padding: 6px;">${item.nome}</td>
+                                        <td style="border: 1px solid #ddd; padding: 6px;">${money(item.custo)}</td>
+                                        <td style="border: 1px solid #ddd; padding: 6px;">${money(precoVenda)}</td>
+                                        <td style="border: 1px solid #ddd; padding: 6px;">${margem}%</td>
+                                    </tr>`;
+                                }).join('')}
+                            </table>
+                        ` : '';
+                    }).join('')}
+                </div>
+            </div>
+
+            ${analiseAtual ? `
+            <div style="margin: 25px 0;">
+                <h2 style="color: #007acc; border-bottom: 1px solid #ddd; padding-bottom: 5px;">🏪 ANÁLISE DE CONCORRÊNCIA</h2>
+                <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 6px;">
+                    <p><strong>Estratégia Aplicada:</strong> ${analiseAtual.estrategia.toUpperCase()}</p>
+                    <p><strong>Impacto no MRR:</strong> ${money(analiseAtual.impactoMRR || 0)}</p>
+                    <p><strong>Impacto Anual:</strong> ${money((analiseAtual.impactoMRR || 0) * 12)}</p>
+                    
+                    <h4>Comparativo por Plano:</h4>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr style="background: #f8f9fa;">
+                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Plano</th>
+                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Nosso Preço</th>
+                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Concorrência</th>
+                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Status</th>
+                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Sugestão</th>
+                        </tr>
+                        ${Object.entries(analiseAtual.analise).map(([plano, dados]) => {
+                            const statusCor = dados.status === 'competitivo' ? '#28a745' : dados.status === 'caro' ? '#dc3545' : '#ffc107';
+                            return `<tr>
+                                <td style="border: 1px solid #ddd; padding: 8px;">${plano.toUpperCase()}</td>
+                                <td style="border: 1px solid #ddd; padding: 8px;">${money(dados.nossoPreco)}</td>
+                                <td style="border: 1px solid #ddd; padding: 8px;">${money(dados.precoConcorrente)}</td>
+                                <td style="border: 1px solid #ddd; padding: 8px; color: ${statusCor};">${dados.status.toUpperCase()}</td>
+                                <td style="border: 1px solid #ddd; padding: 8px;">${money(dados.precoSugerido)}</td>
+                            </tr>`;
+                        }).join('')}
+                    </table>
+                    
+                    ${analiseAtual.sugestoes.length > 0 ? `
+                    <div style="background: #d1ecf1; border: 1px solid #b8daff; padding: 12px; border-radius: 4px; margin-top: 15px;">
+                        <h4>📝 Sugestões de Ajuste:</h4>
+                        <ul>
+                        ${analiseAtual.sugestoes.map(sugestao => `<li>${sugestao}</li>`).join('')}
+                        </ul>
+                    </div>
+                    ` : ''}
+                </div>
+            </div>
+            ` : ''}
+
+            <div style="margin: 25px 0;">
+                <h2 style="color: #007acc; border-bottom: 1px solid #ddd; padding-bottom: 5px;">�💡 RECOMENDAÇÕES</h2>
                 <div style="background: #d4edda; padding: 15px; border-radius: 6px;">
+                    <h4>🎯 Recomendações Estratégicas:</h4>
                     <ul>
-                        <li><strong>Monitoramento:</strong> Acompanhar KPIs de LTV/CAC, churn e margem mensalmente</li>
-                        <li><strong>Otimização:</strong> Focar em redução de churn para aumentar LTV</li>
-                        <li><strong>Crescimento:</strong> Desenvolver estratégias de upsell para aumentar ARPU</li>
-                        <li><strong>Competitividade:</strong> Revisar preços trimestralmente vs. concorrência</li>
+                        <li><strong>Monitoramento KPIs:</strong> Acompanhar LTV/CAC, churn e margem mensalmente</li>
+                        <li><strong>Otimização de Churn:</strong> ${(dados.inputs.parametros.churnRate || 0) > 5 ? 'CRÍTICO - Implementar programa de retenção urgente' : 'Manter foco em redução contínua'}</li>
+                        <li><strong>Estratégia de Crescimento:</strong> Desenvolver upsell com módulos adicionais (${adicionaisRaw.length} disponíveis)</li>
+                        <li><strong>Análise Competitiva:</strong> ${analiseAtual ? 'Revisar posicionamento baseado na última análise' : 'Implementar análise de concorrência trimestral'}</li>
+                        <li><strong>Pricing:</strong> ${margemMedia < 20 ? 'AÇÃO NECESSÁRIA - Revisar estrutura de custos ou aumentar preços' : 'Estrutura de preços adequada'}</li>
                     </ul>
+                    
+                    <h4>⚠️ Alertas Importantes:</h4>
+                    <ul>
+                        ${(dados.resultados.ltvCacRatioPonderado || 0) < 3 ? '<li style="color: #dc3545;"><strong>LTV/CAC Baixo:</strong> Risco para sustentabilidade do negócio</li>' : ''}
+                        ${margemMedia < 15 ? '<li style="color: #dc3545;"><strong>Margem Crítica:</strong> Margem abaixo do mínimo recomendado</li>' : ''}
+                        ${(dados.inputs.parametros.churnRate || 0) > 8 ? '<li style="color: #dc3545;"><strong>Churn Alto:</strong> Comprometendo LTV e crescimento</li>' : ''}
+                        ${(dados.resultados.breakEven || 0) > (dados.inputs.parametros.metaClientes || 0) ? '<li style="color: #dc3545;"><strong>Meta Insuficiente:</strong> Break-even maior que meta de clientes</li>' : ''}
+                    </ul>
+                    
+                    <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 12px; border-radius: 4px; margin-top: 15px;">
+                        <strong>📊 Próxima Revisão:</strong> Recomenda-se revisar esta análise em 30 dias ou quando houver mudanças significativas nos custos/concorrência.
+                    </div>
                 </div>
             </div>
 

@@ -1,0 +1,337 @@
+/* ===== VARIÁVEIS CSS ===== */
+:root {
+  --bg1:#0f172a; --bg2:#111827;
+  --card:#0b1220; --muted:#9ca3af;
+  --brand:#22d3ee; --brand2:#7c3aed;
+  --ok:#22c55e; --warn:#f59e0b; --danger:#ef4444;
+}
+
+/* ===== RESET E BASE ===== */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0; 
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  background: radial-gradient(1000px 500px at 10% 0%, var(--bg1), var(--bg2));
+  color: #e5e7eb;
+}
+
+/* ===== LAYOUT ===== */
+.wrap {
+  max-width: 1200px; 
+  margin: 0 auto;
+}
+
+.hero {
+  padding: 20px 16px 8px; 
+  text-align: center;
+}
+
+.hero h1 {
+  margin: 0 0 8px;
+  font-size: clamp(22px,3vw,36px); 
+  font-weight: 700; 
+  letter-spacing: .2px;
+}
+
+.hero p {
+  margin: 0; 
+  color: var(--muted);
+}
+
+.grid {
+  display: grid; 
+  gap: 16px; 
+  grid-template-columns: 1fr 1fr;
+}
+
+@media (max-width: 900px) { 
+  .grid {
+    grid-template-columns: 1fr;
+  } 
+}
+
+/* ===== CARDS ===== */
+.card {
+  background: rgba(255,255,255,.04); 
+  border: 1px solid rgba(255,255,255,.08); 
+  border-radius: 16px; 
+  padding: 18px; 
+  box-shadow: 0 10px 30px rgba(0,0,0,.25);
+}
+
+/* ===== TIPOGRAFIA ===== */
+h2 {
+  font-size: 18px; 
+  margin: 0 0 14px; 
+  font-weight: 700; 
+  color: #fff;
+}
+
+h3 {
+  font-size: 16px; 
+  margin: 15px 0 10px; 
+  font-weight: 600; 
+  color: #fff;
+}
+
+.subtle {
+  color: var(--muted); 
+  font-size: 13px;
+}
+
+label {
+  display: block; 
+  font-size: 13px; 
+  color: #cbd5e1; 
+  margin: 10px 0 6px;
+}
+
+/* ===== INPUTS ===== */
+input[type="number"], 
+input[type="text"], 
+select, 
+textarea {
+  width: 100%; 
+  background: #0a0f1a; 
+  color: #e5e7eb; 
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 10px; 
+  padding: 10px 12px; 
+  font-size: 14px; 
+  outline: none;
+}
+
+input[type="number"]:focus, 
+input[type="text"]:focus, 
+select:focus, 
+textarea:focus {
+  border-color: var(--brand);
+}
+
+textarea {
+  resize: vertical;
+}
+
+input[type="checkbox"] {
+  width: 16px; 
+  height: 16px; 
+  margin-right: 8px; 
+  accent-color: var(--brand);
+}
+
+/* ===== GRIDS RESPONSIVOS ===== */
+.row {
+  display: grid; 
+  grid-template-columns: repeat(2,minmax(0,1fr)); 
+  gap: 10px;
+}
+
+.row3 {
+  display: grid; 
+  grid-template-columns: repeat(3,minmax(0,1fr)); 
+  gap: 10px;
+}
+
+.row5 {
+  display: grid; 
+  grid-template-columns: repeat(5,minmax(0,1fr)); 
+  gap: 10px;
+}
+
+.cards {
+  display: grid; 
+  grid-template-columns: repeat(5,minmax(0,1fr)); 
+  gap: 10px;
+}
+
+@media (max-width: 1100px) { 
+  .cards {
+    grid-template-columns: repeat(2,minmax(0,1fr));
+  } 
+}
+
+@media (max-width: 600px) { 
+  .cards {
+    grid-template-columns: 1fr;
+  } 
+}
+
+/* ===== BOTÕES ===== */
+.actions {
+  display: flex; 
+  gap: 10px; 
+  flex-wrap: wrap; 
+  margin-top: 10px;
+}
+
+button {
+  border: 0; 
+  padding: 10px 14px; 
+  border-radius: 10px; 
+  cursor: pointer; 
+  color: #0b1220; 
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--brand), var(--brand2));
+}
+
+.ghost {
+  background: transparent; 
+  color: #e5e7eb; 
+  border: 1px solid rgba(255,255,255,.16);
+}
+
+/* ===== PRICING CARDS ===== */
+.pricing {
+  background: linear-gradient(135deg, rgba(34,211,238,.08), rgba(124,58,237,.08)); 
+  border: 1px solid rgba(34,211,238,.25);
+}
+
+.price {
+  font-size: 26px; 
+  font-weight: 800; 
+  margin: 4px 0 8px;
+}
+
+.mut {
+  color: var(--muted); 
+  font-size: 12px;
+}
+
+/* ===== MÉTRICAS ===== */
+.metric-grid {
+  display: grid; 
+  grid-template-columns: repeat(6,minmax(0,1fr)); 
+  gap: 10px; 
+  margin-top: 12px;
+}
+
+@media (max-width: 1100px) { 
+  .metric-grid {
+    grid-template-columns: repeat(2,minmax(0,1fr));
+  } 
+}
+
+.metric {
+  background: rgba(255,255,255,.05); 
+  border: 1px solid rgba(255,255,255,.1); 
+  border-radius: 12px; 
+  padding: 12px;
+}
+
+.metric .val {
+  font-size: 20px; 
+  font-weight: 800;
+}
+
+/* ===== BADGES E PILLS ===== */
+.badge {
+  display: inline-block; 
+  padding: 4px 8px; 
+  border-radius: 999px; 
+  font-size: 12px; 
+  font-weight: 700;
+}
+
+.b-ok {
+  background: rgba(34,197,94,.15); 
+  color: #22c55e; 
+  border: 1px solid rgba(34,197,94,.35);
+}
+
+.b-warn {
+  background: rgba(245,158,11,.15); 
+  color: #f59e0b; 
+  border: 1px solid rgba(245,158,11,.35);
+}
+
+.b-dang {
+  background: rgba(239,68,68,.15); 
+  color: #ef4444; 
+  border: 1px solid rgba(239,68,68,.35);
+}
+
+.pill {
+  display: inline-block; 
+  padding: 4px 8px; 
+  border-radius: 999px; 
+  font-size: 12px;
+}
+
+.p-high {
+  background: rgba(34,197,94,.15); 
+  color: #22c55e;
+}
+
+.p-med {
+  background: rgba(245,158,11,.15); 
+  color: #f59e0b;
+}
+
+.p-low {
+  background: rgba(239,68,68,.15); 
+  color: #ef4444;
+}
+
+/* ===== TABELAS ===== */
+table {
+  width: 100%; 
+  border-collapse: collapse; 
+  font-size: 13px;
+}
+
+th, td {
+  padding: 8px 6px; 
+  border-bottom: 1px dashed rgba(255,255,255,.08);
+}
+
+/* ===== ALERTAS ===== */
+.alert {
+  padding: 12px; 
+  border-radius: 8px; 
+  margin: 10px 0; 
+  font-size: 13px;
+}
+
+.alert-warn {
+  background: rgba(245,158,11,.15); 
+  border: 1px solid rgba(245,158,11,.35); 
+  color: #f59e0b;
+}
+
+.alert-danger {
+  background: rgba(239,68,68,.15); 
+  border: 1px solid rgba(239,68,68,.35); 
+  color: #ef4444;
+}
+
+.alert-info {
+  background: rgba(34,211,238,.15); 
+  border: 1px solid rgba(34,211,238,.35); 
+  color: #22d3ee;
+}
+
+.auto-correct {
+  background: rgba(34,197,94,.1); 
+  border: 1px solid rgba(34,197,94,.3);
+}
+
+.validation-error {
+  border-color: var(--danger) !important;
+}
+
+/* ===== UTILITÁRIOS ===== */
+.hint {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.right {
+  text-align: right;
+}
+
+.center {
+  text-align: center;
+}
