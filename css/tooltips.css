@@ -1,5 +1,5 @@
 /* ===== TOOLTIPS DE AJUDA ===== */
-.help-icon {
+/* .help-icon {
   display: inline-block;
   width: 16px;
   height: 16px;
@@ -59,16 +59,16 @@
 .tooltip:hover .tooltiptext {
   visibility: visible;
   opacity: 1;
-}
+} */
 
 /* Ajuste para tooltips em cards */
-.card .tooltip .tooltiptext {
+/* .card .tooltip .tooltiptext {
   width: 250px;
   margin-left: -125px;
-}
+} */
 
 /* Responsividade dos tooltips */
-@media (max-width: 768px) {
+/* @media (max-width: 768px) {
   .tooltip .tooltiptext {
     width: 200px;
     margin-left: -100px;
@@ -78,4 +78,4 @@
     width: 180px;
     margin-left: -90px;
   }
-}
+} */

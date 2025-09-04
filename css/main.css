@@ -1,25 +1,25 @@
 /* ===== VARIÁVEIS CSS ===== */
-:root {
+/* :root {
   --bg1:#0f172a; --bg2:#111827;
   --card:#0b1220; --muted:#9ca3af;
   --brand:#22d3ee; --brand2:#7c3aed;
   --ok:#22c55e; --warn:#f59e0b; --danger:#ef4444;
-}
+} */
 
 /* ===== RESET E BASE ===== */
-* {
+/* * {
   box-sizing: border-box;
-}
+} */
 
-body {
+/* body {
   margin: 0; 
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
   background: radial-gradient(1000px 500px at 10% 0%, var(--bg1), var(--bg2));
   color: #e5e7eb;
-}
+} */
 
 /* ===== LAYOUT ===== */
-.wrap {
+/* .wrap {
   max-width: 1200px; 
   margin: 0 auto;
 }
@@ -51,33 +51,33 @@ body {
   .grid {
     grid-template-columns: 1fr;
   } 
-}
+} */
 
 /* ===== CARDS ===== */
-.card {
+/* .card {
   background: rgba(255,255,255,.04); 
   border: 1px solid rgba(255,255,255,.08); 
   border-radius: 16px; 
   padding: 18px; 
   box-shadow: 0 10px 30px rgba(0,0,0,.25);
-}
+} */
 
 /* ===== TIPOGRAFIA ===== */
-h2 {
+/* h2 {
   font-size: 18px; 
   margin: 0 0 14px; 
   font-weight: 700; 
   color: #fff;
-}
+} */
 
-h3 {
+/* h3 {
   font-size: 16px; 
   margin: 15px 0 10px; 
   font-weight: 600; 
   color: #fff;
-}
+} */
 
-.subtle {
+/* .subtle {
   color: var(--muted); 
   font-size: 13px;
 }
@@ -87,10 +87,10 @@ label {
   font-size: 13px; 
   color: #cbd5e1; 
   margin: 10px 0 6px;
-}
+} */
 
 /* ===== INPUTS ===== */
-input[type="number"], 
+/* input[type="number"], 
 input[type="text"], 
 select, 
 textarea {
@@ -102,9 +102,9 @@ textarea {
   padding: 10px 12px; 
   font-size: 14px; 
   outline: none;
-}
+} */
 
-input[type="number"]:focus, 
+/* input[type="number"]:focus, 
 input[type="text"]:focus, 
 select:focus, 
 textarea:focus {
@@ -120,10 +120,10 @@ input[type="checkbox"] {
   height: 16px; 
   margin-right: 8px; 
   accent-color: var(--brand);
-}
+} */
 
 /* ===== GRIDS RESPONSIVOS ===== */
-.row {
+/* .row {
   display: grid; 
   grid-template-columns: repeat(2,minmax(0,1fr)); 
   gap: 10px;
@@ -157,10 +157,10 @@ input[type="checkbox"] {
   .cards {
     grid-template-columns: 1fr;
   } 
-}
+} */
 
 /* ===== BOTÕES ===== */
-.actions {
+/* .actions {
   display: flex; 
   gap: 10px; 
   flex-wrap: wrap; 
@@ -181,10 +181,10 @@ button {
   background: transparent; 
   color: #e5e7eb; 
   border: 1px solid rgba(255,255,255,.16);
-}
+} */
 
 /* ===== PRICING CARDS ===== */
-.pricing {
+/* .pricing {
   background: linear-gradient(135deg, rgba(34,211,238,.08), rgba(124,58,237,.08)); 
   border: 1px solid rgba(34,211,238,.25);
 }
@@ -198,10 +198,10 @@ button {
 .mut {
   color: var(--muted); 
   font-size: 12px;
-}
+} */
 
 /* ===== MÉTRICAS ===== */
-.metric-grid {
+/* .metric-grid {
   display: grid; 
   grid-template-columns: repeat(6,minmax(0,1fr)); 
   gap: 10px; 
@@ -224,10 +224,10 @@ button {
 .metric .val {
   font-size: 20px; 
   font-weight: 800;
-}
+} */
 
 /* ===== BADGES E PILLS ===== */
-.badge {
+/* .badge {
   display: inline-block; 
   padding: 4px 8px; 
   border-radius: 999px; 
@@ -273,10 +273,10 @@ button {
 .p-low {
   background: rgba(239,68,68,.15); 
   color: #ef4444;
-}
+} */
 
 /* ===== TABELAS ===== */
-table {
+/* table {
   width: 100%; 
   border-collapse: collapse; 
   font-size: 13px;
@@ -285,10 +285,10 @@ table {
 th, td {
   padding: 8px 6px; 
   border-bottom: 1px dashed rgba(255,255,255,.08);
-}
+} */
 
 /* ===== ALERTAS ===== */
-.alert {
+/* .alert {
   padding: 12px; 
   border-radius: 8px; 
   margin: 10px 0; 
@@ -320,10 +320,10 @@ th, td {
 
 .validation-error {
   border-color: var(--danger) !important;
-}
+} */
 
 /* ===== UTILITÁRIOS ===== */
-.hint {
+/* .hint {
   font-size: 12px;
   color: var(--muted);
 }
@@ -334,4 +334,4 @@ th, td {
 
 .center {
   text-align: center;
-}
+} */

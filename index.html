@@ -4,16 +4,492 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Calculadora de Precificação SaaS — Info Ágil v3</title>
-  
   <!-- Bibliotecas para geração de PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  
-  <!-- CSS Modular -->
-  <link rel="stylesheet" href="css/main.css">
-  <link rel="stylesheet" href="css/tooltips.css">
-  <link rel="stylesheet" href="css/app-bar.css">
-  <link rel="stylesheet" href="css/modal.css">
+  <style>
+    :root {
+      --bg1:#0f172a; --bg2:#111827;
+      --card:#0b1220; --muted:#9ca3af;
+      --brand:#22d3ee; --brand2:#7c3aed;
+      --ok:#22c55e; --warn:#f59e0b; --danger:#ef4444;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: radial-gradient(1000px 500px at 10% 0%, var(--bg1), var(--bg2));
+      color:#e5e7eb;
+    }
+    .wrap{max-width:1200px; margin:0 auto;}
+    .hero{padding:20px 16px 8px; text-align:center}
+    .hero h1{margin:0 0 8px;font-size:clamp(22px,3vw,36px); font-weight:700; letter-spacing:.2px}
+    .hero p{margin:0; color:var(--muted)}
+    .grid{display:grid; gap:16px; grid-template-columns: 1fr 1fr;}
+    @media (max-width: 900px){ .grid{grid-template-columns:1fr;} }
+    .card{background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:16px; padding:18px; box-shadow: 0 10px 30px rgba(0,0,0,.25)}
+    h2{font-size:18px; margin:0 0 14px; font-weight:700; color:#fff}
+    .subtle{color:var(--muted); font-size:13px}
+    label{display:block; font-size:13px; color:#cbd5e1; margin:10px 0 6px}
+    input[type="number"]{
+      width:100%; background:#0a0f1a; color:#e5e7eb; border:1px solid rgba(255,255,255,.12);
+      border-radius:10px; padding:10px 12px; font-size:14px; outline:none;
+    }
+    input[type="number"]:focus{border-color:var(--brand)}
+    .row{display:grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap:10px}
+    .row3{display:grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap:10px}
+    .row5{display:grid; grid-template-columns: repeat(5,minmax(0,1fr)); gap:10px}
+    .actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px}
+    button{
+      border:0; padding:10px 14px; border-radius:10px; cursor:pointer; color:#0b1220; font-weight:700;
+      background: linear-gradient(135deg, var(--brand), var(--brand2));
+    }
+    .ghost{background:transparent; color:#e5e7eb; border:1px solid rgba(255,255,255,.16)}
+    .cards{display:grid; grid-template-columns: repeat(5,minmax(0,1fr)); gap:10px}
+    @media (max-width: 1100px){ .cards{grid-template-columns: repeat(2,minmax(0,1fr));} }
+    @media (max-width: 600px){ .cards{grid-template-columns: 1fr;} }
+    .pricing{background:linear-gradient(135deg, rgba(34,211,238,.08), rgba(124,58,237,.08)); border:1px solid rgba(34,211,238,.25)}
+    .price{font-size:26px; font-weight:800; margin:4px 0 8px}
+    .mut{color:var(--muted); font-size:12px}
+    .metric-grid{display:grid; grid-template-columns: repeat(6,minmax(0,1fr)); gap:10px; margin-top:12px}
+    @media (max-width: 1100px){ .metric-grid{grid-template-columns: repeat(2,minmax(0,1fr));} }
+    .metric{background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); border-radius:12px; padding:12px}
+    .metric .val{font-size:20px; font-weight:800}
+    .badge{display:inline-block; padding:4px 8px; border-radius:999px; font-size:12px; font-weight:700}
+    .b-ok{background:rgba(34,197,94,.15); color:#22c55e; border:1px solid rgba(34,197,94,.35)}
+    .b-warn{background:rgba(245,158,11,.15); color:#f59e0b; border:1px solid rgba(245,158,11,.35)}
+    .b-dang{background:rgba(239,68,68,.15); color:#ef4444; border:1px solid rgba(239,68,68,.35)}
+    table{width:100%; border-collapse:collapse; font-size:13px}
+    th,td{padding:8px 6px; border-bottom:1px dashed rgba(255,255,255,.08)}
+    .pill{display:inline-block; padding:4px 8px; border-radius:999px; font-size:12px}
+    .p-high{background:rgba(34,197,94,.15); color:#22c55e}
+    .p-med{background:rgba(245,158,11,.15); color:#f59e0b}
+    .p-low{background:rgba(239,68,68,.15); color:#ef4444}
+    .hint{font-size:12px;color:var(--muted)}
+    .right{text-align:right}
+    .center{text-align:center}
+    select{
+      width:100%; background:#0a0f1a; color:#e5e7eb; border:1px solid rgba(255,255,255,.12);
+      border-radius:10px; padding:10px 12px; font-size:14px; outline:none;
+    }
+    select:focus{border-color:var(--brand)}
+    input[type="text"]{
+      width:100%; background:#0a0f1a; color:#e5e7eb; border:1px solid rgba(255,255,255,.12);
+      border-radius:10px; padding:10px 12px; font-size:14px; outline:none;
+    }
+    input[type="text"]:focus{border-color:var(--brand)}
+    h3{font-size:16px; margin:15px 0 10px; font-weight:600; color:#fff}
+    textarea{
+      width:100%; background:#0a0f1a; color:#e5e7eb; border:1px solid rgba(255,255,255,.12);
+      border-radius:10px; padding:10px 12px; font-size:14px; outline:none; resize:vertical;
+    }
+    textarea:focus{border-color:var(--brand)}
+    input[type="checkbox"]{
+      width:16px; height:16px; margin-right:8px; accent-color:var(--brand);
+    }
+    .alert{
+      padding:12px; border-radius:8px; margin:10px 0; font-size:13px;
+    }
+    .alert-warn{background:rgba(245,158,11,.15); border:1px solid rgba(245,158,11,.35); color:#f59e0b}
+    .alert-danger{background:rgba(239,68,68,.15); border:1px solid rgba(239,68,68,.35); color:#ef4444}
+    .alert-info{background:rgba(34,211,238,.15); border:1px solid rgba(34,211,238,.35); color:#22d3ee}
+    .auto-correct{background:rgba(34,197,94,.1); border:1px solid rgba(34,197,94,.3)}
+    .validation-error{border-color:var(--danger) !important}
+
+    /* TOOLTIPS DE AJUDA */
+    .help-icon {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      background: var(--accent);
+      color: white;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 16px;
+      font-size: 11px;
+      font-weight: bold;
+      margin-left: 5px;
+      cursor: help;
+      position: relative;
+      vertical-align: middle;
+    }
+
+    .help-icon:hover {
+      background: var(--primary);
+    }
+
+    .tooltip {
+      position: relative;
+      display: inline-block;
+    }
+
+    .tooltip .tooltiptext {
+      visibility: hidden;
+      width: 280px;
+      background-color: #333;
+      color: #fff;
+      text-align: left;
+      border-radius: 8px;
+      padding: 12px;
+      position: absolute;
+      z-index: 1000;
+      bottom: 125%;
+      left: 50%;
+      margin-left: -140px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      font-size: 12px;
+      line-height: 1.4;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    .tooltip .tooltiptext::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      margin-left: -5px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: #333 transparent transparent transparent;
+    }
+
+    .tooltip:hover .tooltiptext {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    /* Ajuste para tooltips em cards */
+    .card .tooltip .tooltiptext {
+      width: 250px;
+      margin-left: -125px;
+    }
+
+    /* Responsividade dos tooltips */
+    @media (max-width: 768px) {
+      .tooltip .tooltiptext {
+        width: 200px;
+        margin-left: -100px;
+        font-size: 11px;
+      }
+      .card .tooltip .tooltiptext {
+        width: 180px;
+        margin-left: -90px;
+      }
+    }
+
+    /* APP BAR STYLES */
+    .app-bar {
+      background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+      padding: 4px 0;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    .app-bar-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 16px;
+    }
+
+    .app-bar-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1e40af;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .app-bar-title .subtitle {
+      font-size: 12px;
+      color: #64748b;
+      font-weight: 400;
+    }
+
+    .app-bar-logo {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: none;
+    }
+
+    .app-bar-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .app-bar-btn {
+      background: rgba(30, 64, 175, 0.1);
+      border: 1px solid rgba(30, 64, 175, 0.2);
+      color: #1e40af;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .app-bar-btn:hover {
+      background: rgba(30, 64, 175, 0.15);
+      border-color: #1e40af;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(30, 64, 175, 0.2);
+    }
+
+    .app-bar-btn.primary {
+      background: #1e40af;
+      border-color: #1e40af;
+      color: white;
+      font-weight: 600;
+    }
+
+    .app-bar-btn.primary:hover {
+      background: #1d4ed8;
+      border-color: #1d4ed8;
+    }
+
+    .app-bar-btn.danger {
+      background: rgba(239, 68, 68, 0.1);
+      border-color: rgba(239, 68, 68, 0.3);
+      color: #dc2626;
+    }
+
+    .app-bar-btn.danger:hover {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: #dc2626;
+      box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
+    }
+
+    /* Responsividade da app bar */
+    @media (max-width: 768px) {
+      .app-bar-content {
+        flex-direction: column;
+        gap: 12px;
+        padding: 0 12px;
+      }
+      
+      .app-bar-title {
+        font-size: 16px;
+      }
+      
+      .app-bar-actions {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 6px;
+      }
+      
+      .app-bar-btn {
+        padding: 6px 10px;
+        font-size: 11px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .app-bar-actions {
+        width: 100%;
+      }
+      
+      .app-bar-btn {
+        flex: 1;
+        justify-content: center;
+        min-width: 0;
+      }
+      
+      .app-bar-btn span {
+        display: none;
+      }
+    }
+
+    /* MODAL DE TREINAMENTO */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+    }
+
+    .modal-content {
+      background: #ffffff;
+      color: #1d3a64;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 800px;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-header {
+      background: linear-gradient(135deg, #1d3a64, #476f4d);
+      color: white;
+      padding: 20px;
+      border-radius: 16px 16px 0 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .close-modal {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 28px;
+      cursor: pointer;
+      padding: 0;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+
+    .close-modal:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .modal-body {
+      padding: 20px;
+    }
+
+    .training-section {
+      margin-bottom: 24px;
+      border: 1px solid #e79e1a;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .training-section summary {
+      background: linear-gradient(135deg, #e79e1a, #f0a020);
+      color: white;
+      padding: 16px 20px;
+      font-weight: 700;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.2s;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .training-section summary:hover {
+      background: linear-gradient(135deg, #d18910, #e79e1a);
+    }
+
+    .training-section summary::marker {
+      display: none;
+    }
+
+    .training-section summary::before {
+      content: "▶";
+      transition: transform 0.2s;
+    }
+
+    .training-section[open] summary::before {
+      transform: rotate(90deg);
+    }
+
+    .training-content {
+      padding: 20px;
+      background: #f8fafc;
+    }
+
+    .training-content h4 {
+      color: #1d3a64;
+      margin: 16px 0 8px 0;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .training-content p {
+      margin: 8px 0;
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    .training-content ul {
+      margin: 8px 0;
+      padding-left: 20px;
+    }
+
+    .training-content li {
+      margin: 4px 0;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .highlight {
+      background: #e79e1a;
+      color: white;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    .example {
+      background: #e8f5e8;
+      border-left: 4px solid #22c55e;
+      padding: 12px;
+      margin: 12px 0;
+      border-radius: 4px;
+      font-style: italic;
+    }
+
+    .warning {
+      background: #fef3cd;
+      border-left: 4px solid #f59e0b;
+      padding: 12px;
+      margin: 12px 0;
+      border-radius: 4px;
+    }
+
+    @media (max-width: 768px) {
+      .modal-content {
+        width: 95%;
+        max-height: 95vh;
+      }
+      
+      .modal-header {
+        padding: 16px;
+      }
+      
+      .modal-header h2 {
+        font-size: 20px;
+      }
+      
+      .modal-body {
+        padding: 16px;
+      }
+    }
+  </style>
 </head>
 <body>
   <!-- APP BAR -->
@@ -45,115 +521,508 @@
     </div>
   </header>
 
-  <!-- CONTAINER PRINCIPAL -->
+  <!-- MODAL DE TREINAMENTO -->
+  <div id="modalTreinamento" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>🎓 Treinamento Completo - InfoÁgil SaaS Calculator</h2>
+        <button class="close-modal" onclick="fecharTreinamento()">×</button>
+      </div>
+      <div class="modal-body">
+        
+        <details class="training-section">
+          <summary>📊 1. Visão Geral da Aplicação</summary>
+          <div class="training-content">
+            <p>Esta calculadora foi desenvolvida especificamente para empresas de <span class="highlight">software contábil SaaS</span> determinarem preços competitivos e rentáveis.</p>
+            
+            <h4>🎯 Principais Objetivos:</h4>
+            <ul>
+              <li>Calcular preços baseados em custos reais</li>
+              <li>Analisar competitividade de mercado</li>
+              <li>Gerar relatórios profissionais</li>
+              <li>Criar orçamentos personalizados</li>
+            </ul>
+            
+            <div class="example">
+              <strong>💡 Exemplo:</strong> Uma empresa com custos de R$ 50/cliente e margem de 40% gerará preços que garantem lucratividade sustentável.
+            </div>
+          </div>
+        </details>
+
+        <details class="training-section">
+          <summary>🏢 2. Modelo de Negócio</summary>
+          <div class="training-content">
+            <p>Configure o <span class="highlight">tipo de operação</span> da sua empresa:</p>
+            
+            <h4>📋 Tipos Disponíveis:</h4>
+            <ul>
+              <li><strong>Próprio:</strong> Software desenvolvido internamente</li>
+              <li><strong>White Label:</strong> Revenda de software de terceiros</li>
+              <li><strong>Híbrido:</strong> Combinação de ambos</li>
+            </ul>
+            
+            <h4>👥 Meta de Clientes:</h4>
+            <p>Defina quantos clientes você pretende atender. Este número impacta diretamente na <span class="highlight">diluição dos custos fixos</span>.</p>
+            
+            <div class="warning">
+              <strong>⚠️ Atenção:</strong> Metas muito baixas podem resultar em preços pouco competitivos devido ao alto custo fixo por cliente.
+            </div>
+          </div>
+        </details>
+
+        <details class="training-section">
+          <summary>💰 3. Custos e Despesas</summary>
+          <div class="training-content">
+            <h4>🏗️ Custos Fixos Mensais:</h4>
+            <ul>
+              <li><strong>Infraestrutura:</strong> Servidores, cloud, CDN</li>
+              <li><strong>Pessoal:</strong> Salários + encargos da equipe</li>
+              <li><strong>Marketing:</strong> Publicidade, eventos, materiais</li>
+              <li><strong>Administrativo:</strong> Contador, advogado, escritório</li>
+              <li><strong>Outros:</strong> Licenças, seguros, diversos</li>
+            </ul>
+            
+            <h4>🎯 Custos por Cliente:</h4>
+            <ul>
+              <li><strong>Suporte:</strong> Tempo dedicado por cliente/mês</li>
+              <li><strong>White Label %:</strong> Percentual pago ao fornecedor</li>
+            </ul>
+            
+            <h4>📈 Sazonalidade:</h4>
+            <p>Multiplicador para períodos de maior demanda (ex: final de ano, IR).</p>
+            
+            <div class="example">
+              <strong>💡 Exemplo:</strong> Infraestrutura R$ 2.000 + Pessoal R$ 15.000 + Marketing R$ 3.000 = R$ 20.000/mês
+            </div>
+          </div>
+        </details>
+
+        <details class="training-section">
+          <summary>📊 4. Parâmetros de Negócio</summary>
+          <div class="training-content">
+            <h4>💹 Configurações Financeiras:</h4>
+            <ul>
+              <li><strong>Margem de Lucro:</strong> Percentual desejado sobre custos (recomendado: 20-40%)</li>
+              <li><strong>Impostos:</strong> Simples Nacional, ISS, PIS/COFINS</li>
+              <li><strong>Comissões:</strong> Percentual para vendedores/representantes</li>
+            </ul>
+            
+            <h4>📈 Métricas de Performance:</h4>
+            <ul>
+              <li><strong>Churn Rate:</strong> Taxa mensal de cancelamento (%)</li>
+              <li><strong>Churn Melhorado:</strong> Meta de melhoria do churn</li>
+            </ul>
+            
+            <h4>🛒 Adicionais:</h4>
+            <ul>
+              <li><strong>Margem Adicionais:</strong> Lucro sobre módulos extras</li>
+              <li><strong>Distribuição por Perfil:</strong> % de clientes por plano</li>
+            </ul>
+            
+            <div class="warning">
+              <strong>⚠️ Importante:</strong> A distribuição por perfil deve somar exatamente 100%
+            </div>
+          </div>
+        </details>
+
+        <details class="training-section">
+          <summary>🎯 5. CAC por Segmento</summary>
+          <div class="training-content">
+            <p><span class="highlight">CAC (Customer Acquisition Cost)</span> é o custo para adquirir cada cliente.</p>
+            
+            <h4>👥 Perfis de Cliente:</h4>
+            <ul>
+              <li><strong>MEI:</strong> Vendas online, baixo CAC (R$ 50-150)</li>
+              <li><strong>Contador:</strong> Parcerias, CAC médio (R$ 100-300)</li>
+              <li><strong>Básico:</strong> Vendas diretas, CAC médio (R$ 150-400)</li>
+              <li><strong>Intermediário:</strong> Processo comercial, CAC alto (R$ 250-500)</li>
+              <li><strong>Premium:</strong> Vendas complexas, CAC muito alto (R$ 400-800)</li>
+            </ul>
+            
+            <div class="example">
+              <strong>💡 Dica:</strong> CAC muito baixo pode indicar baixa qualidade de clientes. CAC muito alto pode inviabilizar o negócio.
+            </div>
+          </div>
+        </details>
+
+        <details class="training-section">
+          <summary>🔄 6. Executando Cálculos</summary>
+          <div class="training-content">
+            <h4>⚡ Como Calcular:</h4>
+            <ol>
+              <li>Preencha todos os campos obrigatórios</li>
+              <li>Verifique se a distribuição soma 100%</li>
+              <li>Clique em <span class="highlight">"🔄 Calcular Preços"</span></li>
+              <li>Analise os resultados gerados</li>
+            </ol>
+            
+            <h4>📋 Interpretando Resultados:</h4>
+            <ul>
+              <li><strong>Preço:</strong> Valor final para o cliente</li>
+              <li><strong>Custo:</strong> Custo total por cliente</li>
+              <li><strong>Margem:</strong> Lucro em reais</li>
+              <li><strong>ROI:</strong> Retorno sobre investimento</li>
+              <li><strong>LTV/CAC:</strong> Relação valor do cliente vs custo aquisição</li>
+            </ul>
+            
+            <div class="example">
+              <strong>🎯 Meta:</strong> LTV/CAC > 3.0 indica negócio saudável
+            </div>
+          </div>
+        </details>
+
+        <details class="training-section">
+          <summary>🏪 7. Análise de Concorrência</summary>
+          <div class="training-content">
+            <h4>🔍 Como Usar:</h4>
+            <ol>
+              <li>Adicione preços dos <span class="highlight">concorrentes</span> por segmento</li>
+              <li>Escolha estratégia de posicionamento</li>
+              <li>Defina ajuste manual se necessário</li>
+              <li>Clique em <span class="highlight">"Analisar"</span></li>
+            </ol>
+            
+            <h4>📊 Estratégias Disponíveis:</h4>
+            <ul>
+              <li><strong>Competitivo:</strong> Preços similares ao mercado</li>
+              <li><strong>Agressivo:</strong> 10% abaixo da concorrência</li>
+              <li><strong>Premium:</strong> 15% acima da concorrência</li>
+            </ul>
+            
+            <div class="warning">
+              <strong>⚠️ Cuidado:</strong> Preços muito baixos podem comprometer a sustentabilidade do negócio.
+            </div>
+          </div>
+        </details>
+
+        <details class="training-section">
+          <summary>💼 8. Gerador de Orçamentos</summary>
+          <div class="training-content">
+            <h4>📝 Passo a Passo:</h4>
+            <ol>
+              <li>Preencha dados do <span class="highlight">cliente</span></li>
+              <li>Selecione o <span class="highlight">plano</span> adequado</li>
+              <li>Escolha <span class="highlight">adicionais</span> necessários</li>
+              <li>Aplique <span class="highlight">ajustes</span> se necessário</li>
+              <li>Defina <span class="highlight">vigência</span> da proposta</li>
+              <li>Gere o orçamento</li>
+            </ol>
+            
+            <h4>💰 Descontos Especiais:</h4>
+            <p>Para ajustes <span class="highlight">negativos</span>, as observações são obrigatórias para justificar o desconto.</p>
+            
+            <div class="example">
+              <strong>💡 Dica:</strong> Use observações para destacar benefícios como "Desconto para contrato anual" ou "Treinamento incluído".
+            </div>
+          </div>
+        </details>
+
+        <details class="training-section">
+          <summary>📄 9. Relatórios e Exportação</summary>
+          <div class="training-content">
+            <h4>📊 Tipos de Relatório:</h4>
+            <ul>
+              <li><strong>PDF Analítico:</strong> Relatório completo com métricas</li>
+              <li><strong>PDF Orçamento:</strong> Proposta comercial para cliente</li>
+              <li><strong>JSON:</strong> Dados técnicos para backup/integração</li>
+            </ul>
+            
+            <h4>🎯 Quando Usar Cada Um:</h4>
+            <ul>
+              <li><strong>Analítico:</strong> Análise interna, reuniões estratégicas</li>
+              <li><strong>Orçamento:</strong> Apresentação para clientes</li>
+              <li><strong>JSON:</strong> Backup de configurações</li>
+            </ul>
+            
+            <div class="example">
+              <strong>💼 Profissional:</strong> Use o relatório analítico para justificar preços internamente e o orçamento para apresentar ao cliente.
+            </div>
+          </div>
+        </details>
+
+        <details class="training-section">
+          <summary>🔧 10. Dicas e Melhores Práticas</summary>
+          <div class="training-content">
+            <h4>✅ Boas Práticas:</h4>
+            <ul>
+              <li>Revise custos <span class="highlight">mensalmente</span></li>
+              <li>Monitore churn rate <span class="highlight">semanalmente</span></li>
+              <li>Analise concorrência <span class="highlight">trimestralmente</span></li>
+              <li>Teste diferentes estratégias de preço</li>
+              <li>Documente justificativas de desconto</li>
+            </ul>
+            
+            <h4>⚠️ Erros Comuns:</h4>
+            <ul>
+              <li>Subestimar custos de suporte</li>
+              <li>Não considerar sazonalidade</li>
+              <li>CAC irrealista para o perfil</li>
+              <li>Margem muito baixa</li>
+              <li>Distribuição de clientes incorreta</li>
+            </ul>
+            
+            <h4>🎯 Métricas de Sucesso:</h4>
+            <ul>
+              <li><strong>LTV/CAC > 3.0:</strong> Negócio saudável</li>
+              <li><strong>Churn < 5%:</strong> Boa retenção</li>
+              <li><strong>Margem > 20%:</strong> Rentabilidade adequada</li>
+            </ul>
+            
+            <div class="example">
+              <strong>🏆 Objetivo Final:</strong> Preços competitivos que garantam lucratividade sustentável e crescimento consistente.
+            </div>
+          </div>
+        </details>
+
+      </div>
+    </div>
+  </div>
+
   <div class="wrap">
     <div class="hero">
-      <h1>Calculadora de Precificação SaaS</h1>
-      <p>Configure custos e parâmetros para calcular preços competitivos</p>
+      <p class="subtle">validações matemáticas, análise de cohort, segmentação de CAC e projeções realistas</p>
     </div>
 
-    <!-- ALERTAS DE VALIDAÇÃO -->
+    <!-- Alertas de Validação -->
     <div id="alertasValidacao"></div>
 
-    <!-- GRID PRINCIPAL -->
-    <div class="grid">
-      <!-- CUSTOS -->
-      <section class="card">
-        <h2>💰 Custos Mensais</h2>
-        <div class="subtle" style="margin-bottom:10px">Custos fixos e variáveis da operação</div>
-        
-        <h3 style="margin-top:15px; margin-bottom:10px">🏗️ Custos Fixos Mensais</h3>
-        <div class="row">
-          <div>
-            <label>Infraestrutura (R$)</label>
-            <input id="infraestrutura" type="number" min="0" step="50" value="200"/>
-          </div>
-          <div>
-            <label>Pessoal (R$)</label>
-            <input id="custosPessoal" type="number" min="0" step="100" value="0"/>
-          </div>
+    <section class="card" style="margin-bottom:16px; background:linear-gradient(135deg, rgba(34,211,238,.08), rgba(124,58,237,.08)); border:1px solid rgba(34,211,238,.25)">
+      <h2>🏢 Modelo de Negócio</h2>
+      <div class="row">
+        <div>
+          <label>Tipo de Operação</label>
+          <select id="tipoOperacao">
+            <option value="white_label">White Label (Avante)</option>
+            <option value="proprio">Desenvolvimento Próprio</option>
+            <option value="hibrido">Híbrido (White + Próprio)</option>
+          </select>
         </div>
-        <div class="row">
-          <div>
-            <label>Marketing (R$)</label>
-            <input id="marketing" type="number" min="0" step="50" value="0"/>
-          </div>
-          <div>
-            <label>Contador/Jurídico (R$)</label>
-            <input id="contador" type="number" min="0" step="50" value="800"/>
-          </div>
+        <div>
+          <label>Segmento Principal</label>
+          <select id="segmentoPrincipal">
+            <option value="contabil">Contábil/Fiscal</option>
+            <option value="geral">Gestão Empresarial</option>
+            <option value="especializado">Nicho Especializado</option>
+          </select>
         </div>
-        <div class="row">
-          <div>
-            <label>Comunicação (R$)</label>
-            <input id="comunicacao" type="number" min="0" step="25" value="0"/>
-          </div>
-          <div>
-            <label>Outros (R$)</label>
-            <input id="outros" type="number" min="0" step="50" value="350"/>
-          </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>Região de Atuação</label>
+          <select id="regiaoAtuacao">
+            <option value="local">Local/Regional</option>
+            <option value="nacional">Nacional</option>
+            <option value="internacional">Internacional</option>
+          </select>
         </div>
-        <div class="row">
-          <div>
-            <label>Setup/Licenças (R$)</label>
-            <input id="setupAvante" type="number" min="0" step="50" value="0"/>
-          </div>
-          <div>
-            <label>Reserva de Contingência (R$)</label>
-            <input id="custosContingencia" type="number" min="0" step="100" value="500"/>
-          </div>
+        <div>
+          <label>Estratégia de Crescimento</label>
+          <select id="estrategiaCrescimento">
+            <option value="organico">Orgânico</option>
+            <option value="agressivo">Agressivo (Investimento)</option>
+            <option value="conservador">Conservador</option>
+          </select>
         </div>
-        
-        <h3 style="margin-top:20px; margin-bottom:10px">💰 Custos Variáveis por Cliente/Mês</h3>
-        <div class="subtle" style="margin-bottom:10px">Base + Suporte diferenciados por plano</div>
-        
-        <!-- Custos Base -->
-        <div class="row5">
-          <div><label class="hint">MEI - Base (R$)</label><input id="custoMei" type="number" min="0" step="1" value="25"/></div>
-          <div><label class="hint">Contador - Base (R$)</label><input id="custoContador" type="number" min="0" step="1" value="30"/></div>
-          <div><label class="hint">Básico - Base (R$)</label><input id="custoBasico" type="number" min="0" step="1" value="36"/></div>
-          <div><label class="hint">Inter - Base (R$)</label><input id="custoInter" type="number" min="0" step="1" value="56"/></div>
-          <div><label class="hint">Premium - Base (R$)</label><input id="custoPremium" type="number" min="0" step="1" value="130"/></div>
-        </div>
-        
-        <!-- Custos Suporte -->
-        <div class="row5" style="margin-top:10px">
-          <div><label class="hint">MEI - Suporte (R$)</label><input id="suporteMei" type="number" min="0" step="5" value="20"/></div>
-          <div><label class="hint">Contador - Suporte (R$)</label><input id="suporteContador" type="number" min="0" step="5" value="30"/></div>
-          <div><label class="hint">Básico - Suporte (R$)</label><input id="suporteBasico" type="number" min="0" step="5" value="35"/></div>
-          <div><label class="hint">Inter - Suporte (R$)</label><input id="suporteInter" type="number" min="0" step="5" value="50"/></div>
-          <div><label class="hint">Premium - Suporte (R$)</label><input id="suportePremium" type="number" min="0" step="5" value="80"/></div>
-        </div>
-      </section>
+      </div>
+    </section>
 
-      <!-- PARÂMETROS -->
-      <section class="card">
-        <h2>🎯 Parâmetros de Negócio</h2>
+    <div class="grid">
+    <section class="card">
+      <h2>📊 Custos Fixos Mensais Detalhados
+        <span class="tooltip">
+          <span class="help-icon">?</span>
+          <span class="tooltiptext">Custos que você paga todos os meses, independentemente do número de clientes. Estes valores são divididos entre todos os clientes para calcular o custo per capita.</span>
+        </span>
+      </h2>
+      <div class="row">
+        <div>
+          <label>Pessoal (Salários + Encargos) (R$)
+            <span class="tooltip">
+              <span class="help-icon">?</span>
+              <span class="tooltiptext">Salários de funcionários + encargos trabalhistas (FGTS, INSS, férias, 13º). Inclua desenvolvedores, suporte, comercial, etc.</span>
+            </span>
+          </label>
+          <input id="custosPessoal" type="number" min="0" step="100" value="0"/>
+        </div>
+        <div>
+          <label>Infraestrutura (Servidores + TI) (R$)
+            <span class="tooltip">
+              <span class="help-icon">?</span>
+              <span class="tooltiptext">AWS, Google Cloud, Azure, CDN, monitoramento, backups, domínios, certificados SSL, ferramentas de desenvolvimento.</span>
+            </span>
+          </label>
+          <input id="infraestrutura" type="number" min="0" step="50" value="200"/>
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>Marketing Digital (R$)
+            <span class="tooltip">
+              <span class="help-icon">?</span>
+              <span class="tooltiptext">Google Ads, Facebook Ads, ferramentas de email marketing, CRM, automação, produção de conteúdo, agências.</span>
+            </span>
+          </label>
+          <input id="marketing" type="number" min="0" step="100" value="0"/>
+        </div>
+        <div>
+          <label>Administrativo (Contador, Jurídico) (R$)
+            <span class="tooltip">
+              <span class="help-icon">?</span>
+              <span class="tooltiptext">Contador, advogado, escritório contábil, taxas bancárias, software de gestão, certificado digital.</span>
+            </span>
+          </label>
+          <input id="contador" type="number" min="0" step="100" value="800"/>
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>Comunicação (Telefone, Internet) (R$)
+            <span class="tooltip">
+              <span class="help-icon">?</span>
+              <span class="tooltiptext">Telefone fixo, celular corporativo, internet banda larga, planos de dados, WhatsApp Business API.</span>
+            </span>
+          </label>
+          <input id="comunicacao" type="number" min="0" step="10" value="0"/>
+        </div>
+        <div>
+          <label>Outros (Escritório, Diversos) (R$)
+            <span class="tooltip">
+              <span class="help-icon">?</span>
+              <span class="tooltiptext">Aluguel, energia elétrica, água, limpeza, segurança, material de escritório, café, seguros.</span>
+            </span>
+          </label>
+          <input id="outros" type="number" min="0" step="50" value="350"/>
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>Licenciamento/White Label (R$)
+            <span class="tooltip">
+              <span class="help-icon">?</span>
+              <span class="tooltiptext">Licenças de software, white label de terceiros, APIs pagas, integrações, assinaturas de ferramentas essenciais.</span>
+            </span>
+          </label>
+          <input id="setupAvante" type="number" min="0" step="50" value="0"/>
+        </div>
+        <div>
+          <label>Reserva de Contingência (R$)
+            <span class="tooltip">
+              <span class="help-icon">?</span>
+              <span class="tooltiptext">Reserva para emergências, reparos, oportunidades ou gastos imprevistos. Recomendado 5-10% dos custos fixos.</span>
+            </span>
+          </label>
+          <input id="custosContingencia" type="number" min="0" step="100" value="500"/>
+        </div>
+      </div>
+      
+      <h3 style="margin-top:20px; margin-bottom:10px">💰 Custos Variáveis por Cliente/Mês
+        <span class="tooltip">
+          <span class="help-icon">?</span>
+          <span class="tooltiptext">Custos que variam conforme o número de clientes e o plano que utilizam. Incluem licenciamento, processamento, suporte diferenciado, etc.</span>
+        </span>
+      </h3>
+      <div class="subtle" style="margin-bottom:10px">Base + Suporte diferenciados por plano</div>
+      <div class="row5">
+        <div><label class="hint">MEI - Base (R$)
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Custo direto por cliente MEI: licenças, processamento de dados, APIs, recursos básicos consumidos por cliente.</span>
+          </span>
+        </label><input id="custoMei" type="number" min="0" step="1" value="25"/></div>
+        <div><label class="hint">Contador - Base (R$)
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Custo direto por cliente Contador: inclui recursos extras, integrações específicas, maior volume de processamento.</span>
+          </span>
+        </label><input id="custoContador" type="number" min="0" step="1" value="30"/></div>
+        <div><label class="hint">Básico - Base (R$)
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Custo direto por cliente Básico: funcionalidades intermediárias, mais armazenamento e processamento.</span>
+          </span>
+        </label><input id="custoBasico" type="number" min="0" step="1" value="36"/></div>
+        <div><label class="hint">Inter - Base (R$)
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Custo direto por cliente Intermediário: recursos avançados, integrações premium, maior capacidade.</span>
+          </span>
+        </label><input id="custoInter" type="number" min="0" step="1" value="56"/></div>
+        <div><label class="hint">Premium - Base (R$)
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Custo direto por cliente Premium: todos os recursos, prioridade máxima, funcionalidades exclusivas.</span>
+          </span>
+        </label><input id="custoPremium" type="number" min="0" step="1" value="130"/></div>
+      </div>
+      <div class="row5" style="margin-top:10px">
+        <div><label class="hint">MEI - Suporte (R$)
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Custo de suporte por cliente MEI: chatbot, documentação, suporte básico por email com SLA estendido.</span>
+          </span>
+        </label><input id="suporteMei" type="number" min="0" step="5" value="20"/></div>
+        <div><label class="hint">Contador - Suporte (R$)
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Custo de suporte por cliente Contador: suporte por email + telefone, tempo de resposta médio.</span>
+          </span>
+        </label><input id="suporteContador" type="number" min="0" step="5" value="30"/></div>
+        <div><label class="hint">Básico - Suporte (R$)
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Custo de suporte por cliente Básico: suporte prioritário, múltiplos canais, onboarding assistido.</span>
+          </span>
+        </label><input id="suporteBasico" type="number" min="0" step="5" value="35"/></div>
+        <div><label class="hint">Inter - Suporte (R$)
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Custo de suporte por cliente Intermediário: suporte especializado, treinamentos, consultoria técnica.</span>
+          </span>
+        </label><input id="suporteInter" type="number" min="0" step="5" value="50"/></div>
+        <div><label class="hint">Premium - Suporte (R$)
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Custo de suporte por cliente Premium: suporte VIP, account manager, implementação personalizada, SLA premium.</span>
+          </span>
+        </label><input id="suportePremium" type="number" min="0" step="5" value="80"/></div>
+      </div>
+    </section>      <section class="card">
+        <h2>🎯 Parâmetros de Negócio
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Configure os parâmetros estratégicos do seu negócio. Estes valores são usados para calcular preços, margens e projeções de crescimento.</span>
+          </span>
+        </h2>
         <div class="subtle" style="margin-bottom:10px">Valores com validação automática e auto-correção</div>
 
         <div class="row">
           <div>
-            <label>Margem de Lucro Desejada (%)</label>
+            <label>Margem de Lucro Desejada (%)
+              <span class="tooltip">
+                <span class="help-icon">?</span>
+                <span class="tooltiptext">Percentual de lucro que você deseja ter sobre o faturamento total. Ex: 30% significa que para cada R$ 100 de receita, R$ 30 serão lucro líquido.</span>
+              </span>
+            </label>
             <input id="margemLucro" type="number" min="0" max="100" step="1" value="30"/>
           </div>
           <div>
-            <label>Meta de Clientes</label>
-            <input id="metaClientes" type="number" min="1" step="5" value="120"/>
+            <label>Meta de Clientes (mês 12)
+              <span class="tooltip">
+                <span class="help-icon">?</span>
+                <span class="tooltiptext">Quantos clientes pagantes você espera ter no final do primeiro ano. Este número é usado para calcular custos per capita e projeções de receita.</span>
+              </span>
+            </label>
+            <input id="metaClientes" type="number" min="1" step="1" value="120"/>
           </div>
         </div>
 
-        <div>
-          <label>Tipo de Operação</label>
-          <select id="tipoOperacao">
-            <option value="proprio">Próprio</option>
-            <option value="white_label">White Label</option>
-            <option value="hibrido">Híbrido</option>
-          </select>
-        </div>
-
-        <!-- Distribuição dos Planos -->
-        <h3>📊 Distribuição dos Planos (%)</h3>
-        <div class="subtle" style="margin-bottom:10px">Distribuição de clientes por plano - <span id="somaDistribuicao">Total: 100%</span></div>
+        <label>Distribuição de Planos (%) 
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Como seus clientes se distribuirão entre os planos. Ex: 30% no Básico significa que de 100 clientes, 30 estarão no plano Básico. Total deve somar 100%.</span>
+          </span>
+          <span class="subtle" id="somaDistribuicao">Total: 100%</span>
+        </label>
         <div class="row5">
           <div><label class="hint">MEI</label><input id="distribMei" type="number" min="0" max="100" step="1" value="15" oninput="validarDistribuicao()"/></div>
           <div><label class="hint">Contador</label><input id="distribContador" type="number" min="0" max="100" step="1" value="20" oninput="validarDistribuicao()"/></div>
@@ -161,178 +1030,1756 @@
           <div><label class="hint">Inter</label><input id="distribInter" type="number" min="0" max="100" step="1" value="25" oninput="validarDistribuicao()"/></div>
           <div><label class="hint">Premium</label><input id="distribPremium" type="number" min="0" max="100" step="1" value="10" oninput="validarDistribuicao()"/></div>
         </div>
+        <button class="ghost" onclick="autoCorrigirDistribuicao()" style="margin-top:5px; padding:5px 10px; font-size:12px">⚡ Auto-corrigir para 100%</button>
 
-        <!-- Churn e CAC -->
-        <div class="row">
+        <div class="row" style="margin-top:15px">
           <div>
-            <label>Churn Rate (%/mês)</label>
+            <label>Churn Rate Médio (%/mês)
+              <span class="tooltip">
+                <span class="help-icon">?</span>
+                <span class="tooltiptext">Percentual de clientes que cancelam mensalmente nos primeiros 6 meses. Ex: 4% = de 100 clientes, 4 cancelam por mês. Clientes novos têm churn maior.</span>
+              </span>
+            </label>
             <input id="churnRate" type="number" min="0" max="50" step="0.1" value="4"/>
           </div>
           <div>
-            <label>Churn Melhorado (%/mês)</label>
+            <label>Churn Melhorado após 6 meses (%/mês)
+              <span class="tooltip">
+                <span class="help-icon">?</span>
+                <span class="tooltiptext">Churn reduzido para clientes fidelizados (>6 meses). Clientes antigos tendem a cancelar menos. Use um valor menor que o churn inicial.</span>
+              </span>
+            </label>
             <input id="churnMelhorado" type="number" min="0" max="50" step="0.1" value="2.5"/>
           </div>
         </div>
 
-        <!-- CAC por Plano -->
-        <h3>💸 CAC - Custo de Aquisição por Cliente (R$)</h3>
+        <h3 style="margin-top:15px">CAC Segmentado por Plano
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Custo de Aquisição de Cliente: quanto você gasta em marketing/vendas para conquistar 1 cliente de cada plano. Varia por segmento devido à diferença de canais e complexidade de venda.</span>
+          </span>
+        </h3>
         <div class="row5">
-          <div><label class="hint">CAC MEI</label><input id="cacMei" type="number" min="0" step="5" value="150"/></div>
-          <div><label class="hint">CAC Contador</label><input id="cacContador" type="number" min="0" step="5" value="200"/></div>
-          <div><label class="hint">CAC Básico</label><input id="cacBasico" type="number" min="0" step="5" value="250"/></div>
-          <div><label class="hint">CAC Inter</label><input id="cacInter" type="number" min="0" step="5" value="350"/></div>
-          <div><label class="hint">CAC Premium</label><input id="cacPremium" type="number" min="0" step="5" value="500"/></div>
-        </div>
-
-        <!-- Impostos e Comissões -->
-        <div class="row3">
-          <div>
-            <label>Impostos (%)</label>
-            <input id="impostos" type="number" min="0" max="50" step="0.1" value="8.5"/>
-          </div>
-          <div>
-            <label>Comissões (%)</label>
-            <input id="comissoes" type="number" min="0" max="30" step="0.1" value="0"/>
-          </div>
-          <div>
-            <label>White Label (%) <span class="tooltip"><span class="help-icon">?</span><span class="tooltiptext">Sazonalidade Contábil é um fator multiplicador aplicado aos custos durante períodos de alta demanda (ex: fechamento de ano, declaração de IR). Valor 1.2 = 20% mais custos nos picos.</span></span></label>
-            <input id="whiteLabelPct" type="number" min="0" max="50" step="1" value="30"/>
-          </div>
-        </div>
-
-        <div>
-          <label>Sazonalidade
+          <div><label class="hint">MEI - CAC (R$)
             <span class="tooltip">
               <span class="help-icon">?</span>
-              <span class="tooltiptext">Sazonalidade Contábil é um fator multiplicador aplicado aos custos durante períodos de alta demanda (ex: fechamento de ano, declaração de IR). Valor 1.2 = 20% mais custos nos picos.</span>
+              <span class="tooltiptext">CAC para MEI: marketing digital básico, processo de venda simples, conversão rápida. Normalmente o menor CAC.</span>
             </span>
-          </label>
-          <input id="sazonalidade" type="number" min="1" max="3" step="0.1" value="1.5"/>
+          </label><input id="cacMei" type="number" min="0" step="10" value="150"/></div>
+          <div><label class="hint">Contador - CAC (R$)
+            <span class="tooltip">
+              <span class="help-icon">?</span>
+              <span class="tooltiptext">CAC para Contador: marketing especializado, demonstrações técnicas, processo de vendas mais longo.</span>
+            </span>
+          </label><input id="cacContador" type="number" min="0" step="10" value="200"/></div>
+          <div><label class="hint">Básico - CAC (R$)
+            <span class="tooltip">
+              <span class="help-icon">?</span>
+              <span class="tooltiptext">CAC para Básico: marketing misto, onboarding assistido, suporte na conversão.</span>
+            </span>
+          </label><input id="cacBasico" type="number" min="0" step="10" value="250"/></div>
+          <div><label class="hint">Inter - CAC (R$)
+            <span class="tooltip">
+              <span class="help-icon">?</span>
+              <span class="tooltiptext">CAC para Intermediário: vendas consultivas, demonstrações personalizadas, processo mais sofisticado.</span>
+            </span>
+          </label><input id="cacInter" type="number" min="0" step="10" value="350"/></div>
+          <div><label class="hint">Premium - CAC (R$)
+            <span class="tooltip">
+              <span class="help-icon">?</span>
+              <span class="tooltiptext">CAC para Premium: vendas enterprise, múltiplas reuniões, POCs, contratos customizados. Maior CAC.</span>
+            </span>
+          </label><input id="cacPremium" type="number" min="0" step="10" value="500"/></div>
+        </div>
+
+        <div class="row" style="margin-top:15px">
+          <div>
+            <label>Impostos (% sobre preço)
+              <span class="tooltip">
+                <span class="help-icon">?</span>
+                <span class="tooltiptext">Impostos sobre o faturamento: Simples Nacional (4-33%), Lucro Presumido, ISS, PIS/COFINS. Varia conforme regime tributário.</span>
+              </span>
+            </label>
+            <input id="impostos" type="number" min="0" max="50" step="0.5" value="8.5"/>
+          </div>
+          <div>
+            <label>Comissões (% sobre preço)
+              <span class="tooltip">
+                <span class="help-icon">?</span>
+                <span class="tooltiptext">Comissões para vendedores, afiliados, parceiros de canal, representantes comerciais. Calculado sobre o valor da venda.</span>
+              </span>
+            </label>
+            <input id="comissoes" type="number" min="0" max="30" step="0.5" value="0"/>
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label>White Label — Taxa sobre Receita (%)
+              <span class="tooltip">
+                <span class="help-icon">?</span>
+                <span class="tooltiptext">Percentual que você paga para o fornecedor da solução white label sobre sua receita bruta. Ex: 30% = para cada R$ 100 de receita, R$ 30 vão para o fornecedor.</span>
+              </span>
+            </label>
+            <input id="whiteLabelPct" type="number" min="0" max="100" step="1" value="30"/>
+          </div>
+          <div>
+            <label>Sazonalidade Contábil - Multiplicador
+              <span class="tooltip">
+                <span class="help-icon">?</span>
+                <span class="tooltiptext">Multiplicador para ajustar custos conforme demanda sazonal. Ex: 1.5 = custos 50% maiores em períodos de pico (final do ano, entregas de IR). Varia entre 1.0 (sem sazonalidade) e 3.0 (alta sazonalidade).</span>
+              </span>
+            </label>
+            <input id="sazonalidade" type="number" min="1" max="3" step="0.1" value="1.5"/>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button onclick="calcular()">🔄 Calcular Preços</button>
         </div>
       </section>
     </div>
 
-    <!-- RESULTADOS -->
-    <div style="margin-top:20px;">
-      <h2 style="text-align:center; margin-bottom:16px;">📊 Resultados da Precificação</h2>
-      
-      <!-- Cards dos Preços -->
-      <div id="cards" class="cards"></div>
-      
-      <!-- Métricas Principais -->
-      <div class="metric-grid">
-        <div class="metric">
-          <div class="subtle">MRR Total</div>
-          <div class="val" id="mrrTotal">R$ 0</div>
-        </div>
-        <div class="metric">
-          <div class="subtle">Custos Fixos</div>
-          <div class="val" id="custosFixosTotal">R$ 0</div>
-        </div>
-        <div class="metric">
-          <div class="subtle">Break-even</div>
-          <div class="val" id="breakEven">0</div>
-          <div class="subtle">clientes</div>
-        </div>
-        <div class="metric">
-          <div class="subtle">LTV Médio</div>
-          <div class="val" id="ltv">R$ 0</div>
-        </div>
-        <div class="metric">
-          <div class="subtle">LTV/CAC Ratio</div>
-          <div class="val" id="ltvCacRatio">0x</div>
-        </div>
-        <div class="metric">
-          <div class="subtle">Receita Anual</div>
-          <div class="val" id="receitaAnual">R$ 0</div>
-        </div>
+    <section class="card pricing" style="margin-top:16px">
+      <h2>💎 Precificação Recomendada</h2>
+      <div class="subtle" style="margin-bottom:10px">
+        Fórmula: <code>P = (Custo Direto / (1 - Margem)) / (1 - Impostos - Comissões - WhiteLabel)</code>
       </div>
-    </div>
+      <div class="cards" id="cards"></div>
 
-    <!-- ADICIONAIS -->
-    <div style="margin-top:30px;">
-      <h2 style="margin-bottom:16px;">🧩 Módulos Adicionais</h2>
-      
-      <div class="row3" style="margin-bottom:15px;">
-        <div>
-          <label>Margem Adicionais (%)</label>
-          <input id="margemAdicionais" type="number" min="0" max="200" step="5" value="50"/>
-        </div>
-        <div>
-          <label>Taxa Adesão Muito (%)</label>
-          <input id="txMuito" type="number" min="0" max="100" step="5" value="70"/>
-        </div>
-        <div>
-          <label>Taxa Adesão Moderado (%)</label>
-          <input id="txMod" type="number" min="0" max="100" step="5" value="40"/>
+      <!-- Legenda de Métricas -->
+      <div class="alert alert-info" style="margin: 20px 0; background: rgba(52, 152, 219, 0.1); border: 1px solid rgba(52, 152, 219, 0.3);">
+        <h4 style="margin: 0 0 10px; font-size: 14px; color: var(--accent);">📚 Legenda das Métricas</h4>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 8px; font-size: 12px; line-height: 1.4;">
+          <div><strong>Margem:</strong> Percentual de lucro sobre a receita</div>
+          <div><strong>ROI:</strong> Retorno sobre investimento (lucro/custo)</div>
+          <div><strong>LTV:</strong> Valor total que um cliente gera ao longo da vida</div>
+          <div><strong>LTV/CAC:</strong> Relação entre valor do cliente e custo de aquisição</div>
+          <div><strong>CAC:</strong> Custo para adquirir um novo cliente</div>
         </div>
       </div>
-      
-      <div class="row3" style="margin-bottom:15px;">
+
+      <div class="metric-grid">
+        <div class="metric"><div class="val" id="mrrTotal">R$ 0</div><div class="subtle">MRR Projetado
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Monthly Recurring Revenue: receita mensal recorrente total projetada com base nos preços calculados e distribuição de clientes.</span>
+          </span>
+        </div></div>
+        <div class="metric"><div class="val" id="custosFixosTotal">R$ 0</div><div class="subtle">Custos Fixos
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Soma de todos os custos fixos mensais: pessoal, infraestrutura, marketing, administrativo, etc.</span>
+          </span>
+        </div></div>
+        <div class="metric"><div class="val" id="breakEven">0</div><div class="subtle">Break-even (clientes)
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Número mínimo de clientes necessários para cobrir todos os custos fixos. Ponto de equilíbrio onde lucro = 0.</span>
+          </span>
+        </div></div>
+        <div class="metric"><div class="val" id="ltv">R$ 0</div><div class="subtle">LTV Médio
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Lifetime Value: valor médio que um cliente gera durante todo o relacionamento, considerando churn e margem de contribuição.</span>
+          </span>
+        </div></div>
+        <div class="metric"><div class="val" id="ltvCacRatio">0x</div><div class="subtle">LTV/CAC
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Relação entre Lifetime Value e Custo de Aquisição. Ideal: 3x ou mais. Mostra quantas vezes o valor do cliente supera o custo para adquiri-lo.</span>
+          </span>
+        </div></div>
+        <div class="metric"><div class="val" id="receitaAnual">R$ 0</div><div class="subtle">Receita Anual
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Projeção da receita anual baseada no MRR atual. Considera crescimento linear (MRR × 12).</span>
+          </span>
+        </div></div>
+      </div>
+    </section>
+
+    <section class="card" style="margin-top:16px">
+      <h2>🎁 Catálogo de Adicionais — Upsell
+        <span class="tooltip">
+          <span class="help-icon">?</span>
+          <span class="tooltiptext">Configure produtos ou serviços adicionais que podem ser vendidos para clientes existentes, aumentando o ticket médio e a receita por cliente.</span>
+        </span>
+      </h2>
+      <p class="subtle">Configure seus próprios adicionais e suas margens de lucro.</p>
+      <div class="row">
         <div>
-          <label>Taxa Adesão Opcional (%)</label>
-          <input id="txOpc" type="number" min="0" max="100" step="5" value="20"/>
+          <label>Margem sobre Adicionais (%)
+            <span class="tooltip">
+              <span class="help-icon">?</span>
+              <span class="tooltiptext">Margem de lucro aplicada sobre o custo dos adicionais. Ex: 50% significa que se um adicional custa R$ 10, será vendido por R$ 15.</span>
+            </span>
+          </label>
+          <input id="margemAdicionais" type="number" min="0" max="200" step="1" value="50"/>
         </div>
         <div>
+          <label>Adesão média (para métricas) — Muito/Moderado/Opcional (%)
+            <span class="tooltip">
+              <span class="help-icon">?</span>
+              <span class="tooltiptext">Percentual estimado de clientes que adquirirão cada tipo de adicional:<br>• Muito: adicionais essenciais (70%)<br>• Moderado: úteis mas não essenciais (40%)<br>• Opcional: nice-to-have (20%)</span>
+            </span>
+          </label>
+          <div class="row3">
+            <input id="txMuito" type="number" min="0" max="100" step="1" value="70"/>
+            <input id="txMod" type="number" min="0" max="100" step="1" value="40"/>
+            <input id="txOpc" type="number" min="0" max="100" step="1" value="20"/>
+          </div>
+        </div>
+      </div>
+
+      <h3 style="margin-top:15px">✏️ Adicionais Customizáveis</h3>
+      <div class="row">
+        <div>
+          <label>Adicionar Novo Item</label>
           <input id="novoAdicional" type="text" placeholder="Nome do adicional"/>
         </div>
-        <div style="display:flex; gap:5px;">
-          <input id="novoCusto" type="number" placeholder="Custo" value="20"/>
-          <select id="novaCategoria">
-            <option value="muito">Muito</option>
+        <div>
+          <label>Custo (R$)</label>
+          <input id="novoCusto" type="number" min="0" step="1" value="20"/>
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>Categoria</label>
+          <select id="novaCategoria" style="width:100%; background:#0a0f1a; color:#e5e7eb; border:1px solid rgba(255,255,255,.12); border-radius:10px; padding:10px 12px; font-size:14px;">
+            <option value="muito">Muito Recomendado</option>
             <option value="moderado">Moderado</option>
             <option value="opcional">Opcional</option>
           </select>
-          <button onclick="adicionarItem()" style="padding:10px;">➕</button>
+        </div>
+        <div style="display:flex; align-items:end;">
+          <button onclick="adicionarItem()" style="width:100%">➕ Adicionar</button>
         </div>
       </div>
 
-      <!-- Receita Adicionais -->
-      <div class="metric-grid" style="grid-template-columns: repeat(3,minmax(0,1fr));">
-        <div class="metric">
-          <div class="subtle">Receita Adicionais</div>
-          <div class="val" id="receitaAdicionaisMensal">R$ 0</div>
-          <div class="subtle">mensal</div>
+      <div class="row3" id="addonsTables"></div>
+
+      <div class="metric-grid" style="margin-top:10px">
+        <div class="metric"><div class="val" id="receitaAdicionaisMensal">R$ 0</div><div class="subtle">Receita Mensal — Adicionais</div></div>
+        <div class="metric"><div class="val" id="margemAdicionaisMensal">R$ 0</div><div class="subtle">Margem — Adicionais</div></div>
+        <div class="metric"><div class="val" id="ticketMedioComAdicionais">R$ 0</div><div class="subtle">Ticket Médio com Adicionais</div></div>
+      </div>
+    </section>
+
+    <!-- NOVA SEÇÃO: ANÁLISE DE CONCORRÊNCIA -->
+    <section class="card" style="margin-top:16px">
+      <h2>🎯 Análise de Concorrência e Ajuste de Mercado
+        <span class="tooltip">
+          <span class="help-icon">?</span>
+          <span class="tooltiptext">Compare seus preços calculados com os praticados pelos concorrentes e receba sugestões automáticas de ajuste baseadas na sua estratégia de posicionamento.</span>
+        </span>
+      </h2>
+      <div class="subtle" style="margin-bottom:15px">
+        Compare seus preços com a concorrência e receba sugestões automáticas de ajuste
+      </div>
+
+      <h3>📊 Preços dos Concorrentes
+        <span class="tooltip">
+          <span class="help-icon">?</span>
+          <span class="tooltiptext">Insira os preços mensais que seus principais concorrentes cobram em cada categoria de plano. Deixe em 0 os planos que não quiser comparar.</span>
+        </span>
+      </h3>
+      <div class="row5" style="margin-bottom:15px">
+        <div><label class="hint">Concorrente MEI (R$)
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Preço mensal que seus concorrentes cobram para o segmento MEI. Pesquise sites, tabelas públicas ou faça cotações.</span>
+          </span>
+        </label><input id="concorrenteMei" type="number" min="0" step="1" value="0" onchange="analisarConcorrencia()"/></div>
+        <div><label class="hint">Concorrente Contador (R$)
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Preço mensal que concorrentes cobram para o segmento de contadores/escritórios contábeis.</span>
+          </span>
+        </label><input id="concorrenteContador" type="number" min="0" step="1" value="0" onchange="analisarConcorrencia()"/></div>
+        <div><label class="hint">Concorrente Básico (R$)
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Preço mensal que concorrentes cobram para o plano básico/standard.</span>
+          </span>
+        </label><input id="concorrenteBasico" type="number" min="0" step="1" value="0" onchange="analisarConcorrencia()"/></div>
+        <div><label class="hint">Concorrente Inter (R$)
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Preço mensal que concorrentes cobram para o plano intermediário/profissional.</span>
+          </span>
+        </label><input id="concorrenteInter" type="number" min="0" step="1" value="0" onchange="analisarConcorrencia()"/></div>
+        <div><label class="hint">Concorrente Premium (R$)
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Preço mensal que concorrentes cobram para o plano premium/enterprise.</span>
+          </span>
+        </label><input id="concorrentePremium" type="number" min="0" step="1" value="0" onchange="analisarConcorrencia()"/></div>
+      </div>
+
+      <div class="row" style="margin-bottom:15px">
+        <div>
+          <label>Estratégia de Posicionamento
+            <span class="tooltip">
+              <span class="help-icon">?</span>
+              <span class="tooltiptext">Como você quer se posicionar em relação aos concorrentes:<br>• Competitivo: preços similares<br>• Premium: preços maiores com valor agregado<br>• Agressivo: preços menores para conquistar mercado<br>• Valor Agregado: equilíbrio entre preço e benefícios</span>
+            </span>
+          </label>
+          <select id="estrategiaPosicionamento" onchange="analisarConcorrencia()">
+            <option value="competitivo">Competitivo (-5% a +5%)</option>
+            <option value="premium">Premium (+10% a +20%)</option>
+            <option value="agressivo">Agressivo (-10% a -20%)</option>
+            <option value="value">Valor Agregado (+5% a +15%)</option>
+          </select>
         </div>
-        <div class="metric">
-          <div class="subtle">Ticket Médio</div>
-          <div class="val" id="ticketMedioComAdicionais">R$ 0</div>
-          <div class="subtle">com adicionais</div>
+        <div>
+          <label>Fator de Ajuste Manual (%)
+            <span class="tooltip">
+              <span class="help-icon">?</span>
+              <span class="tooltiptext">Ajuste fino adicional sobre a estratégia escolhida. Ex: +5% tornará os preços 5% mais caros que o sugerido pela estratégia. Use para calibrar conforme sua análise específica.</span>
+            </span>
+          </label>
+          <input id="ajusteManual" type="number" min="-50" max="50" step="1" value="0" onchange="analisarConcorrencia()"/>
         </div>
-        <div class="metric">
-          <div class="subtle">Total Adicionais</div>
-          <div class="val" id="totalAdicionais">0</div>
-          <div class="subtle">itens</div>
+      </div>
+
+      <div class="actions" style="margin-bottom:20px">
+        <button onclick="analisarConcorrencia()">🔍 Analisar Concorrência</button>
+        <button class="ghost" onclick="aplicarSugestoes()">✅ Aplicar Sugestões</button>
+        <button class="ghost" onclick="limparConcorrencia()">🗑️ Limpar</button>
+      </div>
+
+      <!-- Resultados da Análise -->
+      <div id="resultadosConcorrencia" style="display:none;">
+        <h3>📈 Análise Comparativa</h3>
+        <div class="cards" id="cardsComparacao" style="margin-bottom:20px"></div>
+
+        <h3>💡 Sugestões de Ajuste</h3>
+        <div id="sugestoesAjuste"></div>
+
+        <h3>📊 Impacto Financeiro
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Métricas que mostram o impacto financeiro dos ajustes de preço sugeridos em comparação com seus preços atuais calculados.</span>
+          </span>
+        </h3>
+        <div class="metric-grid" style="grid-template-columns: repeat(4,minmax(0,1fr));">
+          <div class="metric">
+            <div class="val" id="impactoMRR">R$ 0</div>
+            <div class="subtle">Impacto no MRR
+              <span class="tooltip">
+                <span class="help-icon">?</span>
+                <span class="tooltiptext">Monthly Recurring Revenue: diferença mensal na receita se aplicar os ajustes sugeridos. Valor positivo = mais receita, negativo = menos receita.</span>
+              </span>
+            </div>
+          </div>
+          <div class="metric">
+            <div class="val" id="impactoAnual">R$ 0</div>
+            <div class="subtle">Impacto Anual
+              <span class="tooltip">
+                <span class="help-icon">?</span>
+                <span class="tooltiptext">Projeção do impacto no MRR multiplicado por 12 meses. Mostra o potencial ganho ou perda anual com os ajustes.</span>
+              </span>
+            </div>
+          </div>
+          <div class="metric">
+            <div class="val" id="novaMargemMedia">0%</div>
+            <div class="subtle">Nova Margem Média
+              <span class="tooltip">
+                <span class="help-icon">?</span>
+                <span class="tooltiptext">Margem de lucro média ponderada após aplicar os ajustes de preço. Considera a distribuição de clientes entre os planos.</span>
+              </span>
+            </div>
+          </div>
+          <div class="metric">
+            <div class="val" id="competitividadeScore">0/10</div>
+            <div class="subtle">Score Competitividade
+              <span class="tooltip">
+                <span class="help-icon">?</span>
+                <span class="tooltiptext">Nota de 0 a 10 indicando quão competitivos seus preços estão. 10 = muito competitivo, 0 = muito desalinhado com o mercado.</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" style="margin-top:16px">
+      <h2>📈 Projeções e Cenários</h2>
+      <div class="row">
+        <div>
+          <label>Crescimento Mensal de Clientes (%)</label>
+          <input id="crescimentoMensal" type="number" min="0" max="100" step="1" value="8"/>
+        </div>
+        <div>
+          <label>Período de Projeção (meses)</label>
+          <input id="periodoProjecao" type="number" min="1" max="60" step="1" value="12"/>
         </div>
       </div>
       
-      <!-- Tabelas de Adicionais -->
-      <div id="addonsTables"></div>
-    </div>
+      <div class="row">
+        <div>
+          <label>Meta Receita Mensal no Final do Período (R$)</label>
+          <input id="metaReceitaFinal" type="number" min="0" step="1000" value="50000"/>
+        </div>
+        <div>
+          <label>Churn Melhorado após 6 meses (%/mês)</label>
+          <input id="churnMelhorado" type="number" min="0" max="50" step="0.1" value="2.5"/>
+        </div>
+      </div>
 
-    <!-- AÇÕES -->
-    <div class="actions" style="margin-top:30px; justify-content:center;">
-      <button onclick="calcular()" style="font-size:16px; padding:12px 24px;">🔥 Calcular Preços</button>
-      <button class="ghost" onclick="testeRapido()">🧪 Debug Rápido</button>
-    </div>
+      <div class="actions" style="margin-top:10px">
+        <button onclick="calcularProjecoes()">📊 Calcular Projeções</button>
+        <button class="ghost" onclick="resetarPadrao()">🔄 Resetar Padrão</button>
+      </div>
+
+      <div id="projecaoResults" style="margin-top:15px; display:none">
+        <h3>Resultados da Projeção</h3>
+        <div class="metric-grid">
+          <div class="metric"><div class="val" id="clientesProjetados">0</div><div class="subtle">Clientes no Final</div></div>
+          <div class="metric"><div class="val" id="mrrProjetado">R$ 0</div><div class="subtle">MRR Projetado Final</div></div>
+          <div class="metric"><div class="val" id="breakEvenProjetado">0</div><div class="subtle">Break-even (mês)</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" style="margin-top:16px; background:linear-gradient(135deg, rgba(34,211,238,.12), rgba(124,58,237,.12)); border:2px solid rgba(34,211,238,.3)">
+      <h2>💼 Gerador de Orçamento para Cliente</h2>
+      <p class="subtle">Configure um orçamento personalizado para apresentar ao seu cliente</p>
+      
+      <div class="row">
+        <div>
+          <label>👤 Nome do Cliente</label>
+          <input id="nomeCliente" type="text" placeholder="Ex: Empresa ABC Ltda"/>
+        </div>
+        <div>
+          <label>📧 Email do Cliente</label>
+          <input id="emailCliente" type="text" placeholder="contato@empresaabc.com"/>
+        </div>
+      </div>
+
+      <h3>📦 Seleção de Plano Base</h3>
+      <div class="row">
+        <div>
+          <label>Plano Escolhido</label>
+          <select id="planoEscolhido" style="width:100%; background:#0a0f1a; color:#e5e7eb; border:1px solid rgba(255,255,255,.12); border-radius:10px; padding:10px 12px; font-size:14px;">
+            <option value="mei">👶 MEI</option>
+            <option value="contador">📊 Contador</option>
+            <option value="basico">📦 Básico</option>
+            <option value="inter">⚡ Intermediário</option>
+            <option value="premium">🚀 Premium</option>
+          </select>
+        </div>
+        <div>
+          <label>🎯 Ajuste de Preço (%)</label>
+          <input id="ajustePreco" type="number" min="-50" max="100" step="1" value="0" placeholder="Ex: -10 para desconto de 10%"/>
+        </div>
+      </div>
+
+      <h3>🎁 Adicionais Selecionados</h3>
+      <div id="seletorAdicionais" class="row" style="max-height:200px; overflow-y:auto; border:1px solid rgba(255,255,255,.1); border-radius:8px; padding:10px; margin-bottom:10px;">
+        <!-- Será preenchido dinamicamente -->
+      </div>
+
+      <div class="row">
+        <div>
+          <label>💳 Desconto Adicional (R$)</label>
+          <input id="descontoAdicional" type="number" min="0" step="10" value="0" placeholder="Desconto em reais"/>
+        </div>
+        <div>
+          <label>📅 Vigência da Proposta (dias)</label>
+          <input id="vigenciaProposta" type="number" min="1" max="365" step="1" value="30"/>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>📝 Observações da Proposta</label>
+          <textarea id="observacoesProposta" style="width:100%; background:#0a0f1a; color:#e5e7eb; border:1px solid rgba(255,255,255,.12); border-radius:10px; padding:10px 12px; font-size:14px; height:80px; resize:vertical;" placeholder="Ex: Desconto especial para contrato anual, treinamento incluído, etc."></textarea>
+        </div>
+      </div>
+
+      <div class="actions" style="margin-top:15px">
+        <button onclick="gerarOrcamento()">💼 Gerar Orçamento</button>
+        <button class="ghost" onclick="exportarOrcamentoPDF()">📄 Exportar PDF</button>
+        <button class="ghost" onclick="limparOrcamento()">🗑️ Limpar</button>
+      </div>
+
+      <!-- Resultado do Orçamento -->
+      <div id="resultadoOrcamento" style="margin-top:20px; display:none; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.15); border-radius:12px; padding:20px;">
+        <h3 style="text-align:center; color:var(--brand)">💰 Proposta Comercial - Info Ágil Sistemas</h3>
+        
+        <div class="row" style="margin-bottom:15px">
+          <div><strong>Cliente:</strong> <span id="orcamentoNome">-</span></div>
+          <div><strong>Email:</strong> <span id="orcamentoEmail">-</span></div>
+        </div>
+        <div class="row" style="margin-bottom:15px">
+          <div><strong>Data:</strong> <span id="orcamentoData">-</span></div>
+          <div><strong>Validade:</strong> <span id="orcamentoValidade">-</span> dias</div>
+        </div>
+
+        <table style="width:100%; margin:15px 0; border:1px solid rgba(255,255,255,.2)">
+          <thead>
+            <tr style="background:rgba(255,255,255,.1)">
+              <th style="padding:12px; text-align:left">Item</th>
+              <th style="padding:12px; text-align:center">Qtd</th>
+              <th style="padding:12px; text-align:right">Valor Unit.</th>
+              <th style="padding:12px; text-align:right">Total</th>
+            </tr>
+          </thead>
+          <tbody id="tabelaOrcamento">
+            <!-- Será preenchido dinamicamente -->
+          </tbody>
+          <tfoot>
+            <tr style="background:rgba(255,255,255,.1); font-weight:bold">
+              <td colspan="3" style="padding:12px; text-align:right">VALOR TOTAL MENSAL:</td>
+              <td style="padding:12px; text-align:right; color:var(--brand); font-size:18px" id="valorTotalOrcamento">R$ 0,00</td>
+            </tr>
+          </tfoot>
+        </table>
+
+        <div id="observacoesOrcamento" style="margin-top:15px; padding:10px; background:rgba(255,255,255,.05); border-radius:8px; display:none;">
+          <strong>📋 Observações:</strong>
+          <p id="textoObservacoes" style="margin:5px 0 0 0; color:var(--muted)"></p>
+        </div>
+      </div>
+    </section>
   </div>
+<script>
+    // Variáveis globais
+    let dadosCalculados = {};
+    let adicionaisSelecionados = {};
 
-  <!-- MODAL DE TREINAMENTO (incluído do arquivo original) -->
-  <div id="modalTreinamento" class="modal-overlay">
-    <!-- Modal será carregado via JavaScript para não deixar o HTML muito extenso -->
-  </div>
+    // DADOS PADRÃO PARA ADICIONAIS
+    let adicionaisRaw = [
+      // Muito recomendado
+      {nome:"WhatsApp",     custo:20,   tipo:"muito", id: "addon_1"},
+      {nome:"Boleto",       custo:25,   tipo:"muito", id: "addon_2"},
+      {nome:"Integração Pix",custo:17,  tipo:"muito", id: "addon_3"},
+      {nome:"Assinador",    custo:25,   tipo:"muito", id: "addon_4"},
+      {nome:"Força de Vendas", custo:15,tipo:"muito", id: "addon_5"},
+      // Moderado
+      {nome:"Contrato",     custo:30,   tipo:"moderado", id: "addon_6"},
+      {nome:"Lote",         custo:25,   tipo:"moderado", id: "addon_7"},
+      {nome:"SEUPOS",       custo:20,   tipo:"moderado", id: "addon_8"},
+      {nome:"Averbação",    custo:18,   tipo:"moderado", id: "addon_9"},
+      {nome:"Promoção",     custo:20,   tipo:"moderado", id: "addon_10"},
+      // Opcional
+      {nome:"TEF Sitef",    custo:130,  tipo:"opcional", id: "addon_11"},
+      {nome:"TEF Adicional",custo:32,   tipo:"opcional", id: "addon_12"},
+      {nome:"SEUPOS + STONE", custo:25, tipo:"opcional", id: "addon_13"},
+      {nome:"Cardápio Digital", custo:15, tipo:"opcional", id: "addon_14"},
+      {nome:"Declaração de Importação", custo:20, tipo:"opcional", id: "addon_15"}
+    ];
 
-  <!-- JavaScript Modular -->
-  <script src="js/config.js"></script>
-  <script src="js/validations.js"></script>
-  <script src="js/data-collectors.js"></script>
-  <script src="js/calculations.js"></script>
-  <script src="js/ui-renderer.js"></script>
-  <script src="js/utils.js"></script>
-  <script src="js/modal-content.js"></script>
-  <script src="js/pdf-reports.js"></script>
-  <script src="js/report-templates.js"></script>
-  <script src="js/main-calculator.js"></script>
-  <script src="js/index.js"></script>
-</body>
-</html>
+    // VALIDAÇÕES E AUTO-CORREÇÕES
+    function validarDistribuicao() {
+      const inputs = ['distribMei', 'distribContador', 'distribBasico', 'distribInter', 'distribPremium'];
+      const valores = inputs.map(id => parseFloat(document.getElementById(id).value) || 0);
+      const soma = valores.reduce((a, b) => a + b, 0);
+      
+      const somaEl = document.getElementById('somaDistribuicao');
+      somaEl.textContent = `Total: ${soma.toFixed(1)}%`;
+      
+      if (Math.abs(soma - 100) > 0.1) {
+        somaEl.style.color = 'var(--danger)';
+        inputs.forEach(id => document.getElementById(id).classList.add('validation-error'));
+      } else {
+        somaEl.style.color = 'var(--ok)';
+        inputs.forEach(id => document.getElementById(id).classList.remove('validation-error'));
+      }
+    }
+
+    function autoCorrigirDistribuicao() {
+      const inputs = ['distribMei', 'distribContador', 'distribBasico', 'distribInter', 'distribPremium'];
+      const valores = inputs.map(id => parseFloat(document.getElementById(id).value) || 0);
+      const soma = valores.reduce((a, b) => a + b, 0);
+      
+      if (soma === 0) return;
+      
+      const fator = 100 / soma;
+      let somaCorrigida = 0;
+      inputs.forEach((id, i) => {
+        let novoValor = valores[i] * fator;
+        document.getElementById(id).value = novoValor.toFixed(1);
+        somaCorrigida += parseFloat(novoValor.toFixed(1));
+      });
+
+      // Ajuste fino para garantir que a soma seja exatamente 100
+      let diferenca = 100 - somaCorrigida;
+      if (diferenca !== 0) {
+          let ultimoInput = document.getElementById(inputs[inputs.length - 1]);
+          ultimoInput.value = (parseFloat(ultimoInput.value) + diferenca).toFixed(1);
+      }
+      
+      validarDistribuicao();
+    }
+
+    function validarCAC() {
+        if (!dadosCalculados?.resultados?.planos) return;
+        const inputs = ['cacMei', 'cacContador', 'cacBasico', 'cacInter', 'cacPremium'];
+        const planos = ['mei', 'contador', 'basico', 'inter', 'premium'];
+        
+        inputs.forEach((cacId, i) => {
+            const cacEl = document.getElementById(cacId);
+            const cac = parseFloat(cacEl.value) || 0;
+            const planoData = dadosCalculados.resultados.planos[planos[i]];
+            
+            if (planoData && cac > planoData.preco * 3) {
+                cacEl.classList.add('validation-error');
+            } else {
+                cacEl.classList.remove('validation-error');
+            }
+        });
+    }
+
+    function mostrarAlertas() {
+      const container = document.getElementById('alertasValidacao');
+      container.innerHTML = '';
+      const alertas = [];
+      
+      const soma = ['distribMei', 'distribContador', 'distribBasico', 'distribInter', 'distribPremium']
+        .reduce((acc, id) => acc + (parseFloat(document.getElementById(id).value) || 0), 0);
+      
+      if (Math.abs(soma - 100) > 0.1) {
+        alertas.push({
+          tipo: 'warn',
+          mensagem: `Distribuição de planos soma ${soma.toFixed(1)}% (deve ser 100%). <button onclick="autoCorrigirDistribuicao()" style="margin-left:10px; padding:3px 8px; background:var(--ok); border:none; border-radius:4px; cursor:pointer">Auto-corrigir</button>`
+        });
+      }
+      
+      const margem = parseFloat(document.getElementById('margemLucro').value) || 0;
+      if (margem < 20) {
+        alertas.push({ tipo: 'warn', mensagem: `Margem de lucro baixa (${margem}%). Considere aumentar para sustentar crescimento.` });
+      }
+      
+      const churn = parseFloat(document.getElementById('churnRate').value) || 0;
+      if (churn > 8) {
+        alertas.push({ tipo: 'danger', mensagem: `Churn rate alto (${churn}%/mês). Pode inviabilizar o modelo SaaS.` });
+      }
+
+      alertas.forEach(alerta => {
+        const div = document.createElement('div');
+        div.className = `alert alert-${alerta.tipo}`;
+        div.innerHTML = `⚠️ ${alerta.mensagem}`;
+        container.appendChild(div);
+      });
+    }
+
+    // FUNÇÕES DE COLETA DE DADOS
+    const getValue = (id) => parseFloat(document.getElementById(id)?.value) || 0;
+
+    function getCustosBase() {
+      return {
+        mei: getValue('custoMei'), contador: getValue('custoContador'), basico: getValue('custoBasico'),
+        inter: getValue('custoInter'), premium: getValue('custoPremium')
+      };
+    }
+
+    function getSuporte() {
+      return {
+        mei: getValue('suporteMei'), contador: getValue('suporteContador'), basico: getValue('suporteBasico'),
+        inter: getValue('suporteInter'), premium: getValue('suportePremium')
+      };
+    }
+
+    function getCAC() {
+      return {
+        mei: getValue('cacMei'), contador: getValue('cacContador'), basico: getValue('cacBasico'),
+        inter: getValue('cacInter'), premium: getValue('cacPremium')
+      };
+    }
+
+    function getInputs(){
+      const custoFixo = {
+        pessoal: getValue('custosPessoal'), marketing: getValue('marketing'), infraestrutura: getValue('infraestrutura'),
+        contador: getValue('contador'), comunicacao: getValue('comunicacao'), outros: getValue('outros'),
+        setupAvante: getValue('setupAvante'), contingencia: getValue('custosContingencia')
+      };
+      
+      const parametros = {
+        tipoOperacao: document.getElementById('tipoOperacao')?.value,
+        margemLucro: getValue('margemLucro') / 100,
+        metaClientes: getValue('metaClientes'),
+        distribuicao: {
+            mei: getValue('distribMei') / 100, contador: getValue('distribContador') / 100, basico: getValue('distribBasico') / 100,
+            inter: getValue('distribInter') / 100, premium: getValue('distribPremium') / 100
+        },
+        churnRate: getValue('churnRate') / 100,
+        churnMelhorado: getValue('churnMelhorado') / 100,
+        impostos: getValue('impostos') / 100,
+        comissoes: getValue('comissoes') / 100,
+        whiteLabelPct: getValue('whiteLabelPct') / 100,
+        sazonalidade: getValue('sazonalidade'),
+        margemAdicionais: getValue('margemAdicionais') / 100,
+        txAdesao: {
+            muito: getValue('txMuito') / 100, moderado: getValue('txMod') / 100, opcional: getValue('txOpc') / 100
+        }
+      };
+      
+      return {custoFixo, parametros};
+    }
+
+    // FUNÇÕES DE CÁLCULO
+    function calcularPrecoPlano(plano, custoBase, suporte, custoFixoTotal, p, cac){
+      const custoFixoPorCliente = custoFixoTotal / Math.max(1, p.metaClientes);
+      const custoDireto = custoBase + suporte + custoFixoPorCliente;
+      
+      let percSobrePreco = p.impostos + p.comissoes;
+      if (p.tipoOperacao === 'white_label' || p.tipoOperacao === 'hibrido') {
+          percSobrePreco += p.whiteLabelPct;
+      }
+
+      const denominador = (1 - p.margemLucro) * (1 - percSobrePreco);
+      const preco = custoDireto / Math.max(0.01, denominador);
+      
+      const margem = preco - custoDireto - (preco * percSobrePreco);
+      const roi = custoDireto > 0 ? margem / custoDireto : 0;
+      
+      const churnEfetivo = Math.max(0.001, (p.churnRate + p.churnMelhorado) / 2);
+      const ltv = (preco - (custoBase + suporte)) / churnEfetivo; // LTV sobre a margem de contribuição
+      const ltvCac = cac > 0 ? ltv / cac : 0;
+      
+      return {
+        preco: Math.round(preco), custoDireto: Math.round(custoDireto), margem: Math.round(margem), 
+        roi: Math.round(roi * 100), ltv: Math.round(ltv), ltvCac: Math.round(ltvCac * 10) / 10, cac: cac
+      };
+    }
+
+    // FUNÇÕES DE RENDERIZAÇÃO E UI
+    function money(v){ 
+      if (isNaN(v) || v === null || v === undefined) return "R$ 0";
+      return "R$ " + Math.round(v).toLocaleString("pt-BR", { minimumFractionDigits: 0, maximumFractionDigits: 0 }); 
+    }
+
+    function desenharCards(res){
+      const custosBase = getCustosBase();
+      const suporte = getSuporte();
+      const map = [
+        {k:'mei', titulo:'👶 MEI', base:custosBase.mei, sup:suporte.mei},
+        {k:'contador', titulo:'📊 Contador', base:custosBase.contador, sup:suporte.contador},
+        {k:'basico', titulo:'📦 Básico', base:custosBase.basico, sup:suporte.basico},
+        {k:'inter', titulo:'⚡ Intermediário', base:custosBase.inter, sup:suporte.inter},
+        {k:'premium', titulo:'🚀 Premium', base:custosBase.premium, sup:suporte.premium},
+      ];
+      
+      const el = document.getElementById('cards');
+      el.innerHTML = '';
+      
+      map.forEach(({k,titulo,base,sup}) => {
+        const i = res.planos[k];
+        const ltvCacColor = i.ltvCac >= 3 ? 'var(--ok)' : i.ltvCac >= 2 ? 'var(--warn)' : 'var(--danger)';
+        
+        el.innerHTML += `
+          <div class="card">
+            <div class="mut">Custo: ${money(base)} + ${money(sup)}</div>
+            <div class="price">${money(i.preco)}</div>
+            <div class="mut">${titulo}</div>
+            <table style="margin-top:6px">
+              <tr><td>Margem</td><td class="right">${money(i.margem)}</td></tr>
+              <tr><td>ROI</td><td class="right">${i.roi}%</td></tr>
+              <tr><td>LTV</td><td class="right">${money(i.ltv)}</td></tr>
+              <tr><td>LTV/CAC</td><td class="right" style="color:${ltvCacColor}">${i.ltvCac}x</td></tr>
+              <tr><td>CAC</td><td class="right">${money(i.cac)}</td></tr>
+            </table>
+          </div>`;
+      });
+    }
+
+    function tabelaAddons(id, titulo, filtro, parametros){
+        const itens = adicionaisRaw.filter(a => a.tipo === filtro).map(a => ({
+            ...a,
+            venda: Math.round(a.custo * (1 + parametros.margemAdicionais))
+        }));
+        
+        let rows = itens.map(it => `<tr>
+            <td>${it.nome}</td>
+            <td class="right">${money(it.custo)}</td>
+            <td class="right"><b>${money(it.venda)}</b></td>
+            <td class="center"><button onclick="removerItem('${it.id}')" style="padding:4px 8px; font-size:12px; background:#ef4444">🗑️</button></td>
+        </tr>`).join('');
+
+        const badgeMap = {
+            'muito': '<span class="badge b-ok">Muito recomendado</span>',
+            'moderado': '<span class="badge b-warn">Moderado</span>',
+            'opcional': '<span class="badge b-dang">Opcional</span>'
+        };
+        
+        document.getElementById(id).innerHTML += `
+            <div class="card">
+              <h3 style="margin:0 0 6px">${titulo} ${badgeMap[filtro]}</h3>
+              <table>
+                <thead><tr><th class="left">Adicional</th><th class="right">Custo</th><th class="right">Preço sugerido</th><th class="center">Ação</th></tr></thead>
+                <tbody>${rows}</tbody>
+              </table>
+            </div>`;
+        return itens;
+    }
+
+    // FUNÇÃO PRINCIPAL DE CÁLCULO
+    function calcular(){
+      try {
+        const {custoFixo, parametros} = getInputs();
+        
+        const custoFixoTotal = Object.values(custoFixo).reduce((a,b)=>a+b,0);
+        const custoFixoComSazonalidade = custoFixoTotal * (parametros.sazonalidade || 1);
+        
+        const custosBase = getCustosBase();
+        const suporte = getSuporte();
+        const cac = getCAC();
+
+        const planos = {
+            mei: calcularPrecoPlano('mei', custosBase.mei, suporte.mei, custoFixoComSazonalidade, parametros, cac.mei),
+            contador: calcularPrecoPlano('contador', custosBase.contador, suporte.contador, custoFixoComSazonalidade, parametros, cac.contador),
+            basico: calcularPrecoPlano('basico', custosBase.basico, suporte.basico, custoFixoComSazonalidade, parametros, cac.basico),
+            inter: calcularPrecoPlano('inter', custosBase.inter, suporte.inter, custoFixoComSazonalidade, parametros, cac.inter),
+            premium: calcularPrecoPlano('premium', custosBase.premium, suporte.premium, custoFixoComSazonalidade, parametros, cac.premium)
+        };
+        
+        const clientesPorPlano = {
+            mei: parametros.metaClientes * parametros.distribuicao.mei,
+            contador: parametros.metaClientes * parametros.distribuicao.contador,
+            basico: parametros.metaClientes * parametros.distribuicao.basico,
+            inter: parametros.metaClientes * parametros.distribuicao.inter,
+            premium: parametros.metaClientes * parametros.distribuicao.premium
+        };
+
+        const mrrPlanos = Object.keys(planos).reduce((sum, key) => sum + (clientesPorPlano[key] * planos[key].preco), 0);
+
+        // Adicionais
+        document.getElementById('addonsTables').innerHTML='';
+        const addMuito = tabelaAddons('addonsTables','Pack — Muito Recomendado','muito', parametros);
+        const addMod   = tabelaAddons('addonsTables','Pack — Moderado','moderado', parametros);
+        const addOpc   = tabelaAddons('addonsTables','Pack — Opcional','opcional', parametros);
+
+        const calcularReceitaAdicionais = (arr, tx, itensPorCliente) => {
+            const mediaVenda = arr.length ? arr.reduce((s,i)=>s+i.venda,0)/arr.length : 0;
+            return parametros.metaClientes * tx * mediaVenda * itensPorCliente;
+        };
+
+        const receitaAdicionais = calcularReceitaAdicionais(addMuito, parametros.txAdesao.muito, 1.5) +
+                                  calcularReceitaAdicionais(addMod, parametros.txAdesao.moderado, 1.0) +
+                                  calcularReceitaAdicionais(addOpc, parametros.txAdesao.opcional, 0.5);
+        
+        const mrrTotal = mrrPlanos + receitaAdicionais;
+        const ticketMedio = mrrTotal / Math.max(1, parametros.metaClientes);
+        const breakEven = custoFixoTotal / Math.max(1, ticketMedio - (Object.values(custosBase).reduce((a,b)=>a+b,0) / Object.keys(custosBase).length));
+        
+        const ltvPonderado = Object.keys(planos).reduce((sum, key) => sum + (planos[key].ltv * parametros.distribuicao[key]), 0);
+        const cacPonderado = Object.keys(cac).reduce((sum, key) => sum + (cac[key] * parametros.distribuicao[key]), 0);
+        const ltvCacRatioPonderado = cacPonderado > 0 ? ltvPonderado / cacPonderado : 0;
+
+        // Atualizar UI
+        desenharCards({planos});
+        document.getElementById('mrrTotal').textContent = money(mrrTotal);
+        document.getElementById('custosFixosTotal').textContent = money(custoFixoTotal);
+        document.getElementById('breakEven').textContent = Math.ceil(breakEven);
+        document.getElementById('ltv').textContent = money(ltvPonderado);
+        document.getElementById('ltvCacRatio').textContent = ltvCacRatioPonderado.toFixed(1) + "x";
+        document.getElementById('receitaAnual').textContent = money(mrrTotal * 12);
+        document.getElementById('receitaAdicionaisMensal').textContent = money(receitaAdicionais);
+        document.getElementById('ticketMedioComAdicionais').textContent = money(ticketMedio);
+        
+        dadosCalculados = { inputs: { custoFixo, parametros, custosBase, suporte, cac }, resultados: { planos, mrrTotal, breakEven, ltvPonderado, ltvCacRatioPonderado } };
+        
+        mostrarAlertas();
+        validarCAC();
+
+      } catch (error) {
+        console.error('Erro no cálculo:', error);
+      }
+    }
+
+    // FUNÇÕES AUXILIARES E EVENTOS
+    function resetarPadrao() {
+      const defaults = {
+        'custosPessoal': 0, 'infraestrutura': 200, 'marketing': 0, 'contador': 800,
+        'comunicacao': 0, 'outros': 350, 'setupAvante': 0, 'custosContingencia': 500,
+        'custoMei': 25, 'custoContador': 30, 'custoBasico': 36, 'custoInter': 56, 'custoPremium': 130,
+        'suporteMei': 20, 'suporteContador': 30, 'suporteBasico': 35, 'suporteInter': 50, 'suportePremium': 80,
+        'margemLucro': 30, 'metaClientes': 120,
+        'distribMei': 15, 'distribContador': 20, 'distribBasico': 30, 'distribInter': 25, 'distribPremium': 10,
+        'churnRate': 4, 'churnMelhorado': 2.5,
+        'cacMei': 150, 'cacContador': 200, 'cacBasico': 250, 'cacInter': 350, 'cacPremium': 500,
+        'impostos': 8.5, 'comissoes': 0, 'whiteLabelPct': 30, 'sazonalidade': 1.5,
+        'margemAdicionais': 50, 'txMuito': 70, 'txMod': 40, 'txOpc': 20,
+        'crescimentoMensal': 8, 'periodoProjecao': 12, 'metaReceitaFinal': 50000
+      };
+      for (const [id, value] of Object.entries(defaults)) {
+        const el = document.getElementById(id);
+        if (el) el.value = value;
+      }
+      validarDistribuicao();
+      calcular();
+    }
+
+    function adicionarItem() {
+      const nome = document.getElementById('novoAdicional').value.trim();
+      const custo = parseFloat(document.getElementById('novoCusto').value) || 0;
+      const categoria = document.getElementById('novaCategoria').value;
+      if (!nome || custo <= 0) return;
+      
+      adicionaisRaw.push({ nome, custo, tipo: categoria, id: `addon_${Date.now()}` });
+      document.getElementById('novoAdicional').value = '';
+      document.getElementById('novoCusto').value = '20';
+      calcular();
+    }
+
+    function removerItem(id) {
+      adicionaisRaw = adicionaisRaw.filter(item => item.id !== id);
+      calcular();
+    }
+
+    function exportarJSON(){
+      if(!Object.keys(dadosCalculados).length){ alert("Calcule primeiro."); return; }
+      const blob = new Blob([JSON.stringify(dadosCalculados, null, 2)], {type:"application/json"});
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `precificacao_saas_${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+    
+    function testeRapido() {
+      console.clear();
+      console.log("--- DEBUG INICIADO ---");
+      console.log("Valores de Input:", getInputs());
+      console.log("Dados Calculados:", dadosCalculados);
+      console.log("--- DEBUG FINALIZADO ---");
+    }
+
+    // INICIALIZAÇÃO
+    window.addEventListener("load", ()=>{
+      resetarPadrao(); // Popula com valores padrão e já faz o primeiro cálculo
+      criarSeletorAdicionais(); // Cria a lista de checkboxes para o orçamento
+    });
+
+    // --- SEÇÃO DO GERADOR DE ORÇAMENTO ---
+
+    function criarSeletorAdicionais() {
+      const container = document.getElementById('seletorAdicionais');
+      container.innerHTML = '';
+      const { parametros } = getInputs();
+      
+      adicionaisRaw.forEach(item => {
+        const precoVenda = Math.round(item.custo * (1 + parametros.margemAdicionais));
+        const badge = item.tipo === 'muito' ? 'b-ok' : item.tipo === 'moderado' ? 'b-warn' : 'b-dang';
+        
+        container.innerHTML += `
+          <div style="display:flex; align-items:center; margin:5px 0; padding:8px; background:rgba(255,255,255,.03); border-radius:6px">
+            <input type="checkbox" id="adicional_${item.id}" onchange="toggleAdicional('${item.id}')" style="margin-right:10px">
+            <label for="adicional_${item.id}" style="flex:1; cursor:pointer; margin:0">
+              <span class="badge ${badge}" style="margin-right:8px">${item.nome}</span>
+              <span style="color:var(--muted); font-size:12px">${money(precoVenda)}/mês</span>
+            </label>
+          </div>`;
+      });
+    }
+
+    function toggleAdicional(id) {
+      const checkbox = document.getElementById(`adicional_${id}`);
+      if (checkbox.checked) {
+        adicionaisSelecionados[id] = adicionaisRaw.find(a => a.id === id);
+      } else {
+        delete adicionaisSelecionados[id];
+      }
+    }
+
+    function gerarOrcamento() {
+      if (!dadosCalculados.resultados) {
+        alert("Execute o cálculo principal primeiro.");
+        return;
+      }
+      const { parametros } = getInputs();
+      
+      const nomeCliente = document.getElementById('nomeCliente').value.trim() || 'Não informado';
+      const emailCliente = document.getElementById('emailCliente').value.trim() || '-';
+      const planoEscolhido = document.getElementById('planoEscolhido').value;
+      const ajustePreco = getValue('ajustePreco') / 100;
+      const descontoAdicional = getValue('descontoAdicional');
+      const vigenciaDias = getValue('vigenciaProposta') || 30;
+      const observacoes = document.getElementById('observacoesProposta').value.trim();
+      
+      // Validação para ajuste negativo
+      if (ajustePreco < 0 && !observacoes) {
+        alert('⚠️ Para aplicar desconto no preço, é obrigatório preencher as observações da proposta explicando o motivo do desconto.');
+        document.getElementById('observacoesProposta').focus();
+        return;
+      }
+      
+      const precoOriginalPlano = dadosCalculados.resultados.planos[planoEscolhido].preco;
+      const precoPlanoComAjuste = precoOriginalPlano * (1 + ajustePreco);
+
+      const tbody = document.getElementById('tabelaOrcamento');
+      
+      // Se há ajuste negativo, mostrar preço original e desconto separadamente
+      if (ajustePreco < 0) {
+        const diferenca = precoOriginalPlano - precoPlanoComAjuste;
+        tbody.innerHTML = `<tr>
+          <td>Plano ${planoEscolhido.charAt(0).toUpperCase() + planoEscolhido.slice(1)}</td>
+          <td class="center">1</td>
+          <td class="right">${money(precoOriginalPlano)}</td>
+          <td class="right">${money(precoOriginalPlano)}</td>
+        </tr>
+        <tr style="color: #22c55e;">
+          <td>&nbsp;&nbsp;↳ Desconto aplicado (${(ajustePreco * 100).toFixed(1)}%)</td>
+          <td class="center">-</td>
+          <td class="right">-${money(diferenca)}</td>
+          <td class="right">-${money(diferenca)}</td>
+        </tr>`;
+      } else {
+        tbody.innerHTML = `<tr>
+          <td>Plano ${planoEscolhido.charAt(0).toUpperCase() + planoEscolhido.slice(1)}</td>
+          <td class="center">1</td>
+          <td class="right">${money(precoPlanoComAjuste)}</td>
+          <td class="right">${money(precoPlanoComAjuste)}</td>
+        </tr>`;
+      }
+      
+      let totalAdicionais = 0;
+      Object.values(adicionaisSelecionados).forEach(item => {
+        const precoVenda = Math.round(item.custo * (1 + parametros.margemAdicionais));
+        totalAdicionais += precoVenda;
+        tbody.innerHTML += `<tr>
+          <td>+ ${item.nome}</td>
+          <td class="center">1</td>
+          <td class="right">${money(precoVenda)}</td>
+          <td class="right">${money(precoVenda)}</td>
+        </tr>`;
+      });
+      
+      const valorFinal = precoPlanoComAjuste + totalAdicionais - descontoAdicional;
+
+      document.getElementById('orcamentoNome').textContent = nomeCliente;
+      document.getElementById('orcamentoEmail').textContent = emailCliente;
+      document.getElementById('orcamentoData').textContent = new Date().toLocaleDateString('pt-BR');
+      document.getElementById('orcamentoValidade').textContent = vigenciaDias;
+      document.getElementById('valorTotalOrcamento').textContent = money(valorFinal);
+      
+      // Adicionar observações se houver desconto ou se foram preenchidas
+      if (ajustePreco < 0 || observacoes) {
+        let textoFinal = '';
+        if (ajustePreco < 0) {
+          const descontoPerc = Math.abs(ajustePreco * 100).toFixed(1);
+          textoFinal = `📋 Desconto de ${descontoPerc}% aplicado. `;
+        }
+        if (observacoes) {
+          textoFinal += observacoes;
+        }
+        document.getElementById('textoObservacoes').textContent = textoFinal;
+        document.getElementById('textoObservacoes').style.display = 'block';
+      } else {
+        document.getElementById('textoObservacoes').textContent = '';
+        document.getElementById('textoObservacoes').style.display = 'none';
+      }
+      
+      document.getElementById('resultadoOrcamento').style.display = 'block';
+    }
+
+    function limparOrcamento() {
+        document.getElementById('nomeCliente').value = '';
+        document.getElementById('emailCliente').value = '';
+        document.getElementById('planoEscolhido').value = 'mei';
+        document.getElementById('ajustePreco').value = '0';
+        document.getElementById('descontoAdicional').value = '0';
+        adicionaisSelecionados = {};
+        document.querySelectorAll('#seletorAdicionais input[type="checkbox"]').forEach(cb => cb.checked = false);
+        document.getElementById('resultadoOrcamento').style.display = 'none';
+    }
+
+    // FUNÇÕES DE ANÁLISE DE CONCORRÊNCIA
+    let analiseAtual = null;
+
+    function getConcorrentes() {
+      return {
+        mei: parseFloat(document.getElementById('concorrenteMei').value) || 0,
+        contador: parseFloat(document.getElementById('concorrenteContador').value) || 0,
+        basico: parseFloat(document.getElementById('concorrenteBasico').value) || 0,
+        inter: parseFloat(document.getElementById('concorrenteInter').value) || 0,
+        premium: parseFloat(document.getElementById('concorrentePremium').value) || 0
+      };
+    }
+
+    function analisarConcorrencia() {
+      if (!dadosCalculados || !dadosCalculados.resultados) {
+        alert('Execute primeiro o cálculo de precificação!');
+        return;
+      }
+
+      const concorrentes = getConcorrentes();
+      const nossoPrecos = dadosCalculados.resultados.planos;
+      const estrategia = document.getElementById('estrategiaPosicionamento').value;
+      const ajusteManual = parseFloat(document.getElementById('ajusteManual').value) || 0;
+
+      // Verificar se há pelo menos um preço de concorrente
+      const temConcorrente = Object.values(concorrentes).some(preco => preco > 0);
+      if (!temConcorrente) {
+        document.getElementById('resultadosConcorrencia').style.display = 'none';
+        return;
+      }
+
+      const analise = {};
+      const sugestoes = [];
+      let totalImpactoMRR = 0;
+
+      Object.keys(nossoPrecos).forEach(plano => {
+        const nossoPreco = nossoPrecos[plano].preco;
+        const precoConcorrente = concorrentes[plano];
+        
+        if (precoConcorrente > 0) {
+          const diferenca = ((nossoPreco - precoConcorrente) / precoConcorrente) * 100;
+          const novoPreco = calcularNovoPreco(precoConcorrente, estrategia, ajusteManual);
+          const ajusteNecessario = ((novoPreco - nossoPreco) / nossoPreco) * 100;
+          
+          analise[plano] = {
+            nossoPreco,
+            precoConcorrente,
+            novoPreco,
+            diferenca,
+            ajusteNecessario,
+            competitivo: Math.abs(diferenca) <= 10,
+            status: diferenca > 20 ? 'caro' : diferenca < -20 ? 'barato' : 'equilibrado'
+          };
+
+          // Calcular impacto no MRR
+          const clientesPlano = dadosCalculados.inputs.parametros.metaClientes * 
+                               dadosCalculados.inputs.parametros.distribuicao[plano];
+          const impactoPlano = (novoPreco - nossoPreco) * clientesPlano;
+          totalImpactoMRR += impactoPlano;
+
+          // Gerar sugestões
+          if (Math.abs(ajusteNecessario) > 5) {
+            sugestoes.push({
+              plano: plano.toUpperCase(),
+              acao: ajusteNecessario > 0 ? 'Aumentar' : 'Reduzir',
+              percentual: Math.abs(ajusteNecessario).toFixed(1),
+              precoAtual: nossoPreco,
+              precoSugerido: novoPreco,
+              justificativa: gerarJustificativa(analise[plano], estrategia)
+            });
+          }
+        }
+      });
+
+      analiseAtual = { analise, sugestoes, impactoMRR: totalImpactoMRR, estrategia };
+      exibirResultadosAnalise();
+    }
+
+    function calcularNovoPreco(precoConcorrente, estrategia, ajusteManual) {
+      let fator = 1;
+      
+      switch (estrategia) {
+        case 'competitivo':
+          fator = 0.98; // 2% abaixo do concorrente
+          break;
+        case 'premium':
+          fator = 1.15; // 15% acima do concorrente
+          break;
+        case 'agressivo':
+          fator = 0.85; // 15% abaixo do concorrente
+          break;
+        case 'value':
+          fator = 1.08; // 8% acima do concorrente
+          break;
+      }
+
+      return Math.round(precoConcorrente * fator * (1 + ajusteManual / 100));
+    }
+
+    function gerarJustificativa(dados, estrategia) {
+      if (dados.status === 'caro') {
+        return estrategia === 'premium' ? 
+          'Manter posicionamento premium com valor agregado' :
+          'Reduzir para aumentar competitividade';
+      } else if (dados.status === 'barato') {
+        return 'Aumentar preço para capturar mais valor de mercado';
+      } else {
+        return 'Ajuste fino para otimizar posicionamento';
+      }
+    }
+
+    function exibirResultadosAnalise() {
+      if (!analiseAtual) return;
+
+      const { analise, sugestoes, impactoMRR, estrategia } = analiseAtual;
+
+      // Exibir cards de comparação
+      const cardsContainer = document.getElementById('cardsComparacao');
+      cardsContainer.innerHTML = '';
+
+      Object.keys(analise).forEach(plano => {
+        const dados = analise[plano];
+        const statusColor = dados.competitivo ? 'var(--ok)' : 
+                           dados.status === 'caro' ? 'var(--danger)' : 'var(--warn)';
+        
+        const card = `
+          <div class="card" style="border-left: 4px solid ${statusColor}">
+            <div class="mut">Plano ${plano.toUpperCase()}</div>
+            <div style="margin: 8px 0;">
+              <div style="font-size: 14px;">Nosso: <strong>${money(dados.nossoPreco)}</strong></div>
+              <div style="font-size: 14px;">Concorrente: <strong>${money(dados.precoConcorrente)}</strong></div>
+              <div style="font-size: 14px; color: ${statusColor};">Sugerido: <strong>${money(dados.novoPreco)}</strong></div>
+            </div>
+            <div class="mut">
+              Diferença: ${dados.diferenca > 0 ? '+' : ''}${dados.diferenca.toFixed(1)}%
+            </div>
+          </div>
+        `;
+        cardsContainer.insertAdjacentHTML('beforeend', card);
+      });
+
+      // Exibir sugestões
+      const sugestoesContainer = document.getElementById('sugestoesAjuste');
+      if (sugestoes.length > 0) {
+        let sugestoesHTML = '<div class="alert alert-info" style="margin-bottom: 15px;">';
+        sugestoes.forEach(sug => {
+          sugestoesHTML += `
+            <div style="margin-bottom: 10px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 8px;">
+              <strong>${sug.plano}:</strong> ${sug.acao} ${sug.percentual}% 
+              (${money(sug.precoAtual)} → ${money(sug.precoSugerido)})
+              <br><small>${sug.justificativa}</small>
+            </div>
+          `;
+        });
+        sugestoesHTML += '</div>';
+        sugestoesContainer.innerHTML = sugestoesHTML;
+      } else {
+        sugestoesContainer.innerHTML = '<div class="alert alert-info">✅ Preços estão bem posicionados no mercado!</div>';
+      }
+
+      // Calcular métricas de impacto
+      const impactoAnual = impactoMRR * 12;
+      const { parametros } = dadosCalculados.inputs;
+      const novaMargemMedia = calcularNovaMargemMedia();
+      const scoreCompetitividade = calcularScoreCompetitividade();
+
+      document.getElementById('impactoMRR').textContent = money(impactoMRR);
+      document.getElementById('impactoAnual').textContent = money(impactoAnual);
+      document.getElementById('novaMargemMedia').textContent = novaMargemMedia.toFixed(1) + '%';
+      document.getElementById('competitividadeScore').textContent = scoreCompetitividade.toFixed(1) + '/10';
+
+      document.getElementById('resultadosConcorrencia').style.display = 'block';
+    }
+
+    function calcularNovaMargemMedia() {
+      if (!analiseAtual) return 0;
+      
+      const { parametros, custosBase, suporte } = dadosCalculados.inputs;
+      const custoFixoTotal = Object.values(dadosCalculados.inputs.custoFixo).reduce((a,b)=>a+b,0);
+      const custoFixoComSazonalidade = custoFixoTotal * (parametros.sazonalidade || 1);
+      const custoFixoPorCliente = custoFixoComSazonalidade / Math.max(1, parametros.metaClientes);
+      
+      let margemPonderada = 0;
+      let totalDistribuicao = 0;
+
+      Object.keys(analiseAtual.analise).forEach(plano => {
+        const dados = analiseAtual.analise[plano];
+        const custoDireto = custosBase[plano] + getSuporte()[plano] + custoFixoPorCliente;
+        const margem = ((dados.novoPreco - custoDireto) / dados.novoPreco) * 100;
+        const distribuicao = parametros.distribuicao[plano];
+        
+        margemPonderada += margem * distribuicao;
+        totalDistribuicao += distribuicao;
+      });
+
+      return totalDistribuicao > 0 ? margemPonderada / totalDistribuicao : 0;
+    }
+
+    function calcularScoreCompetitividade() {
+      if (!analiseAtual) return 0;
+      
+      const scores = Object.values(analiseAtual.analise).map(dados => {
+        if (dados.competitivo) return 10;
+        if (Math.abs(dados.diferenca) <= 20) return 7;
+        if (Math.abs(dados.diferenca) <= 40) return 4;
+        return 1;
+      });
+
+      return scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
+    }
+
+    function aplicarSugestoes() {
+      if (!analiseAtual || analiseAtual.sugestoes.length === 0) {
+        alert('Não há sugestões para aplicar!');
+        return;
+      }
+
+      const confirmar = confirm(`Aplicar ${analiseAtual.sugestoes.length} sugestão(ões) de ajuste de preço?`);
+      if (!confirmar) return;
+
+      // Aqui você pode implementar a lógica para aplicar as sugestões
+      // Por exemplo, ajustar margens ou custos para atingir os preços sugeridos
+      alert('Funcionalidade de aplicação automática será implementada em versão futura.\nPor enquanto, use as sugestões como referência manual.');
+    }
+
+    function limparConcorrencia() {
+      ['concorrenteMei', 'concorrenteContador', 'concorrenteBasico', 'concorrenteInter', 'concorrentePremium']
+        .forEach(id => document.getElementById(id).value = '0');
+      
+      document.getElementById('estrategiaPosicionamento').value = 'competitivo';
+      document.getElementById('ajusteManual').value = '0';
+      document.getElementById('resultadosConcorrencia').style.display = 'none';
+      analiseAtual = null;
+    }
+
+    function exportarOrcamentoPDF() {
+        const orcamentoHtml = document.getElementById('resultadoOrcamento').innerHTML;
+        const win = window.open('', '', 'height=700,width=700');
+        win.document.write('<html><head><title>Orçamento</title>');
+        win.document.write('<style>body{font-family: sans-serif;} table{width:100%; border-collapse:collapse;} td,th{border:1px solid #ddd; padding:8px;} .right{text-align:right;} .center{text-align:center;}</style>');
+        win.document.write('</head><body>');
+        win.document.write(orcamentoHtml);
+        win.document.write('</body></html>');
+        win.document.close();
+        win.print();
+    }
+
+    // RELATÓRIO PDF COMPLETO
+    function gerarRelatorioCompleto() {
+        if (!dadosCalculados || !dadosCalculados.resultados) {
+            alert('Execute primeiro o cálculo de precificação!');
+            return;
+        }
+
+        const agora = new Date();
+        const dataHora = agora.toLocaleString('pt-BR');
+        const dados = dadosCalculados;
+        const fileName = `Relatorio_Precificacao_InfoAgil_${agora.getFullYear()}-${(agora.getMonth()+1).toString().padStart(2,'0')}-${agora.getDate().toString().padStart(2,'0')}.pdf`;
+
+        // Calcular métricas derivadas
+        const custosFixosTotal = Object.values(dados.inputs.custoFixo).reduce((a,b)=>a+b,0);
+        const receitaAnual = dados.resultados.mrrTotal * 12;
+        const margemMedia = calcularMargemMedia();
+        const receitaAdicionais = getValue('receitaAdicionaisMensal') || 0;
+        const ticketMedio = getValue('ticketMedioComAdicionais') || 0;
+        
+        function calcularMargemMedia() {
+            let margemPonderada = 0;
+            let totalDistribuicao = 0;
+            Object.entries(dados.resultados.planos).forEach(([plano, planoData]) => {
+                const distribuicao = dados.inputs.parametros.distribuicao[plano];
+                margemPonderada += (planoData.margem || 0) * distribuicao;
+                totalDistribuicao += distribuicao;
+            });
+            return totalDistribuicao > 0 ? margemPonderada / totalDistribuicao : 0;
+        }
+
+        // Criar elemento temporário para o conteúdo do relatório
+        const reportContent = document.createElement('div');
+        reportContent.style.cssText = `
+            font-family: Arial, sans-serif;
+            color: #333;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+        `;
+
+        reportContent.innerHTML = `
+            <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #007acc; padding-bottom: 20px;">
+                <h1 style="color: #007acc; margin: 0; font-size: 24px;">📊 RELATÓRIO COMPLETO DE PRECIFICAÇÃO SaaS</h1>
+                <p style="margin: 5px 0; color: #666;"><strong>Info Ágil Sistemas</strong></p>
+                <p style="margin: 5px 0; color: #666;">Gerado em: ${dataHora}</p>
+                <p style="margin: 5px 0; color: #666;">Documento para análise interna e estratégica</p>
+            </div>
+
+            <div style="margin: 25px 0;">
+                <h2 style="color: #007acc; border-bottom: 1px solid #ddd; padding-bottom: 5px;">📋 SUMÁRIO EXECUTIVO</h2>
+                <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 6px;">
+                    <h3>🎯 Principais Resultados:</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
+                        <div>
+                            <strong>💰 Receita</strong><br>
+                            MRR Projetado: ${money(dados.resultados.mrrTotal || 0)}<br>
+                            Receita Anual: ${money(receitaAnual || 0)}<br>
+                            Receita Adicionais: ${money(receitaAdicionais || 0)}<br>
+                            Ticket Médio: ${money(ticketMedio || 0)}
+                        </div>
+                        <div>
+                            <strong>📊 Métricas</strong><br>
+                            LTV Médio: ${money(dados.resultados.ltvPonderado || 0)}<br>
+                            LTV/CAC Ratio: ${(dados.resultados.ltvCacRatioPonderado || 0).toFixed(1)}x<br>
+                            Margem Média: ${margemMedia.toFixed(1)}%<br>
+                            Break-even: ${dados.resultados.breakEven || 0} clientes
+                        </div>
+                        <div>
+                            <strong>⚡ Status</strong><br>
+                            ${(dados.resultados.ltvCacRatioPonderado || 0) >= 3 ? '✅ LTV/CAC Saudável' : '⚠️ LTV/CAC Baixo'}<br>
+                            ${margemMedia >= 20 ? '✅ Margem Adequada' : '⚠️ Margem Baixa'}<br>
+                            ${(dados.inputs.parametros.churnRate || 0) <= 5 ? '✅ Churn Controlado' : '⚠️ Churn Alto'}<br>
+                            Total Adicionais: ${adicionaisRaw.length} itens
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin: 25px 0;">
+                <h2 style="color: #007acc; border-bottom: 1px solid #ddd; padding-bottom: 5px;">🎯 METODOLOGIA UTILIZADA</h2>
+                <h3>Fórmulas Principais:</h3>
+                <div style="background: #f1f3f4; padding: 12px; border-radius: 4px; font-family: monospace; margin: 10px 0;">
+                    <strong>Preço Final:</strong><br>
+                    P = (Custo Direto / (1 - Margem)) / (1 - Impostos - Comissões - WhiteLabel)
+                </div>
+                <div style="background: #f1f3f4; padding: 12px; border-radius: 4px; font-family: monospace; margin: 10px 0;">
+                    <strong>LTV (Lifetime Value):</strong><br>
+                    LTV = (Margem Contribuição × 12) / Taxa Churn Média
+                </div>
+            </div>
+
+            <div style="margin: 25px 0;">
+                <h2 style="color: #007acc; border-bottom: 1px solid #ddd; padding-bottom: 5px;">📊 PARÂMETROS UTILIZADOS</h2>
+                <table style="width: 100%; border-collapse: collapse; margin: 15px 0;">
+                    <tr><td style="border: 1px solid #ddd; padding: 8px;"><strong>Margem de Lucro Desejada</strong></td><td style="border: 1px solid #ddd; padding: 8px;">${dados.inputs.parametros.margemLucro}%</td></tr>
+                    <tr><td style="border: 1px solid #ddd; padding: 8px;"><strong>Meta de Clientes</strong></td><td style="border: 1px solid #ddd; padding: 8px;">${dados.inputs.parametros.metaClientes}</td></tr>
+                    <tr><td style="border: 1px solid #ddd; padding: 8px;"><strong>Churn Rate Inicial</strong></td><td style="border: 1px solid #ddd; padding: 8px;">${dados.inputs.parametros.churnRate}%/mês</td></tr>
+                    <tr><td style="border: 1px solid #ddd; padding: 8px;"><strong>Custos Fixos Totais</strong></td><td style="border: 1px solid #ddd; padding: 8px;">${money(custosFixosTotal)}</td></tr>
+                </table>
+            </div>
+
+            <div style="margin: 25px 0;">
+                <h2 style="color: #007acc; border-bottom: 1px solid #ddd; padding-bottom: 5px;">💎 PREÇOS CALCULADOS POR PLANO</h2>
+                ${Object.entries(dados.resultados.planos).map(([plano, planoData]) => `
+                    <div style="border: 2px solid #007acc; border-radius: 6px; padding: 15px; margin: 15px 0;">
+                        <h3 style="color: #007acc; margin-top: 0;">PLANO ${plano.toUpperCase()}</h3>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div>
+                                <h4>💰 Composição de Custos</h4>
+                                <p>Custo Base: ${money(planoData.custoBase || 0)}</p>
+                                <p>Custo Suporte: ${money(planoData.custoSuporte || 0)}</p>
+                                <p>Custo Fixo/Cliente: ${money(planoData.custoFixoPorCliente || 0)}</p>
+                                <p><strong>Custo Direto Total: ${money(planoData.custoDireto || 0)}</strong></p>
+                            </div>
+                            <div>
+                                <h4>📊 Resultados</h4>
+                                <p><strong style="font-size: 18px; color: #007acc;">Preço: ${money(planoData.preco || 0)}</strong></p>
+                                <p>Margem: ${(planoData.margem || 0).toFixed(1)}%</p>
+                                <p>ROI: ${(planoData.roi || 0).toFixed(2)}x</p>
+                                <p>LTV: ${money(planoData.ltv || 0)}</p>
+                                <p>LTV/CAC: ${(planoData.ltvCac || 0).toFixed(1)}x</p>
+                            </div>
+                        </div>
+                        ${(planoData.margem || 0) < 20 ? `
+                            <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 10px; border-radius: 4px; margin: 10px 0;">
+                                ⚠️ <strong>Atenção:</strong> Margem de ${(planoData.margem || 0).toFixed(1)}% está abaixo do recomendado (20%+).
+                            </div>
+                        ` : ''}
+                    </div>
+                `).join('')}
+            </div>
+
+            <div style="margin: 25px 0;">
+                <h2 style="color: #007acc; border-bottom: 1px solid #ddd; padding-bottom: 5px;">📈 PROJEÇÕES FINANCEIRAS</h2>
+                <div style="background: #f8f9fa; border: 1px solid #dee2e6; padding: 15px; border-radius: 6px;">
+                    <h4>Distribuição de Receita por Plano</h4>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr style="background: #f8f9fa;">
+                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Plano</th>
+                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Clientes</th>
+                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Preço</th>
+                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Receita Mensal</th>
+                        </tr>
+                        ${Object.entries(dados.resultados.planos).map(([plano, planoData]) => {
+                            const clientes = Math.round(dados.inputs.parametros.metaClientes * (dados.inputs.parametros.distribuicao[plano] || 0) / 100);
+                            const receitaPlano = clientes * (planoData.preco || 0);
+                            return `<tr>
+                                <td style="border: 1px solid #ddd; padding: 8px;">${plano.toUpperCase()}</td>
+                                <td style="border: 1px solid #ddd; padding: 8px;">${clientes}</td>
+                                <td style="border: 1px solid #ddd; padding: 8px;">${money(planoData.preco || 0)}</td>
+                                <td style="border: 1px solid #ddd; padding: 8px;">${money(receitaPlano)}</td>
+                            </tr>`;
+                        }).join('')}
+                    </table>
+                </div>
+            </div>
+
+            <div style="margin: 25px 0;">
+                <h2 style="color: #007acc; border-bottom: 1px solid #ddd; padding-bottom: 5px;">� MÓDULOS ADICIONAIS DISPONÍVEIS</h2>
+                <div style="background: #f8f9fa; border: 1px solid #dee2e6; padding: 15px; border-radius: 6px;">
+                    ${['muito', 'moderado', 'opcional'].map(tipo => {
+                        const itens = adicionaisRaw.filter(a => a.tipo === tipo);
+                        const tipoNome = {muito: 'Muito Recomendado', moderado: 'Moderadamente Recomendado', opcional: 'Opcional'}[tipo];
+                        const corTipo = {muito: '#28a745', moderado: '#ffc107', opcional: '#6c757d'}[tipo];
+                        return itens.length > 0 ? `
+                            <h4 style="color: ${corTipo}; margin: 15px 0 5px 0;">${tipoNome}</h4>
+                            <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
+                                <tr style="background: #f1f3f4;">
+                                    <th style="border: 1px solid #ddd; padding: 6px; text-align: left;">Módulo</th>
+                                    <th style="border: 1px solid #ddd; padding: 6px; text-align: left;">Custo Base</th>
+                                    <th style="border: 1px solid #ddd; padding: 6px; text-align: left;">Preço Venda</th>
+                                    <th style="border: 1px solid #ddd; padding: 6px; text-align: left;">Margem</th>
+                                </tr>
+                                ${itens.map(item => {
+                                    const precoVenda = Math.round(item.custo * (1 + (dados.inputs.parametros.margemAdicionais || 0.5)));
+                                    const margem = ((precoVenda - item.custo) / precoVenda * 100).toFixed(0);
+                                    return `<tr>
+                                        <td style="border: 1px solid #ddd; padding: 6px;">${item.nome}</td>
+                                        <td style="border: 1px solid #ddd; padding: 6px;">${money(item.custo)}</td>
+                                        <td style="border: 1px solid #ddd; padding: 6px;">${money(precoVenda)}</td>
+                                        <td style="border: 1px solid #ddd; padding: 6px;">${margem}%</td>
+                                    </tr>`;
+                                }).join('')}
+                            </table>
+                        ` : '';
+                    }).join('')}
+                </div>
+            </div>
+
+            ${analiseAtual ? `
+            <div style="margin: 25px 0;">
+                <h2 style="color: #007acc; border-bottom: 1px solid #ddd; padding-bottom: 5px;">🏪 ANÁLISE DE CONCORRÊNCIA</h2>
+                <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 6px;">
+                    <p><strong>Estratégia Aplicada:</strong> ${analiseAtual.estrategia.toUpperCase()}</p>
+                    <p><strong>Impacto no MRR:</strong> ${money(analiseAtual.impactoMRR || 0)}</p>
+                    <p><strong>Impacto Anual:</strong> ${money((analiseAtual.impactoMRR || 0) * 12)}</p>
+                    
+                    <h4>Comparativo por Plano:</h4>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr style="background: #f8f9fa;">
+                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Plano</th>
+                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Nosso Preço</th>
+                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Concorrência</th>
+                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Status</th>
+                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Sugestão</th>
+                        </tr>
+                        ${Object.entries(analiseAtual.analise).map(([plano, dados]) => {
+                            const statusCor = dados.status === 'competitivo' ? '#28a745' : dados.status === 'caro' ? '#dc3545' : '#ffc107';
+                            return `<tr>
+                                <td style="border: 1px solid #ddd; padding: 8px;">${plano.toUpperCase()}</td>
+                                <td style="border: 1px solid #ddd; padding: 8px;">${money(dados.nossoPreco)}</td>
+                                <td style="border: 1px solid #ddd; padding: 8px;">${money(dados.precoConcorrente)}</td>
+                                <td style="border: 1px solid #ddd; padding: 8px; color: ${statusCor};">${dados.status.toUpperCase()}</td>
+                                <td style="border: 1px solid #ddd; padding: 8px;">${money(dados.precoSugerido)}</td>
+                            </tr>`;
+                        }).join('')}
+                    </table>
+                    
+                    ${analiseAtual.sugestoes.length > 0 ? `
+                    <div style="background: #d1ecf1; border: 1px solid #b8daff; padding: 12px; border-radius: 4px; margin-top: 15px;">
+                        <h4>📝 Sugestões de Ajuste:</h4>
+                        <ul>
+                        ${analiseAtual.sugestoes.map(sugestao => `<li>${sugestao}</li>`).join('')}
+                        </ul>
+                    </div>
+                    ` : ''}
+                </div>
+            </div>
+            ` : ''}
+
+            <div style="margin: 25px 0;">
+                <h2 style="color: #007acc; border-bottom: 1px solid #ddd; padding-bottom: 5px;">�💡 RECOMENDAÇÕES</h2>
+                <div style="background: #d4edda; padding: 15px; border-radius: 6px;">
+                    <h4>🎯 Recomendações Estratégicas:</h4>
+                    <ul>
+                        <li><strong>Monitoramento KPIs:</strong> Acompanhar LTV/CAC, churn e margem mensalmente</li>
+                        <li><strong>Otimização de Churn:</strong> ${(dados.inputs.parametros.churnRate || 0) > 5 ? 'CRÍTICO - Implementar programa de retenção urgente' : 'Manter foco em redução contínua'}</li>
+                        <li><strong>Estratégia de Crescimento:</strong> Desenvolver upsell com módulos adicionais (${adicionaisRaw.length} disponíveis)</li>
+                        <li><strong>Análise Competitiva:</strong> ${analiseAtual ? 'Revisar posicionamento baseado na última análise' : 'Implementar análise de concorrência trimestral'}</li>
+                        <li><strong>Pricing:</strong> ${margemMedia < 20 ? 'AÇÃO NECESSÁRIA - Revisar estrutura de custos ou aumentar preços' : 'Estrutura de preços adequada'}</li>
+                    </ul>
+                    
+                    <h4>⚠️ Alertas Importantes:</h4>
+                    <ul>
+                        ${(dados.resultados.ltvCacRatioPonderado || 0) < 3 ? '<li style="color: #dc3545;"><strong>LTV/CAC Baixo:</strong> Risco para sustentabilidade do negócio</li>' : ''}
+                        ${margemMedia < 15 ? '<li style="color: #dc3545;"><strong>Margem Crítica:</strong> Margem abaixo do mínimo recomendado</li>' : ''}
+                        ${(dados.inputs.parametros.churnRate || 0) > 8 ? '<li style="color: #dc3545;"><strong>Churn Alto:</strong> Comprometendo LTV e crescimento</li>' : ''}
+                        ${(dados.resultados.breakEven || 0) > (dados.inputs.parametros.metaClientes || 0) ? '<li style="color: #dc3545;"><strong>Meta Insuficiente:</strong> Break-even maior que meta de clientes</li>' : ''}
+                    </ul>
+                    
+                    <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 12px; border-radius: 4px; margin-top: 15px;">
+                        <strong>📊 Próxima Revisão:</strong> Recomenda-se revisar esta análise em 30 dias ou quando houver mudanças significativas nos custos/concorrência.
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 30px; text-align: center; font-size: 12px; color: #666;">
+                <p>Relatório gerado pela Calculadora de Precificação SaaS - Info Ágil Sistemas</p>
+                <p>Documento confidencial para uso interno</p>
+            </div>
+        `;
+
+        // Adicionar o conteúdo temporariamente ao body
+        document.body.appendChild(reportContent);
+
+        // Configuração do html2canvas e jsPDF
+        const options = {
+            scale: 2,
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: '#ffffff'
+        };
+
+        // Gerar PDF
+        html2canvas(reportContent, options).then(canvas => {
+            const imgData = canvas.toDataURL('image/png');
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            
+            const imgWidth = 210; // A4 width in mm
+            const pageHeight = 295; // A4 height in mm
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            let heightLeft = imgHeight;
+            let position = 0;
+
+            // Adicionar primeira página
+            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+
+            // Adicionar páginas adicionais se necessário
+            while (heightLeft >= 0) {
+                position = heightLeft - imgHeight;
+                pdf.addPage();
+                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+            }
+
+            // Remover elemento temporário
+            document.body.removeChild(reportContent);
+
+            // Fazer download do PDF
+            try {
+                pdf.save(fileName);
+                alert('✅ Relatório PDF gerado com sucesso!\nArquivo: ' + fileName);
+            } catch (error) {
+                console.error('Erro ao gerar PDF:', error);
+                alert('❌ Erro ao gerar PDF. Tente novamente ou use um navegador diferente.');
+            }
+        }).catch(error => {
+            console.error('Erro no html2canvas:', error);
+            document.body.removeChild(reportContent);
+            alert('❌ Erro ao processar relatório. Verifique se o navegador permite downloads e tente novamente.');
+        });
+    }
+
+    // Função de debug completo
+    function debugCompleto() {
+        console.clear();
+        console.log("🐛 === DEBUG COMPLETO - InfoÁgil SaaS Calculator ===");
+        
+        // 1. Informações do sistema
+        console.group("📊 Informações do Sistema");
+        console.log("Data/Hora:", new Date().toLocaleString());
+        console.log("User Agent:", navigator.userAgent);
+        console.log("URL:", window.location.href);
+        console.log("Viewport:", window.innerWidth + "x" + window.innerHeight);
+        console.groupEnd();
+
+        // 2. Estado atual dos inputs
+        console.group("📝 Estado dos Inputs");
+        const inputs = document.querySelectorAll('input');
+        inputs.forEach(input => {
+            console.log(`${input.id || input.name || 'sem-id'}: ${input.value} (${input.type})`);
+        });
+        console.groupEnd();
+
+        // 3. Executar cálculo e capturar resultados
+        console.group("🔢 Resultados dos Cálculos");
+        try {
+            calcular();
+            const resultados = {
+                precoBasico: document.getElementById('precoBasico')?.textContent,
+                precoStandard: document.getElementById('precoStandard')?.textContent,
+                precoPremium: document.getElementById('precoPremium')?.textContent,
+                custoBasico: document.getElementById('custoBasico')?.textContent,
+                custoStandard: document.getElementById('custoStandard')?.textContent,
+                custoPremium: document.getElementById('custoPremium')?.textContent
+            };
+            console.table(resultados);
+        } catch (error) {
+            console.error("Erro no cálculo:", error);
+        }
+        console.groupEnd();
+
+        // 4. Análise de concorrência
+        console.group("🎯 Análise de Concorrência");
+        const concorrentes = document.querySelectorAll('#concorrenciaContainer .concorrente-item');
+        console.log(`Total de concorrentes: ${concorrentes.length}`);
+        concorrentes.forEach((item, index) => {
+            const nome = item.querySelector('input[placeholder*="nome"]')?.value;
+            const preco = item.querySelector('input[placeholder*="preço"]')?.value;
+            console.log(`Concorrente ${index + 1}: ${nome || 'Sem nome'} - R$ ${preco || 'Sem preço'}`);
+        });
+        console.groupEnd();
+
+        // 5. Estado dos tooltips e elementos UI
+        console.group("🎨 Elementos de UI");
+        const tooltips = document.querySelectorAll('.tooltip');
+        console.log(`Total de tooltips: ${tooltips.length}`);
+        
+        const cards = document.querySelectorAll('.card');
+        console.log(`Total de cards: ${cards.length}`);
+        
+        const buttons = document.querySelectorAll('button');
+        console.log(`Total de botões: ${buttons.length}`);
+        console.groupEnd();
+
+        // 6. Verificar dependências externas
+        console.group("📦 Dependências Externas");
+        console.log("jsPDF disponível:", typeof window.jsPDF !== 'undefined');
+        console.log("html2canvas disponível:", typeof html2canvas !== 'undefined');
+        console.groupEnd();
+
+        // 7. Erros no console
+        console.group("⚠️ Monitoramento de Erros");
+        console.log("Debug iniciado. Monitore este console para novos erros.");
+        console.groupEnd();
+
+        // 8. Performance
+        console.group("⚡ Performance");
+        if (performance.timing) {
+            const loadTime = performance.timing.loadEventEnd - performance.timing.navigationStart;
+            console.log(`Tempo de carregamento: ${loadTime}ms`);
+        }
+        console.log(`DOM Elements: ${document.querySelectorAll('*').length}`);
+        console.groupEnd();
+
+        console.log("🐛 === FIM DO DEBUG ===");
+        
+        // Abrir DevTools automaticamente (funciona apenas em alguns navegadores)
+        try {
+            // Tentar abrir o console do navegador
+            if (typeof chrome !== 'undefined' && chrome.runtime) {
+                // Chrome extension context
+                console.log("💡 Abra o DevTools manualmente (F12) para visualizar melhor as informações.");
+            } else {
+                // Navegador normal - usar técnica para forçar abertura do console
+                console.log("%c💡 CONSOLE ABERTO! Verifique as abas Console/Network/Elements para análise completa.", 
+                    "background: #ff6b6b; color: white; padding: 10px; font-size: 16px; font-weight: bold;");
+                
+                // Tentar forçar focus no console (técnica experimental)
+                setTimeout(() => {
+                    debugger; // Força abertura do DevTools na aba Sources
+                }, 100);
+            }
+        } catch (e) {
+            console.log("💡 Abra o DevTools manualmente (F12) para análise completa.");
+        }
+
+        alert("🐛 Debug completo executado! Verifique o console do navegador (F12) para informações detalhadas.");
+    }
+
+    // Funções do Modal de Treinamento
+    function abrirTreinamento() {
+        document.getElementById('modalTreinamento').style.display = 'flex';
+        document.body.style.overflow = 'hidden'; // Previne scroll do body
+    }
+
+    function fecharTreinamento() {
+        document.getElementById('modalTreinamento').style.display = 'none';
+        document.body.style.overflow = 'auto'; // Restaura scroll do body
+    }
+
+    // Fechar modal clicando fora do conteúdo
+    document.getElementById('modalTreinamento').addEventListener('click', function(e) {
+        if (e.target === this) {
+            fecharTreinamento();
+        }
+    });
+
+    // Fechar modal com tecla ESC
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            fecharTreinamento();
+        }
+    });
+  </script>
