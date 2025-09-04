@@ -348,6 +348,74 @@
       </div>
     </section>
 
+    <!-- NOVA SEÇÃO: ANÁLISE DE CONCORRÊNCIA -->
+    <section class="card" style="margin-top:16px">
+      <h2>🎯 Análise de Concorrência e Ajuste de Mercado</h2>
+      <div class="subtle" style="margin-bottom:15px">
+        Compare seus preços com a concorrência e receba sugestões automáticas de ajuste
+      </div>
+
+      <h3>📊 Preços dos Concorrentes</h3>
+      <div class="row5" style="margin-bottom:15px">
+        <div><label class="hint">Concorrente MEI (R$)</label><input id="concorrenteMei" type="number" min="0" step="1" value="0" onchange="analisarConcorrencia()"/></div>
+        <div><label class="hint">Concorrente Contador (R$)</label><input id="concorrenteContador" type="number" min="0" step="1" value="0" onchange="analisarConcorrencia()"/></div>
+        <div><label class="hint">Concorrente Básico (R$)</label><input id="concorrenteBasico" type="number" min="0" step="1" value="0" onchange="analisarConcorrencia()"/></div>
+        <div><label class="hint">Concorrente Inter (R$)</label><input id="concorrenteInter" type="number" min="0" step="1" value="0" onchange="analisarConcorrencia()"/></div>
+        <div><label class="hint">Concorrente Premium (R$)</label><input id="concorrentePremium" type="number" min="0" step="1" value="0" onchange="analisarConcorrencia()"/></div>
+      </div>
+
+      <div class="row" style="margin-bottom:15px">
+        <div>
+          <label>Estratégia de Posicionamento</label>
+          <select id="estrategiaPosicionamento" onchange="analisarConcorrencia()">
+            <option value="competitivo">Competitivo (-5% a +5%)</option>
+            <option value="premium">Premium (+10% a +20%)</option>
+            <option value="agressivo">Agressivo (-10% a -20%)</option>
+            <option value="value">Valor Agregado (+5% a +15%)</option>
+          </select>
+        </div>
+        <div>
+          <label>Fator de Ajuste Manual (%)</label>
+          <input id="ajusteManual" type="number" min="-50" max="50" step="1" value="0" onchange="analisarConcorrencia()"/>
+        </div>
+      </div>
+
+      <div class="actions" style="margin-bottom:20px">
+        <button onclick="analisarConcorrencia()">🔍 Analisar Concorrência</button>
+        <button class="ghost" onclick="aplicarSugestoes()">✅ Aplicar Sugestões</button>
+        <button class="ghost" onclick="limparConcorrencia()">🗑️ Limpar</button>
+      </div>
+
+      <!-- Resultados da Análise -->
+      <div id="resultadosConcorrencia" style="display:none;">
+        <h3>📈 Análise Comparativa</h3>
+        <div class="cards" id="cardsComparacao" style="margin-bottom:20px"></div>
+
+        <h3>💡 Sugestões de Ajuste</h3>
+        <div id="sugestoesAjuste"></div>
+
+        <h3>📊 Impacto Financeiro</h3>
+        <div class="metric-grid" style="grid-template-columns: repeat(4,minmax(0,1fr));">
+          <div class="metric">
+            <div class="val" id="impactoMRR">R$ 0</div>
+            <div class="subtle">Impacto no MRR</div>
+          </div>
+          <div class="metric">
+            <div class="val" id="impactoAnual">R$ 0</div>
+            <div class="subtle">Impacto Anual</div>
+          </div>
+          <div class="metric">
+            <div class="val" id="novaMargemMedia">0%</div>
+            <div class="subtle">Nova Margem Média</div>
+          </div>
+          <div class="metric">
+            <div class="val" id="competitividadeScore">0/10</div>
+            <div class="subtle">Score Competitividade</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section class="card" style="margin-top:16px">
       <h2>📈 Projeções e Cenários</h2>
       <div class="row">
@@ -989,6 +1057,241 @@
         adicionaisSelecionados = {};
         document.querySelectorAll('#seletorAdicionais input[type="checkbox"]').forEach(cb => cb.checked = false);
         document.getElementById('resultadoOrcamento').style.display = 'none';
+    }
+
+    // FUNÇÕES DE ANÁLISE DE CONCORRÊNCIA
+    let analiseAtual = null;
+
+    function getConcorrentes() {
+      return {
+        mei: parseFloat(document.getElementById('concorrenteMei').value) || 0,
+        contador: parseFloat(document.getElementById('concorrenteContador').value) || 0,
+        basico: parseFloat(document.getElementById('concorrenteBasico').value) || 0,
+        inter: parseFloat(document.getElementById('concorrenteInter').value) || 0,
+        premium: parseFloat(document.getElementById('concorrentePremium').value) || 0
+      };
+    }
+
+    function analisarConcorrencia() {
+      if (!dadosCalculados || !dadosCalculados.resultados) {
+        alert('Execute primeiro o cálculo de precificação!');
+        return;
+      }
+
+      const concorrentes = getConcorrentes();
+      const nossoPrecos = dadosCalculados.resultados.planos;
+      const estrategia = document.getElementById('estrategiaPosicionamento').value;
+      const ajusteManual = parseFloat(document.getElementById('ajusteManual').value) || 0;
+
+      // Verificar se há pelo menos um preço de concorrente
+      const temConcorrente = Object.values(concorrentes).some(preco => preco > 0);
+      if (!temConcorrente) {
+        document.getElementById('resultadosConcorrencia').style.display = 'none';
+        return;
+      }
+
+      const analise = {};
+      const sugestoes = [];
+      let totalImpactoMRR = 0;
+
+      Object.keys(nossoPrecos).forEach(plano => {
+        const nossoPreco = nossoPrecos[plano].preco;
+        const precoConcorrente = concorrentes[plano];
+        
+        if (precoConcorrente > 0) {
+          const diferenca = ((nossoPreco - precoConcorrente) / precoConcorrente) * 100;
+          const novoPreco = calcularNovoPreco(precoConcorrente, estrategia, ajusteManual);
+          const ajusteNecessario = ((novoPreco - nossoPreco) / nossoPreco) * 100;
+          
+          analise[plano] = {
+            nossoPreco,
+            precoConcorrente,
+            novoPreco,
+            diferenca,
+            ajusteNecessario,
+            competitivo: Math.abs(diferenca) <= 10,
+            status: diferenca > 20 ? 'caro' : diferenca < -20 ? 'barato' : 'equilibrado'
+          };
+
+          // Calcular impacto no MRR
+          const clientesPlano = dadosCalculados.inputs.parametros.metaClientes * 
+                               dadosCalculados.inputs.parametros.distribuicao[plano];
+          const impactoPlano = (novoPreco - nossoPreco) * clientesPlano;
+          totalImpactoMRR += impactoPlano;
+
+          // Gerar sugestões
+          if (Math.abs(ajusteNecessario) > 5) {
+            sugestoes.push({
+              plano: plano.toUpperCase(),
+              acao: ajusteNecessario > 0 ? 'Aumentar' : 'Reduzir',
+              percentual: Math.abs(ajusteNecessario).toFixed(1),
+              precoAtual: nossoPreco,
+              precoSugerido: novoPreco,
+              justificativa: gerarJustificativa(analise[plano], estrategia)
+            });
+          }
+        }
+      });
+
+      analiseAtual = { analise, sugestoes, impactoMRR: totalImpactoMRR, estrategia };
+      exibirResultadosAnalise();
+    }
+
+    function calcularNovoPreco(precoConcorrente, estrategia, ajusteManual) {
+      let fator = 1;
+      
+      switch (estrategia) {
+        case 'competitivo':
+          fator = 0.98; // 2% abaixo do concorrente
+          break;
+        case 'premium':
+          fator = 1.15; // 15% acima do concorrente
+          break;
+        case 'agressivo':
+          fator = 0.85; // 15% abaixo do concorrente
+          break;
+        case 'value':
+          fator = 1.08; // 8% acima do concorrente
+          break;
+      }
+
+      return Math.round(precoConcorrente * fator * (1 + ajusteManual / 100));
+    }
+
+    function gerarJustificativa(dados, estrategia) {
+      if (dados.status === 'caro') {
+        return estrategia === 'premium' ? 
+          'Manter posicionamento premium com valor agregado' :
+          'Reduzir para aumentar competitividade';
+      } else if (dados.status === 'barato') {
+        return 'Aumentar preço para capturar mais valor de mercado';
+      } else {
+        return 'Ajuste fino para otimizar posicionamento';
+      }
+    }
+
+    function exibirResultadosAnalise() {
+      if (!analiseAtual) return;
+
+      const { analise, sugestoes, impactoMRR, estrategia } = analiseAtual;
+
+      // Exibir cards de comparação
+      const cardsContainer = document.getElementById('cardsComparacao');
+      cardsContainer.innerHTML = '';
+
+      Object.keys(analise).forEach(plano => {
+        const dados = analise[plano];
+        const statusColor = dados.competitivo ? 'var(--ok)' : 
+                           dados.status === 'caro' ? 'var(--danger)' : 'var(--warn)';
+        
+        const card = `
+          <div class="card" style="border-left: 4px solid ${statusColor}">
+            <div class="mut">Plano ${plano.toUpperCase()}</div>
+            <div style="margin: 8px 0;">
+              <div style="font-size: 14px;">Nosso: <strong>${money(dados.nossoPreco)}</strong></div>
+              <div style="font-size: 14px;">Concorrente: <strong>${money(dados.precoConcorrente)}</strong></div>
+              <div style="font-size: 14px; color: ${statusColor};">Sugerido: <strong>${money(dados.novoPreco)}</strong></div>
+            </div>
+            <div class="mut">
+              Diferença: ${dados.diferenca > 0 ? '+' : ''}${dados.diferenca.toFixed(1)}%
+            </div>
+          </div>
+        `;
+        cardsContainer.insertAdjacentHTML('beforeend', card);
+      });
+
+      // Exibir sugestões
+      const sugestoesContainer = document.getElementById('sugestoesAjuste');
+      if (sugestoes.length > 0) {
+        let sugestoesHTML = '<div class="alert alert-info" style="margin-bottom: 15px;">';
+        sugestoes.forEach(sug => {
+          sugestoesHTML += `
+            <div style="margin-bottom: 10px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 8px;">
+              <strong>${sug.plano}:</strong> ${sug.acao} ${sug.percentual}% 
+              (${money(sug.precoAtual)} → ${money(sug.precoSugerido)})
+              <br><small>${sug.justificativa}</small>
+            </div>
+          `;
+        });
+        sugestoesHTML += '</div>';
+        sugestoesContainer.innerHTML = sugestoesHTML;
+      } else {
+        sugestoesContainer.innerHTML = '<div class="alert alert-info">✅ Preços estão bem posicionados no mercado!</div>';
+      }
+
+      // Calcular métricas de impacto
+      const impactoAnual = impactoMRR * 12;
+      const { parametros } = dadosCalculados.inputs;
+      const novaMargemMedia = calcularNovaMargemMedia();
+      const scoreCompetitividade = calcularScoreCompetitividade();
+
+      document.getElementById('impactoMRR').textContent = money(impactoMRR);
+      document.getElementById('impactoAnual').textContent = money(impactoAnual);
+      document.getElementById('novaMargemMedia').textContent = novaMargemMedia.toFixed(1) + '%';
+      document.getElementById('competitividadeScore').textContent = scoreCompetitividade.toFixed(1) + '/10';
+
+      document.getElementById('resultadosConcorrencia').style.display = 'block';
+    }
+
+    function calcularNovaMargemMedia() {
+      if (!analiseAtual) return 0;
+      
+      const { parametros, custosBase, suporte } = dadosCalculados.inputs;
+      const custoFixoTotal = Object.values(dadosCalculados.inputs.custoFixo).reduce((a,b)=>a+b,0);
+      const custoFixoComSazonalidade = custoFixoTotal * (parametros.sazonalidade || 1);
+      const custoFixoPorCliente = custoFixoComSazonalidade / Math.max(1, parametros.metaClientes);
+      
+      let margemPonderada = 0;
+      let totalDistribuicao = 0;
+
+      Object.keys(analiseAtual.analise).forEach(plano => {
+        const dados = analiseAtual.analise[plano];
+        const custoDireto = custosBase[plano] + getSuporte()[plano] + custoFixoPorCliente;
+        const margem = ((dados.novoPreco - custoDireto) / dados.novoPreco) * 100;
+        const distribuicao = parametros.distribuicao[plano];
+        
+        margemPonderada += margem * distribuicao;
+        totalDistribuicao += distribuicao;
+      });
+
+      return totalDistribuicao > 0 ? margemPonderada / totalDistribuicao : 0;
+    }
+
+    function calcularScoreCompetitividade() {
+      if (!analiseAtual) return 0;
+      
+      const scores = Object.values(analiseAtual.analise).map(dados => {
+        if (dados.competitivo) return 10;
+        if (Math.abs(dados.diferenca) <= 20) return 7;
+        if (Math.abs(dados.diferenca) <= 40) return 4;
+        return 1;
+      });
+
+      return scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
+    }
+
+    function aplicarSugestoes() {
+      if (!analiseAtual || analiseAtual.sugestoes.length === 0) {
+        alert('Não há sugestões para aplicar!');
+        return;
+      }
+
+      const confirmar = confirm(`Aplicar ${analiseAtual.sugestoes.length} sugestão(ões) de ajuste de preço?`);
+      if (!confirmar) return;
+
+      // Aqui você pode implementar a lógica para aplicar as sugestões
+      // Por exemplo, ajustar margens ou custos para atingir os preços sugeridos
+      alert('Funcionalidade de aplicação automática será implementada em versão futura.\nPor enquanto, use as sugestões como referência manual.');
+    }
+
+    function limparConcorrencia() {
+      ['concorrenteMei', 'concorrenteContador', 'concorrenteBasico', 'concorrenteInter', 'concorrentePremium']
+        .forEach(id => document.getElementById(id).value = '0');
+      
+      document.getElementById('estrategiaPosicionamento').value = 'competitivo';
+      document.getElementById('ajusteManual').value = '0';
+      document.getElementById('resultadosConcorrencia').style.display = 'none';
+      analiseAtual = null;
     }
 
     function exportarOrcamentoPDF() {
