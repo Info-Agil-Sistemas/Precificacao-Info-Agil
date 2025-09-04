@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Calculadora de Precificação SaaS — Info Ágil v3</title>
+  <!-- Bibliotecas para geração de PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     :root {
       --bg1:#0f172a; --bg2:#111827;
@@ -15,7 +18,7 @@
     body{
       margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
       background: radial-gradient(1000px 500px at 10% 0%, var(--bg1), var(--bg2));
-      color:#e5e7eb; padding:22px;
+      color:#e5e7eb;
     }
     .wrap{max-width:1200px; margin:0 auto;}
     .hero{padding:20px 16px 8px; text-align:center}
@@ -91,9 +94,254 @@
     .alert-info{background:rgba(34,211,238,.15); border:1px solid rgba(34,211,238,.35); color:#22d3ee}
     .auto-correct{background:rgba(34,197,94,.1); border:1px solid rgba(34,197,94,.3)}
     .validation-error{border-color:var(--danger) !important}
+
+    /* TOOLTIPS DE AJUDA */
+    .help-icon {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      background: var(--accent);
+      color: white;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 16px;
+      font-size: 11px;
+      font-weight: bold;
+      margin-left: 5px;
+      cursor: help;
+      position: relative;
+      vertical-align: middle;
+    }
+
+    .help-icon:hover {
+      background: var(--primary);
+    }
+
+    .tooltip {
+      position: relative;
+      display: inline-block;
+    }
+
+    .tooltip .tooltiptext {
+      visibility: hidden;
+      width: 280px;
+      background-color: #333;
+      color: #fff;
+      text-align: left;
+      border-radius: 8px;
+      padding: 12px;
+      position: absolute;
+      z-index: 1000;
+      bottom: 125%;
+      left: 50%;
+      margin-left: -140px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      font-size: 12px;
+      line-height: 1.4;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    .tooltip .tooltiptext::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      margin-left: -5px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: #333 transparent transparent transparent;
+    }
+
+    .tooltip:hover .tooltiptext {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    /* Ajuste para tooltips em cards */
+    .card .tooltip .tooltiptext {
+      width: 250px;
+      margin-left: -125px;
+    }
+
+    /* Responsividade dos tooltips */
+    @media (max-width: 768px) {
+      .tooltip .tooltiptext {
+        width: 200px;
+        margin-left: -100px;
+        font-size: 11px;
+      }
+      .card .tooltip .tooltiptext {
+        width: 180px;
+        margin-left: -90px;
+      }
+    }
+
+    /* APP BAR STYLES */
+    .app-bar {
+      background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+      padding: 4px 0;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    .app-bar-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 16px;
+    }
+
+    .app-bar-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1e40af;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .app-bar-title .subtitle {
+      font-size: 12px;
+      color: #64748b;
+      font-weight: 400;
+    }
+
+    .app-bar-logo {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: none;
+    }
+
+    .app-bar-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .app-bar-btn {
+      background: rgba(30, 64, 175, 0.1);
+      border: 1px solid rgba(30, 64, 175, 0.2);
+      color: #1e40af;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .app-bar-btn:hover {
+      background: rgba(30, 64, 175, 0.15);
+      border-color: #1e40af;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(30, 64, 175, 0.2);
+    }
+
+    .app-bar-btn.primary {
+      background: #1e40af;
+      border-color: #1e40af;
+      color: white;
+      font-weight: 600;
+    }
+
+    .app-bar-btn.primary:hover {
+      background: #1d4ed8;
+      border-color: #1d4ed8;
+    }
+
+    .app-bar-btn.danger {
+      background: rgba(239, 68, 68, 0.1);
+      border-color: rgba(239, 68, 68, 0.3);
+      color: #dc2626;
+    }
+
+    .app-bar-btn.danger:hover {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: #dc2626;
+      box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
+    }
+
+    /* Responsividade da app bar */
+    @media (max-width: 768px) {
+      .app-bar-content {
+        flex-direction: column;
+        gap: 12px;
+        padding: 0 12px;
+      }
+      
+      .app-bar-title {
+        font-size: 16px;
+      }
+      
+      .app-bar-actions {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 6px;
+      }
+      
+      .app-bar-btn {
+        padding: 6px 10px;
+        font-size: 11px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .app-bar-actions {
+        width: 100%;
+      }
+      
+      .app-bar-btn {
+        flex: 1;
+        justify-content: center;
+        min-width: 0;
+      }
+      
+      .app-bar-btn span {
+        display: none;
+      }
+    }
   </style>
 </head>
 <body>
+  <!-- APP BAR -->
+  <header class="app-bar">
+    <div class="app-bar-content">
+      <h1 class="app-bar-title">
+        <img src="logo-info-agil-sem-fundo.png" 
+            alt="Info Ágil Logo" class="app-bar-logo">
+        InfoÁgil SaaS Pricing Calculator
+        <div class="subtitle"> - Calculadora de Precificação</div>
+      </h1>
+      <div class="app-bar-actions">
+        <button class="app-bar-btn primary" onclick="gerarRelatorioCompleto()" title="Gerar relatório analítico completo em PDF">
+          📄 <span>Relatório Analítico</span>
+        </button>
+        <button class="app-bar-btn" onclick="resetarPadrao()" title="Resetar todos os campos para valores padrão">
+          🔄 <span>Resetar Padrão</span>
+        </button>
+        <button class="app-bar-btn" onclick="exportarJSON()" title="Exportar configurações e dados em formato JSON">
+          📤 <span>Exportar JSON</span>
+        </button>
+        <button class="app-bar-btn danger" onclick="debugCompleto()" title="Executar debug completo e abrir console do navegador">
+          🐛 <span>Debug</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
   <div class="wrap">
     <div class="hero">
       <h1>💰 Calculadora de Precificação SaaS — Info Ágil</h1>
@@ -145,80 +393,201 @@
 
     <div class="grid">
     <section class="card">
-      <h2>📊 Custos Fixos Mensais Detalhados</h2>
+      <h2>📊 Custos Fixos Mensais Detalhados
+        <span class="tooltip">
+          <span class="help-icon">?</span>
+          <span class="tooltiptext">Custos que você paga todos os meses, independentemente do número de clientes. Estes valores são divididos entre todos os clientes para calcular o custo per capita.</span>
+        </span>
+      </h2>
       <div class="row">
         <div>
-          <label>Pessoal (Salários + Encargos) (R$)</label>
+          <label>Pessoal (Salários + Encargos) (R$)
+            <span class="tooltip">
+              <span class="help-icon">?</span>
+              <span class="tooltiptext">Salários de funcionários + encargos trabalhistas (FGTS, INSS, férias, 13º). Inclua desenvolvedores, suporte, comercial, etc.</span>
+            </span>
+          </label>
           <input id="custosPessoal" type="number" min="0" step="100" value="8000"/>
         </div>
         <div>
-          <label>Infraestrutura (Servidores + TI) (R$)</label>
+          <label>Infraestrutura (Servidores + TI) (R$)
+            <span class="tooltip">
+              <span class="help-icon">?</span>
+              <span class="tooltiptext">AWS, Google Cloud, Azure, CDN, monitoramento, backups, domínios, certificados SSL, ferramentas de desenvolvimento.</span>
+            </span>
+          </label>
           <input id="infraestrutura" type="number" min="0" step="50" value="800"/>
         </div>
       </div>
       <div class="row">
         <div>
-          <label>Marketing Digital (R$)</label>
+          <label>Marketing Digital (R$)
+            <span class="tooltip">
+              <span class="help-icon">?</span>
+              <span class="tooltiptext">Google Ads, Facebook Ads, ferramentas de email marketing, CRM, automação, produção de conteúdo, agências.</span>
+            </span>
+          </label>
           <input id="marketing" type="number" min="0" step="100" value="2000"/>
         </div>
         <div>
-          <label>Administrativo (Contador, Jurídico) (R$)</label>
+          <label>Administrativo (Contador, Jurídico) (R$)
+            <span class="tooltip">
+              <span class="help-icon">?</span>
+              <span class="tooltiptext">Contador, advogado, escritório contábil, taxas bancárias, software de gestão, certificado digital.</span>
+            </span>
+          </label>
           <input id="contador" type="number" min="0" step="100" value="800"/>
         </div>
       </div>
       <div class="row">
         <div>
-          <label>Comunicação (Telefone, Internet) (R$)</label>
+          <label>Comunicação (Telefone, Internet) (R$)
+            <span class="tooltip">
+              <span class="help-icon">?</span>
+              <span class="tooltiptext">Telefone fixo, celular corporativo, internet banda larga, planos de dados, WhatsApp Business API.</span>
+            </span>
+          </label>
           <input id="comunicacao" type="number" min="0" step="10" value="250"/>
         </div>
         <div>
-          <label>Outros (Escritório, Diversos) (R$)</label>
+          <label>Outros (Escritório, Diversos) (R$)
+            <span class="tooltip">
+              <span class="help-icon">?</span>
+              <span class="tooltiptext">Aluguel, energia elétrica, água, limpeza, segurança, material de escritório, café, seguros.</span>
+            </span>
+          </label>
           <input id="outros" type="number" min="0" step="50" value="350"/>
         </div>
       </div>
       <div class="row">
         <div>
-          <label>Licenciamento/White Label (R$)</label>
+          <label>Licenciamento/White Label (R$)
+            <span class="tooltip">
+              <span class="help-icon">?</span>
+              <span class="tooltiptext">Licenças de software, white label de terceiros, APIs pagas, integrações, assinaturas de ferramentas essenciais.</span>
+            </span>
+          </label>
           <input id="setupAvante" type="number" min="0" step="50" value="792"/>
         </div>
         <div>
-          <label>Reserva de Contingência (R$)</label>
+          <label>Reserva de Contingência (R$)
+            <span class="tooltip">
+              <span class="help-icon">?</span>
+              <span class="tooltiptext">Reserva para emergências, reparos, oportunidades ou gastos imprevistos. Recomendado 5-10% dos custos fixos.</span>
+            </span>
+          </label>
           <input id="custosContingencia" type="number" min="0" step="100" value="500"/>
         </div>
       </div>
       
-      <h3 style="margin-top:20px; margin-bottom:10px">💰 Custos Variáveis por Cliente/Mês</h3>
+      <h3 style="margin-top:20px; margin-bottom:10px">💰 Custos Variáveis por Cliente/Mês
+        <span class="tooltip">
+          <span class="help-icon">?</span>
+          <span class="tooltiptext">Custos que variam conforme o número de clientes e o plano que utilizam. Incluem licenciamento, processamento, suporte diferenciado, etc.</span>
+        </span>
+      </h3>
       <div class="subtle" style="margin-bottom:10px">Base + Suporte diferenciados por plano</div>
       <div class="row5">
-        <div><label class="hint">MEI - Base (R$)</label><input id="custoMei" type="number" min="0" step="1" value="25"/></div>
-        <div><label class="hint">Contador - Base (R$)</label><input id="custoContador" type="number" min="0" step="1" value="30"/></div>
-        <div><label class="hint">Básico - Base (R$)</label><input id="custoBasico" type="number" min="0" step="1" value="36"/></div>
-        <div><label class="hint">Inter - Base (R$)</label><input id="custoInter" type="number" min="0" step="1" value="56"/></div>
-        <div><label class="hint">Premium - Base (R$)</label><input id="custoPremium" type="number" min="0" step="1" value="130"/></div>
+        <div><label class="hint">MEI - Base (R$)
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Custo direto por cliente MEI: licenças, processamento de dados, APIs, recursos básicos consumidos por cliente.</span>
+          </span>
+        </label><input id="custoMei" type="number" min="0" step="1" value="25"/></div>
+        <div><label class="hint">Contador - Base (R$)
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Custo direto por cliente Contador: inclui recursos extras, integrações específicas, maior volume de processamento.</span>
+          </span>
+        </label><input id="custoContador" type="number" min="0" step="1" value="30"/></div>
+        <div><label class="hint">Básico - Base (R$)
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Custo direto por cliente Básico: funcionalidades intermediárias, mais armazenamento e processamento.</span>
+          </span>
+        </label><input id="custoBasico" type="number" min="0" step="1" value="36"/></div>
+        <div><label class="hint">Inter - Base (R$)
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Custo direto por cliente Intermediário: recursos avançados, integrações premium, maior capacidade.</span>
+          </span>
+        </label><input id="custoInter" type="number" min="0" step="1" value="56"/></div>
+        <div><label class="hint">Premium - Base (R$)
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Custo direto por cliente Premium: todos os recursos, prioridade máxima, funcionalidades exclusivas.</span>
+          </span>
+        </label><input id="custoPremium" type="number" min="0" step="1" value="130"/></div>
       </div>
       <div class="row5" style="margin-top:10px">
-        <div><label class="hint">MEI - Suporte (R$)</label><input id="suporteMei" type="number" min="0" step="5" value="20"/></div>
-        <div><label class="hint">Contador - Suporte (R$)</label><input id="suporteContador" type="number" min="0" step="5" value="30"/></div>
-        <div><label class="hint">Básico - Suporte (R$)</label><input id="suporteBasico" type="number" min="0" step="5" value="35"/></div>
-        <div><label class="hint">Inter - Suporte (R$)</label><input id="suporteInter" type="number" min="0" step="5" value="50"/></div>
-        <div><label class="hint">Premium - Suporte (R$)</label><input id="suportePremium" type="number" min="0" step="5" value="80"/></div>
+        <div><label class="hint">MEI - Suporte (R$)
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Custo de suporte por cliente MEI: chatbot, documentação, suporte básico por email com SLA estendido.</span>
+          </span>
+        </label><input id="suporteMei" type="number" min="0" step="5" value="20"/></div>
+        <div><label class="hint">Contador - Suporte (R$)
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Custo de suporte por cliente Contador: suporte por email + telefone, tempo de resposta médio.</span>
+          </span>
+        </label><input id="suporteContador" type="number" min="0" step="5" value="30"/></div>
+        <div><label class="hint">Básico - Suporte (R$)
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Custo de suporte por cliente Básico: suporte prioritário, múltiplos canais, onboarding assistido.</span>
+          </span>
+        </label><input id="suporteBasico" type="number" min="0" step="5" value="35"/></div>
+        <div><label class="hint">Inter - Suporte (R$)
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Custo de suporte por cliente Intermediário: suporte especializado, treinamentos, consultoria técnica.</span>
+          </span>
+        </label><input id="suporteInter" type="number" min="0" step="5" value="50"/></div>
+        <div><label class="hint">Premium - Suporte (R$)
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Custo de suporte por cliente Premium: suporte VIP, account manager, implementação personalizada, SLA premium.</span>
+          </span>
+        </label><input id="suportePremium" type="number" min="0" step="5" value="80"/></div>
       </div>
     </section>      <section class="card">
-        <h2>🎯 Parâmetros de Negócio</h2>
+        <h2>🎯 Parâmetros de Negócio
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Configure os parâmetros estratégicos do seu negócio. Estes valores são usados para calcular preços, margens e projeções de crescimento.</span>
+          </span>
+        </h2>
         <div class="subtle" style="margin-bottom:10px">Valores com validação automática e auto-correção</div>
 
         <div class="row">
           <div>
-            <label>Margem de Lucro Desejada (%)</label>
+            <label>Margem de Lucro Desejada (%)
+              <span class="tooltip">
+                <span class="help-icon">?</span>
+                <span class="tooltiptext">Percentual de lucro que você deseja ter sobre o faturamento total. Ex: 40% significa que para cada R$ 100 de receita, R$ 40 serão lucro líquido.</span>
+              </span>
+            </label>
             <input id="margemLucro" type="number" min="0" max="100" step="1" value="40"/>
           </div>
           <div>
-            <label>Meta de Clientes (mês 12)</label>
+            <label>Meta de Clientes (mês 12)
+              <span class="tooltip">
+                <span class="help-icon">?</span>
+                <span class="tooltiptext">Quantos clientes pagantes você espera ter no final do primeiro ano. Este número é usado para calcular custos per capita e projeções de receita.</span>
+              </span>
+            </label>
             <input id="metaClientes" type="number" min="1" step="1" value="120"/>
           </div>
         </div>
 
-        <label>Distribuição de Planos (%) <span class="subtle" id="somaDistribuicao">Total: 100%</span></label>
+        <label>Distribuição de Planos (%) 
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Como seus clientes se distribuirão entre os planos. Ex: 30% no Básico significa que de 100 clientes, 30 estarão no plano Básico. Total deve somar 100%.</span>
+          </span>
+          <span class="subtle" id="somaDistribuicao">Total: 100%</span>
+        </label>
         <div class="row5">
           <div><label class="hint">MEI</label><input id="distribMei" type="number" min="0" max="100" step="1" value="15" oninput="validarDistribuicao()"/></div>
           <div><label class="hint">Contador</label><input id="distribContador" type="number" min="0" max="100" step="1" value="20" oninput="validarDistribuicao()"/></div>
@@ -230,38 +599,93 @@
 
         <div class="row" style="margin-top:15px">
           <div>
-            <label>Churn Rate Médio (%/mês)</label>
+            <label>Churn Rate Médio (%/mês)
+              <span class="tooltip">
+                <span class="help-icon">?</span>
+                <span class="tooltiptext">Percentual de clientes que cancelam mensalmente nos primeiros 6 meses. Ex: 4% = de 100 clientes, 4 cancelam por mês. Clientes novos têm churn maior.</span>
+              </span>
+            </label>
             <input id="churnRate" type="number" min="0" max="50" step="0.1" value="4"/>
           </div>
           <div>
-            <label>Churn Melhorado após 6 meses (%/mês)</label>
+            <label>Churn Melhorado após 6 meses (%/mês)
+              <span class="tooltip">
+                <span class="help-icon">?</span>
+                <span class="tooltiptext">Churn reduzido para clientes fidelizados (>6 meses). Clientes antigos tendem a cancelar menos. Use um valor menor que o churn inicial.</span>
+              </span>
+            </label>
             <input id="churnMelhorado" type="number" min="0" max="50" step="0.1" value="2.5"/>
           </div>
         </div>
 
-        <h3 style="margin-top:15px">CAC Segmentado por Plano</h3>
+        <h3 style="margin-top:15px">CAC Segmentado por Plano
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Custo de Aquisição de Cliente: quanto você gasta em marketing/vendas para conquistar 1 cliente de cada plano. Varia por segmento devido à diferença de canais e complexidade de venda.</span>
+          </span>
+        </h3>
         <div class="row5">
-          <div><label class="hint">MEI - CAC (R$)</label><input id="cacMei" type="number" min="0" step="10" value="150"/></div>
-          <div><label class="hint">Contador - CAC (R$)</label><input id="cacContador" type="number" min="0" step="10" value="200"/></div>
-          <div><label class="hint">Básico - CAC (R$)</label><input id="cacBasico" type="number" min="0" step="10" value="250"/></div>
-          <div><label class="hint">Inter - CAC (R$)</label><input id="cacInter" type="number" min="0" step="10" value="350"/></div>
-          <div><label class="hint">Premium - CAC (R$)</label><input id="cacPremium" type="number" min="0" step="10" value="500"/></div>
+          <div><label class="hint">MEI - CAC (R$)
+            <span class="tooltip">
+              <span class="help-icon">?</span>
+              <span class="tooltiptext">CAC para MEI: marketing digital básico, processo de venda simples, conversão rápida. Normalmente o menor CAC.</span>
+            </span>
+          </label><input id="cacMei" type="number" min="0" step="10" value="150"/></div>
+          <div><label class="hint">Contador - CAC (R$)
+            <span class="tooltip">
+              <span class="help-icon">?</span>
+              <span class="tooltiptext">CAC para Contador: marketing especializado, demonstrações técnicas, processo de vendas mais longo.</span>
+            </span>
+          </label><input id="cacContador" type="number" min="0" step="10" value="200"/></div>
+          <div><label class="hint">Básico - CAC (R$)
+            <span class="tooltip">
+              <span class="help-icon">?</span>
+              <span class="tooltiptext">CAC para Básico: marketing misto, onboarding assistido, suporte na conversão.</span>
+            </span>
+          </label><input id="cacBasico" type="number" min="0" step="10" value="250"/></div>
+          <div><label class="hint">Inter - CAC (R$)
+            <span class="tooltip">
+              <span class="help-icon">?</span>
+              <span class="tooltiptext">CAC para Intermediário: vendas consultivas, demonstrações personalizadas, processo mais sofisticado.</span>
+            </span>
+          </label><input id="cacInter" type="number" min="0" step="10" value="350"/></div>
+          <div><label class="hint">Premium - CAC (R$)
+            <span class="tooltip">
+              <span class="help-icon">?</span>
+              <span class="tooltiptext">CAC para Premium: vendas enterprise, múltiplas reuniões, POCs, contratos customizados. Maior CAC.</span>
+            </span>
+          </label><input id="cacPremium" type="number" min="0" step="10" value="500"/></div>
         </div>
 
         <div class="row" style="margin-top:15px">
           <div>
-            <label>Impostos (% sobre preço)</label>
+            <label>Impostos (% sobre preço)
+              <span class="tooltip">
+                <span class="help-icon">?</span>
+                <span class="tooltiptext">Impostos sobre o faturamento: Simples Nacional (4-33%), Lucro Presumido, ISS, PIS/COFINS. Varia conforme regime tributário.</span>
+              </span>
+            </label>
             <input id="impostos" type="number" min="0" max="50" step="0.5" value="8.5"/>
           </div>
           <div>
-            <label>Comissões (% sobre preço)</label>
+            <label>Comissões (% sobre preço)
+              <span class="tooltip">
+                <span class="help-icon">?</span>
+                <span class="tooltiptext">Comissões para vendedores, afiliados, parceiros de canal, representantes comerciais. Calculado sobre o valor da venda.</span>
+              </span>
+            </label>
             <input id="comissoes" type="number" min="0" max="30" step="0.5" value="7"/>
           </div>
         </div>
 
         <div class="row">
           <div>
-            <label>White Label — Taxa sobre Receita (%)</label>
+            <label>White Label — Taxa sobre Receita (%)
+              <span class="tooltip">
+                <span class="help-icon">?</span>
+                <span class="tooltiptext">Percentual que você paga para o fornecedor da solução white label sobre sua receita bruta. Ex: 30% = para cada R$ 100 de receita, R$ 30 vão para o fornecedor.</span>
+              </span>
+            </label>
             <input id="whiteLabelPct" type="number" min="0" max="100" step="1" value="30"/>
           </div>
           <div>
@@ -272,9 +696,6 @@
 
         <div class="actions">
           <button onclick="calcular()">🔄 Calcular Preços</button>
-          <button class="ghost" onclick="resetarPadrao()">🔄 Resetar Padrão</button>
-          <button class="ghost" onclick="testeRapido()">🔧 Debug</button>
-          <button class="ghost" onclick="exportarJSON()">📤 Exportar JSON</button>
         </div>
       </section>
     </div>
@@ -286,26 +707,83 @@
       </div>
       <div class="cards" id="cards"></div>
 
+      <!-- Legenda de Métricas -->
+      <div class="alert alert-info" style="margin: 20px 0; background: rgba(52, 152, 219, 0.1); border: 1px solid rgba(52, 152, 219, 0.3);">
+        <h4 style="margin: 0 0 10px; font-size: 14px; color: var(--accent);">📚 Legenda das Métricas</h4>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 8px; font-size: 12px; line-height: 1.4;">
+          <div><strong>Margem:</strong> Percentual de lucro sobre a receita</div>
+          <div><strong>ROI:</strong> Retorno sobre investimento (lucro/custo)</div>
+          <div><strong>LTV:</strong> Valor total que um cliente gera ao longo da vida</div>
+          <div><strong>LTV/CAC:</strong> Relação entre valor do cliente e custo de aquisição</div>
+          <div><strong>CAC:</strong> Custo para adquirir um novo cliente</div>
+        </div>
+      </div>
+
       <div class="metric-grid">
-        <div class="metric"><div class="val" id="mrrTotal">R$ 0</div><div class="subtle">MRR Projetado</div></div>
-        <div class="metric"><div class="val" id="custosFixosTotal">R$ 0</div><div class="subtle">Custos Fixos</div></div>
-        <div class="metric"><div class="val" id="breakEven">0</div><div class="subtle">Break-even (clientes)</div></div>
-        <div class="metric"><div class="val" id="ltv">R$ 0</div><div class="subtle">LTV Médio</div></div>
-        <div class="metric"><div class="val" id="ltvCacRatio">0x</div><div class="subtle">LTV/CAC</div></div>
-        <div class="metric"><div class="val" id="receitaAnual">R$ 0</div><div class="subtle">Receita Anual</div></div>
+        <div class="metric"><div class="val" id="mrrTotal">R$ 0</div><div class="subtle">MRR Projetado
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Monthly Recurring Revenue: receita mensal recorrente total projetada com base nos preços calculados e distribuição de clientes.</span>
+          </span>
+        </div></div>
+        <div class="metric"><div class="val" id="custosFixosTotal">R$ 0</div><div class="subtle">Custos Fixos
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Soma de todos os custos fixos mensais: pessoal, infraestrutura, marketing, administrativo, etc.</span>
+          </span>
+        </div></div>
+        <div class="metric"><div class="val" id="breakEven">0</div><div class="subtle">Break-even (clientes)
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Número mínimo de clientes necessários para cobrir todos os custos fixos. Ponto de equilíbrio onde lucro = 0.</span>
+          </span>
+        </div></div>
+        <div class="metric"><div class="val" id="ltv">R$ 0</div><div class="subtle">LTV Médio
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Lifetime Value: valor médio que um cliente gera durante todo o relacionamento, considerando churn e margem de contribuição.</span>
+          </span>
+        </div></div>
+        <div class="metric"><div class="val" id="ltvCacRatio">0x</div><div class="subtle">LTV/CAC
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Relação entre Lifetime Value e Custo de Aquisição. Ideal: 3x ou mais. Mostra quantas vezes o valor do cliente supera o custo para adquiri-lo.</span>
+          </span>
+        </div></div>
+        <div class="metric"><div class="val" id="receitaAnual">R$ 0</div><div class="subtle">Receita Anual
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Projeção da receita anual baseada no MRR atual. Considera crescimento linear (MRR × 12).</span>
+          </span>
+        </div></div>
       </div>
     </section>
 
     <section class="card" style="margin-top:16px">
-      <h2>🎁 Catálogo de Adicionais — Upsell</h2>
+      <h2>🎁 Catálogo de Adicionais — Upsell
+        <span class="tooltip">
+          <span class="help-icon">?</span>
+          <span class="tooltiptext">Configure produtos ou serviços adicionais que podem ser vendidos para clientes existentes, aumentando o ticket médio e a receita por cliente.</span>
+        </span>
+      </h2>
       <p class="subtle">Configure seus próprios adicionais e suas margens de lucro.</p>
       <div class="row">
         <div>
-          <label>Margem sobre Adicionais (%)</label>
+          <label>Margem sobre Adicionais (%)
+            <span class="tooltip">
+              <span class="help-icon">?</span>
+              <span class="tooltiptext">Margem de lucro aplicada sobre o custo dos adicionais. Ex: 50% significa que se um adicional custa R$ 10, será vendido por R$ 15.</span>
+            </span>
+          </label>
           <input id="margemAdicionais" type="number" min="0" max="200" step="1" value="50"/>
         </div>
         <div>
-          <label>Adesão média (para métricas) — Muito/Moderado/Opcional (%)</label>
+          <label>Adesão média (para métricas) — Muito/Moderado/Opcional (%)
+            <span class="tooltip">
+              <span class="help-icon">?</span>
+              <span class="tooltiptext">Percentual estimado de clientes que adquirirão cada tipo de adicional:<br>• Muito: adicionais essenciais (70%)<br>• Moderado: úteis mas não essenciais (40%)<br>• Opcional: nice-to-have (20%)</span>
+            </span>
+          </label>
           <div class="row3">
             <input id="txMuito" type="number" min="0" max="100" step="1" value="70"/>
             <input id="txMod" type="number" min="0" max="100" step="1" value="40"/>
@@ -350,23 +828,63 @@
 
     <!-- NOVA SEÇÃO: ANÁLISE DE CONCORRÊNCIA -->
     <section class="card" style="margin-top:16px">
-      <h2>🎯 Análise de Concorrência e Ajuste de Mercado</h2>
+      <h2>🎯 Análise de Concorrência e Ajuste de Mercado
+        <span class="tooltip">
+          <span class="help-icon">?</span>
+          <span class="tooltiptext">Compare seus preços calculados com os praticados pelos concorrentes e receba sugestões automáticas de ajuste baseadas na sua estratégia de posicionamento.</span>
+        </span>
+      </h2>
       <div class="subtle" style="margin-bottom:15px">
         Compare seus preços com a concorrência e receba sugestões automáticas de ajuste
       </div>
 
-      <h3>📊 Preços dos Concorrentes</h3>
+      <h3>📊 Preços dos Concorrentes
+        <span class="tooltip">
+          <span class="help-icon">?</span>
+          <span class="tooltiptext">Insira os preços mensais que seus principais concorrentes cobram em cada categoria de plano. Deixe em 0 os planos que não quiser comparar.</span>
+        </span>
+      </h3>
       <div class="row5" style="margin-bottom:15px">
-        <div><label class="hint">Concorrente MEI (R$)</label><input id="concorrenteMei" type="number" min="0" step="1" value="0" onchange="analisarConcorrencia()"/></div>
-        <div><label class="hint">Concorrente Contador (R$)</label><input id="concorrenteContador" type="number" min="0" step="1" value="0" onchange="analisarConcorrencia()"/></div>
-        <div><label class="hint">Concorrente Básico (R$)</label><input id="concorrenteBasico" type="number" min="0" step="1" value="0" onchange="analisarConcorrencia()"/></div>
-        <div><label class="hint">Concorrente Inter (R$)</label><input id="concorrenteInter" type="number" min="0" step="1" value="0" onchange="analisarConcorrencia()"/></div>
-        <div><label class="hint">Concorrente Premium (R$)</label><input id="concorrentePremium" type="number" min="0" step="1" value="0" onchange="analisarConcorrencia()"/></div>
+        <div><label class="hint">Concorrente MEI (R$)
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Preço mensal que seus concorrentes cobram para o segmento MEI. Pesquise sites, tabelas públicas ou faça cotações.</span>
+          </span>
+        </label><input id="concorrenteMei" type="number" min="0" step="1" value="0" onchange="analisarConcorrencia()"/></div>
+        <div><label class="hint">Concorrente Contador (R$)
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Preço mensal que concorrentes cobram para o segmento de contadores/escritórios contábeis.</span>
+          </span>
+        </label><input id="concorrenteContador" type="number" min="0" step="1" value="0" onchange="analisarConcorrencia()"/></div>
+        <div><label class="hint">Concorrente Básico (R$)
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Preço mensal que concorrentes cobram para o plano básico/standard.</span>
+          </span>
+        </label><input id="concorrenteBasico" type="number" min="0" step="1" value="0" onchange="analisarConcorrencia()"/></div>
+        <div><label class="hint">Concorrente Inter (R$)
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Preço mensal que concorrentes cobram para o plano intermediário/profissional.</span>
+          </span>
+        </label><input id="concorrenteInter" type="number" min="0" step="1" value="0" onchange="analisarConcorrencia()"/></div>
+        <div><label class="hint">Concorrente Premium (R$)
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Preço mensal que concorrentes cobram para o plano premium/enterprise.</span>
+          </span>
+        </label><input id="concorrentePremium" type="number" min="0" step="1" value="0" onchange="analisarConcorrencia()"/></div>
       </div>
 
       <div class="row" style="margin-bottom:15px">
         <div>
-          <label>Estratégia de Posicionamento</label>
+          <label>Estratégia de Posicionamento
+            <span class="tooltip">
+              <span class="help-icon">?</span>
+              <span class="tooltiptext">Como você quer se posicionar em relação aos concorrentes:<br>• Competitivo: preços similares<br>• Premium: preços maiores com valor agregado<br>• Agressivo: preços menores para conquistar mercado<br>• Valor Agregado: equilíbrio entre preço e benefícios</span>
+            </span>
+          </label>
           <select id="estrategiaPosicionamento" onchange="analisarConcorrencia()">
             <option value="competitivo">Competitivo (-5% a +5%)</option>
             <option value="premium">Premium (+10% a +20%)</option>
@@ -375,7 +893,12 @@
           </select>
         </div>
         <div>
-          <label>Fator de Ajuste Manual (%)</label>
+          <label>Fator de Ajuste Manual (%)
+            <span class="tooltip">
+              <span class="help-icon">?</span>
+              <span class="tooltiptext">Ajuste fino adicional sobre a estratégia escolhida. Ex: +5% tornará os preços 5% mais caros que o sugerido pela estratégia. Use para calibrar conforme sua análise específica.</span>
+            </span>
+          </label>
           <input id="ajusteManual" type="number" min="-50" max="50" step="1" value="0" onchange="analisarConcorrencia()"/>
         </div>
       </div>
@@ -394,23 +917,48 @@
         <h3>💡 Sugestões de Ajuste</h3>
         <div id="sugestoesAjuste"></div>
 
-        <h3>📊 Impacto Financeiro</h3>
+        <h3>📊 Impacto Financeiro
+          <span class="tooltip">
+            <span class="help-icon">?</span>
+            <span class="tooltiptext">Métricas que mostram o impacto financeiro dos ajustes de preço sugeridos em comparação com seus preços atuais calculados.</span>
+          </span>
+        </h3>
         <div class="metric-grid" style="grid-template-columns: repeat(4,minmax(0,1fr));">
           <div class="metric">
             <div class="val" id="impactoMRR">R$ 0</div>
-            <div class="subtle">Impacto no MRR</div>
+            <div class="subtle">Impacto no MRR
+              <span class="tooltip">
+                <span class="help-icon">?</span>
+                <span class="tooltiptext">Monthly Recurring Revenue: diferença mensal na receita se aplicar os ajustes sugeridos. Valor positivo = mais receita, negativo = menos receita.</span>
+              </span>
+            </div>
           </div>
           <div class="metric">
             <div class="val" id="impactoAnual">R$ 0</div>
-            <div class="subtle">Impacto Anual</div>
+            <div class="subtle">Impacto Anual
+              <span class="tooltip">
+                <span class="help-icon">?</span>
+                <span class="tooltiptext">Projeção do impacto no MRR multiplicado por 12 meses. Mostra o potencial ganho ou perda anual com os ajustes.</span>
+              </span>
+            </div>
           </div>
           <div class="metric">
             <div class="val" id="novaMargemMedia">0%</div>
-            <div class="subtle">Nova Margem Média</div>
+            <div class="subtle">Nova Margem Média
+              <span class="tooltip">
+                <span class="help-icon">?</span>
+                <span class="tooltiptext">Margem de lucro média ponderada após aplicar os ajustes de preço. Considera a distribuição de clientes entre os planos.</span>
+              </span>
+            </div>
           </div>
           <div class="metric">
             <div class="val" id="competitividadeScore">0/10</div>
-            <div class="subtle">Score Competitividade</div>
+            <div class="subtle">Score Competitividade
+              <span class="tooltip">
+                <span class="help-icon">?</span>
+                <span class="tooltiptext">Nota de 0 a 10 indicando quão competitivos seus preços estão. 10 = muito competitivo, 0 = muito desalinhado com o mercado.</span>
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -1304,5 +1852,329 @@
         win.document.write('</body></html>');
         win.document.close();
         win.print();
+    }
+
+    // RELATÓRIO PDF COMPLETO
+    function gerarRelatorioCompleto() {
+        if (!dadosCalculados || !dadosCalculados.resultados) {
+            alert('Execute primeiro o cálculo de precificação!');
+            return;
+        }
+
+        const agora = new Date();
+        const dataHora = agora.toLocaleString('pt-BR');
+        const dados = dadosCalculados;
+        const fileName = `Relatorio_Precificacao_InfoAgil_${agora.getFullYear()}-${(agora.getMonth()+1).toString().padStart(2,'0')}-${agora.getDate().toString().padStart(2,'0')}.pdf`;
+
+        // Calcular métricas derivadas
+        const custosFixosTotal = Object.values(dados.inputs.custoFixo).reduce((a,b)=>a+b,0);
+        const receitaAnual = dados.resultados.mrrTotal * 12;
+        const margemMedia = calcularMargemMedia();
+        
+        function calcularMargemMedia() {
+            let margemPonderada = 0;
+            let totalDistribuicao = 0;
+            Object.entries(dados.resultados.planos).forEach(([plano, planoData]) => {
+                const distribuicao = dados.inputs.parametros.distribuicao[plano];
+                margemPonderada += planoData.margem * distribuicao;
+                totalDistribuicao += distribuicao;
+            });
+            return totalDistribuicao > 0 ? margemPonderada / totalDistribuicao : 0;
+        }
+
+        // Criar elemento temporário para o conteúdo do relatório
+        const reportContent = document.createElement('div');
+        reportContent.style.cssText = `
+            font-family: Arial, sans-serif;
+            color: #333;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+        `;
+
+        reportContent.innerHTML = `
+            <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #007acc; padding-bottom: 20px;">
+                <h1 style="color: #007acc; margin: 0; font-size: 24px;">📊 RELATÓRIO COMPLETO DE PRECIFICAÇÃO SaaS</h1>
+                <p style="margin: 5px 0; color: #666;"><strong>Info Ágil Sistemas</strong></p>
+                <p style="margin: 5px 0; color: #666;">Gerado em: ${dataHora}</p>
+                <p style="margin: 5px 0; color: #666;">Documento para análise interna e estratégica</p>
+            </div>
+
+            <div style="margin: 25px 0;">
+                <h2 style="color: #007acc; border-bottom: 1px solid #ddd; padding-bottom: 5px;">📋 SUMÁRIO EXECUTIVO</h2>
+                <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 6px;">
+                    <h3>Principais Resultados:</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div>
+                            <strong>MRR Projetado:</strong> ${money(dados.resultados.mrrTotal || 0)}<br>
+                            <strong>Receita Anual:</strong> ${money(receitaAnual || 0)}<br>
+                            <strong>Break-even:</strong> ${dados.resultados.breakEven || 0} clientes
+                        </div>
+                        <div>
+                            <strong>LTV Médio:</strong> ${money(dados.resultados.ltvPonderado || 0)}<br>
+                            <strong>LTV/CAC Ratio:</strong> ${(dados.resultados.ltvCacRatioPonderado || 0).toFixed(1)}x<br>
+                            <strong>Margem Média:</strong> ${margemMedia.toFixed(1)}%
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin: 25px 0;">
+                <h2 style="color: #007acc; border-bottom: 1px solid #ddd; padding-bottom: 5px;">🎯 METODOLOGIA UTILIZADA</h2>
+                <h3>Fórmulas Principais:</h3>
+                <div style="background: #f1f3f4; padding: 12px; border-radius: 4px; font-family: monospace; margin: 10px 0;">
+                    <strong>Preço Final:</strong><br>
+                    P = (Custo Direto / (1 - Margem)) / (1 - Impostos - Comissões - WhiteLabel)
+                </div>
+                <div style="background: #f1f3f4; padding: 12px; border-radius: 4px; font-family: monospace; margin: 10px 0;">
+                    <strong>LTV (Lifetime Value):</strong><br>
+                    LTV = (Margem Contribuição × 12) / Taxa Churn Média
+                </div>
+            </div>
+
+            <div style="margin: 25px 0;">
+                <h2 style="color: #007acc; border-bottom: 1px solid #ddd; padding-bottom: 5px;">📊 PARÂMETROS UTILIZADOS</h2>
+                <table style="width: 100%; border-collapse: collapse; margin: 15px 0;">
+                    <tr><td style="border: 1px solid #ddd; padding: 8px;"><strong>Margem de Lucro Desejada</strong></td><td style="border: 1px solid #ddd; padding: 8px;">${dados.inputs.parametros.margemLucro}%</td></tr>
+                    <tr><td style="border: 1px solid #ddd; padding: 8px;"><strong>Meta de Clientes</strong></td><td style="border: 1px solid #ddd; padding: 8px;">${dados.inputs.parametros.metaClientes}</td></tr>
+                    <tr><td style="border: 1px solid #ddd; padding: 8px;"><strong>Churn Rate Inicial</strong></td><td style="border: 1px solid #ddd; padding: 8px;">${dados.inputs.parametros.churnRate}%/mês</td></tr>
+                    <tr><td style="border: 1px solid #ddd; padding: 8px;"><strong>Custos Fixos Totais</strong></td><td style="border: 1px solid #ddd; padding: 8px;">${money(custosFixosTotal)}</td></tr>
+                </table>
+            </div>
+
+            <div style="margin: 25px 0;">
+                <h2 style="color: #007acc; border-bottom: 1px solid #ddd; padding-bottom: 5px;">💎 PREÇOS CALCULADOS POR PLANO</h2>
+                ${Object.entries(dados.resultados.planos).map(([plano, planoData]) => `
+                    <div style="border: 2px solid #007acc; border-radius: 6px; padding: 15px; margin: 15px 0;">
+                        <h3 style="color: #007acc; margin-top: 0;">PLANO ${plano.toUpperCase()}</h3>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div>
+                                <h4>💰 Composição de Custos</h4>
+                                <p>Custo Base: ${money(planoData.custoBase || 0)}</p>
+                                <p>Custo Suporte: ${money(planoData.custoSuporte || 0)}</p>
+                                <p>Custo Fixo/Cliente: ${money(planoData.custoFixoPorCliente || 0)}</p>
+                                <p><strong>Custo Direto Total: ${money(planoData.custoDireto || 0)}</strong></p>
+                            </div>
+                            <div>
+                                <h4>📊 Resultados</h4>
+                                <p><strong style="font-size: 18px; color: #007acc;">Preço: ${money(planoData.preco || 0)}</strong></p>
+                                <p>Margem: ${(planoData.margem || 0).toFixed(1)}%</p>
+                                <p>ROI: ${(planoData.roi || 0).toFixed(2)}x</p>
+                                <p>LTV: ${money(planoData.ltv || 0)}</p>
+                                <p>LTV/CAC: ${(planoData.ltvCac || 0).toFixed(1)}x</p>
+                            </div>
+                        </div>
+                        ${(planoData.margem || 0) < 20 ? `
+                            <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 10px; border-radius: 4px; margin: 10px 0;">
+                                ⚠️ <strong>Atenção:</strong> Margem de ${(planoData.margem || 0).toFixed(1)}% está abaixo do recomendado (20%+).
+                            </div>
+                        ` : ''}
+                    </div>
+                `).join('')}
+            </div>
+
+            <div style="margin: 25px 0;">
+                <h2 style="color: #007acc; border-bottom: 1px solid #ddd; padding-bottom: 5px;">📈 PROJEÇÕES FINANCEIRAS</h2>
+                <div style="background: #f8f9fa; border: 1px solid #dee2e6; padding: 15px; border-radius: 6px;">
+                    <h4>Distribuição de Receita por Plano</h4>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr style="background: #f8f9fa;">
+                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Plano</th>
+                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Clientes</th>
+                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Preço</th>
+                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Receita Mensal</th>
+                        </tr>
+                        ${Object.entries(dados.resultados.planos).map(([plano, planoData]) => {
+                            const clientes = Math.round(dados.inputs.parametros.metaClientes * (dados.inputs.parametros.distribuicao[plano] || 0) / 100);
+                            const receitaPlano = clientes * (planoData.preco || 0);
+                            return `<tr>
+                                <td style="border: 1px solid #ddd; padding: 8px;">${plano.toUpperCase()}</td>
+                                <td style="border: 1px solid #ddd; padding: 8px;">${clientes}</td>
+                                <td style="border: 1px solid #ddd; padding: 8px;">${money(planoData.preco || 0)}</td>
+                                <td style="border: 1px solid #ddd; padding: 8px;">${money(receitaPlano)}</td>
+                            </tr>`;
+                        }).join('')}
+                    </table>
+                </div>
+            </div>
+
+            <div style="margin: 25px 0;">
+                <h2 style="color: #007acc; border-bottom: 1px solid #ddd; padding-bottom: 5px;">💡 RECOMENDAÇÕES</h2>
+                <div style="background: #d4edda; padding: 15px; border-radius: 6px;">
+                    <ul>
+                        <li><strong>Monitoramento:</strong> Acompanhar KPIs de LTV/CAC, churn e margem mensalmente</li>
+                        <li><strong>Otimização:</strong> Focar em redução de churn para aumentar LTV</li>
+                        <li><strong>Crescimento:</strong> Desenvolver estratégias de upsell para aumentar ARPU</li>
+                        <li><strong>Competitividade:</strong> Revisar preços trimestralmente vs. concorrência</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div style="margin-top: 30px; text-align: center; font-size: 12px; color: #666;">
+                <p>Relatório gerado pela Calculadora de Precificação SaaS - Info Ágil Sistemas</p>
+                <p>Documento confidencial para uso interno</p>
+            </div>
+        `;
+
+        // Adicionar o conteúdo temporariamente ao body
+        document.body.appendChild(reportContent);
+
+        // Configuração do html2canvas e jsPDF
+        const options = {
+            scale: 2,
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: '#ffffff'
+        };
+
+        // Gerar PDF
+        html2canvas(reportContent, options).then(canvas => {
+            const imgData = canvas.toDataURL('image/png');
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            
+            const imgWidth = 210; // A4 width in mm
+            const pageHeight = 295; // A4 height in mm
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            let heightLeft = imgHeight;
+            let position = 0;
+
+            // Adicionar primeira página
+            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+
+            // Adicionar páginas adicionais se necessário
+            while (heightLeft >= 0) {
+                position = heightLeft - imgHeight;
+                pdf.addPage();
+                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+            }
+
+            // Remover elemento temporário
+            document.body.removeChild(reportContent);
+
+            // Fazer download do PDF
+            try {
+                pdf.save(fileName);
+                alert('✅ Relatório PDF gerado com sucesso!\nArquivo: ' + fileName);
+            } catch (error) {
+                console.error('Erro ao gerar PDF:', error);
+                alert('❌ Erro ao gerar PDF. Tente novamente ou use um navegador diferente.');
+            }
+        }).catch(error => {
+            console.error('Erro no html2canvas:', error);
+            document.body.removeChild(reportContent);
+            alert('❌ Erro ao processar relatório. Verifique se o navegador permite downloads e tente novamente.');
+        });
+    }
+
+    // Função de debug completo
+    function debugCompleto() {
+        console.clear();
+        console.log("🐛 === DEBUG COMPLETO - InfoÁgil SaaS Calculator ===");
+        
+        // 1. Informações do sistema
+        console.group("📊 Informações do Sistema");
+        console.log("Data/Hora:", new Date().toLocaleString());
+        console.log("User Agent:", navigator.userAgent);
+        console.log("URL:", window.location.href);
+        console.log("Viewport:", window.innerWidth + "x" + window.innerHeight);
+        console.groupEnd();
+
+        // 2. Estado atual dos inputs
+        console.group("📝 Estado dos Inputs");
+        const inputs = document.querySelectorAll('input');
+        inputs.forEach(input => {
+            console.log(`${input.id || input.name || 'sem-id'}: ${input.value} (${input.type})`);
+        });
+        console.groupEnd();
+
+        // 3. Executar cálculo e capturar resultados
+        console.group("🔢 Resultados dos Cálculos");
+        try {
+            calcular();
+            const resultados = {
+                precoBasico: document.getElementById('precoBasico')?.textContent,
+                precoStandard: document.getElementById('precoStandard')?.textContent,
+                precoPremium: document.getElementById('precoPremium')?.textContent,
+                custoBasico: document.getElementById('custoBasico')?.textContent,
+                custoStandard: document.getElementById('custoStandard')?.textContent,
+                custoPremium: document.getElementById('custoPremium')?.textContent
+            };
+            console.table(resultados);
+        } catch (error) {
+            console.error("Erro no cálculo:", error);
+        }
+        console.groupEnd();
+
+        // 4. Análise de concorrência
+        console.group("🎯 Análise de Concorrência");
+        const concorrentes = document.querySelectorAll('#concorrenciaContainer .concorrente-item');
+        console.log(`Total de concorrentes: ${concorrentes.length}`);
+        concorrentes.forEach((item, index) => {
+            const nome = item.querySelector('input[placeholder*="nome"]')?.value;
+            const preco = item.querySelector('input[placeholder*="preço"]')?.value;
+            console.log(`Concorrente ${index + 1}: ${nome || 'Sem nome'} - R$ ${preco || 'Sem preço'}`);
+        });
+        console.groupEnd();
+
+        // 5. Estado dos tooltips e elementos UI
+        console.group("🎨 Elementos de UI");
+        const tooltips = document.querySelectorAll('.tooltip');
+        console.log(`Total de tooltips: ${tooltips.length}`);
+        
+        const cards = document.querySelectorAll('.card');
+        console.log(`Total de cards: ${cards.length}`);
+        
+        const buttons = document.querySelectorAll('button');
+        console.log(`Total de botões: ${buttons.length}`);
+        console.groupEnd();
+
+        // 6. Verificar dependências externas
+        console.group("📦 Dependências Externas");
+        console.log("jsPDF disponível:", typeof window.jsPDF !== 'undefined');
+        console.log("html2canvas disponível:", typeof html2canvas !== 'undefined');
+        console.groupEnd();
+
+        // 7. Erros no console
+        console.group("⚠️ Monitoramento de Erros");
+        console.log("Debug iniciado. Monitore este console para novos erros.");
+        console.groupEnd();
+
+        // 8. Performance
+        console.group("⚡ Performance");
+        if (performance.timing) {
+            const loadTime = performance.timing.loadEventEnd - performance.timing.navigationStart;
+            console.log(`Tempo de carregamento: ${loadTime}ms`);
+        }
+        console.log(`DOM Elements: ${document.querySelectorAll('*').length}`);
+        console.groupEnd();
+
+        console.log("🐛 === FIM DO DEBUG ===");
+        
+        // Abrir DevTools automaticamente (funciona apenas em alguns navegadores)
+        try {
+            // Tentar abrir o console do navegador
+            if (typeof chrome !== 'undefined' && chrome.runtime) {
+                // Chrome extension context
+                console.log("💡 Abra o DevTools manualmente (F12) para visualizar melhor as informações.");
+            } else {
+                // Navegador normal - usar técnica para forçar abertura do console
+                console.log("%c💡 CONSOLE ABERTO! Verifique as abas Console/Network/Elements para análise completa.", 
+                    "background: #ff6b6b; color: white; padding: 10px; font-size: 16px; font-weight: bold;");
+                
+                // Tentar forçar focus no console (técnica experimental)
+                setTimeout(() => {
+                    debugger; // Força abertura do DevTools na aba Sources
+                }, 100);
+            }
+        } catch (e) {
+            console.log("💡 Abra o DevTools manualmente (F12) para análise completa.");
+        }
+
+        alert("🐛 Debug completo executado! Verifique o console do navegador (F12) para informações detalhadas.");
     }
   </script>
