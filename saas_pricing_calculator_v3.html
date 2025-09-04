@@ -313,6 +313,182 @@
         display: none;
       }
     }
+
+    /* MODAL DE TREINAMENTO */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+    }
+
+    .modal-content {
+      background: #ffffff;
+      color: #1d3a64;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 800px;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-header {
+      background: linear-gradient(135deg, #1d3a64, #476f4d);
+      color: white;
+      padding: 20px;
+      border-radius: 16px 16px 0 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .close-modal {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 28px;
+      cursor: pointer;
+      padding: 0;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+
+    .close-modal:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .modal-body {
+      padding: 20px;
+    }
+
+    .training-section {
+      margin-bottom: 24px;
+      border: 1px solid #e79e1a;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .training-section summary {
+      background: linear-gradient(135deg, #e79e1a, #f0a020);
+      color: white;
+      padding: 16px 20px;
+      font-weight: 700;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.2s;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .training-section summary:hover {
+      background: linear-gradient(135deg, #d18910, #e79e1a);
+    }
+
+    .training-section summary::marker {
+      display: none;
+    }
+
+    .training-section summary::before {
+      content: "▶";
+      transition: transform 0.2s;
+    }
+
+    .training-section[open] summary::before {
+      transform: rotate(90deg);
+    }
+
+    .training-content {
+      padding: 20px;
+      background: #f8fafc;
+    }
+
+    .training-content h4 {
+      color: #1d3a64;
+      margin: 16px 0 8px 0;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .training-content p {
+      margin: 8px 0;
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    .training-content ul {
+      margin: 8px 0;
+      padding-left: 20px;
+    }
+
+    .training-content li {
+      margin: 4px 0;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .highlight {
+      background: #e79e1a;
+      color: white;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    .example {
+      background: #e8f5e8;
+      border-left: 4px solid #22c55e;
+      padding: 12px;
+      margin: 12px 0;
+      border-radius: 4px;
+      font-style: italic;
+    }
+
+    .warning {
+      background: #fef3cd;
+      border-left: 4px solid #f59e0b;
+      padding: 12px;
+      margin: 12px 0;
+      border-radius: 4px;
+    }
+
+    @media (max-width: 768px) {
+      .modal-content {
+        width: 95%;
+        max-height: 95vh;
+      }
+      
+      .modal-header {
+        padding: 16px;
+      }
+      
+      .modal-header h2 {
+        font-size: 20px;
+      }
+      
+      .modal-body {
+        padding: 16px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -329,6 +505,9 @@
         <button class="app-bar-btn primary" onclick="gerarRelatorioCompleto()" title="Gerar relatório analítico completo em PDF">
           📄 <span>Relatório Analítico</span>
         </button>
+        <button class="app-bar-btn" onclick="abrirTreinamento()" title="Abrir tutorial completo de treinamento">
+          🎓 <span>Treinamento</span>
+        </button>
         <button class="app-bar-btn" onclick="resetarPadrao()" title="Resetar todos os campos para valores padrão">
           🔄 <span>Resetar Padrão</span>
         </button>
@@ -341,6 +520,263 @@
       </div>
     </div>
   </header>
+
+  <!-- MODAL DE TREINAMENTO -->
+  <div id="modalTreinamento" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>🎓 Treinamento Completo - InfoÁgil SaaS Calculator</h2>
+        <button class="close-modal" onclick="fecharTreinamento()">×</button>
+      </div>
+      <div class="modal-body">
+        
+        <details class="training-section">
+          <summary>📊 1. Visão Geral da Aplicação</summary>
+          <div class="training-content">
+            <p>Esta calculadora foi desenvolvida especificamente para empresas de <span class="highlight">software contábil SaaS</span> determinarem preços competitivos e rentáveis.</p>
+            
+            <h4>🎯 Principais Objetivos:</h4>
+            <ul>
+              <li>Calcular preços baseados em custos reais</li>
+              <li>Analisar competitividade de mercado</li>
+              <li>Gerar relatórios profissionais</li>
+              <li>Criar orçamentos personalizados</li>
+            </ul>
+            
+            <div class="example">
+              <strong>💡 Exemplo:</strong> Uma empresa com custos de R$ 50/cliente e margem de 40% gerará preços que garantem lucratividade sustentável.
+            </div>
+          </div>
+        </details>
+
+        <details class="training-section">
+          <summary>🏢 2. Modelo de Negócio</summary>
+          <div class="training-content">
+            <p>Configure o <span class="highlight">tipo de operação</span> da sua empresa:</p>
+            
+            <h4>📋 Tipos Disponíveis:</h4>
+            <ul>
+              <li><strong>Próprio:</strong> Software desenvolvido internamente</li>
+              <li><strong>White Label:</strong> Revenda de software de terceiros</li>
+              <li><strong>Híbrido:</strong> Combinação de ambos</li>
+            </ul>
+            
+            <h4>👥 Meta de Clientes:</h4>
+            <p>Defina quantos clientes você pretende atender. Este número impacta diretamente na <span class="highlight">diluição dos custos fixos</span>.</p>
+            
+            <div class="warning">
+              <strong>⚠️ Atenção:</strong> Metas muito baixas podem resultar em preços pouco competitivos devido ao alto custo fixo por cliente.
+            </div>
+          </div>
+        </details>
+
+        <details class="training-section">
+          <summary>💰 3. Custos e Despesas</summary>
+          <div class="training-content">
+            <h4>🏗️ Custos Fixos Mensais:</h4>
+            <ul>
+              <li><strong>Infraestrutura:</strong> Servidores, cloud, CDN</li>
+              <li><strong>Pessoal:</strong> Salários + encargos da equipe</li>
+              <li><strong>Marketing:</strong> Publicidade, eventos, materiais</li>
+              <li><strong>Administrativo:</strong> Contador, advogado, escritório</li>
+              <li><strong>Outros:</strong> Licenças, seguros, diversos</li>
+            </ul>
+            
+            <h4>🎯 Custos por Cliente:</h4>
+            <ul>
+              <li><strong>Suporte:</strong> Tempo dedicado por cliente/mês</li>
+              <li><strong>White Label %:</strong> Percentual pago ao fornecedor</li>
+            </ul>
+            
+            <h4>📈 Sazonalidade:</h4>
+            <p>Multiplicador para períodos de maior demanda (ex: final de ano, IR).</p>
+            
+            <div class="example">
+              <strong>💡 Exemplo:</strong> Infraestrutura R$ 2.000 + Pessoal R$ 15.000 + Marketing R$ 3.000 = R$ 20.000/mês
+            </div>
+          </div>
+        </details>
+
+        <details class="training-section">
+          <summary>📊 4. Parâmetros de Negócio</summary>
+          <div class="training-content">
+            <h4>💹 Configurações Financeiras:</h4>
+            <ul>
+              <li><strong>Margem de Lucro:</strong> Percentual desejado sobre custos (recomendado: 20-40%)</li>
+              <li><strong>Impostos:</strong> Simples Nacional, ISS, PIS/COFINS</li>
+              <li><strong>Comissões:</strong> Percentual para vendedores/representantes</li>
+            </ul>
+            
+            <h4>📈 Métricas de Performance:</h4>
+            <ul>
+              <li><strong>Churn Rate:</strong> Taxa mensal de cancelamento (%)</li>
+              <li><strong>Churn Melhorado:</strong> Meta de melhoria do churn</li>
+            </ul>
+            
+            <h4>🛒 Adicionais:</h4>
+            <ul>
+              <li><strong>Margem Adicionais:</strong> Lucro sobre módulos extras</li>
+              <li><strong>Distribuição por Perfil:</strong> % de clientes por plano</li>
+            </ul>
+            
+            <div class="warning">
+              <strong>⚠️ Importante:</strong> A distribuição por perfil deve somar exatamente 100%
+            </div>
+          </div>
+        </details>
+
+        <details class="training-section">
+          <summary>🎯 5. CAC por Segmento</summary>
+          <div class="training-content">
+            <p><span class="highlight">CAC (Customer Acquisition Cost)</span> é o custo para adquirir cada cliente.</p>
+            
+            <h4>👥 Perfis de Cliente:</h4>
+            <ul>
+              <li><strong>MEI:</strong> Vendas online, baixo CAC (R$ 50-150)</li>
+              <li><strong>Contador:</strong> Parcerias, CAC médio (R$ 100-300)</li>
+              <li><strong>Básico:</strong> Vendas diretas, CAC médio (R$ 150-400)</li>
+              <li><strong>Intermediário:</strong> Processo comercial, CAC alto (R$ 250-500)</li>
+              <li><strong>Premium:</strong> Vendas complexas, CAC muito alto (R$ 400-800)</li>
+            </ul>
+            
+            <div class="example">
+              <strong>💡 Dica:</strong> CAC muito baixo pode indicar baixa qualidade de clientes. CAC muito alto pode inviabilizar o negócio.
+            </div>
+          </div>
+        </details>
+
+        <details class="training-section">
+          <summary>🔄 6. Executando Cálculos</summary>
+          <div class="training-content">
+            <h4>⚡ Como Calcular:</h4>
+            <ol>
+              <li>Preencha todos os campos obrigatórios</li>
+              <li>Verifique se a distribuição soma 100%</li>
+              <li>Clique em <span class="highlight">"🔄 Calcular Preços"</span></li>
+              <li>Analise os resultados gerados</li>
+            </ol>
+            
+            <h4>📋 Interpretando Resultados:</h4>
+            <ul>
+              <li><strong>Preço:</strong> Valor final para o cliente</li>
+              <li><strong>Custo:</strong> Custo total por cliente</li>
+              <li><strong>Margem:</strong> Lucro em reais</li>
+              <li><strong>ROI:</strong> Retorno sobre investimento</li>
+              <li><strong>LTV/CAC:</strong> Relação valor do cliente vs custo aquisição</li>
+            </ul>
+            
+            <div class="example">
+              <strong>🎯 Meta:</strong> LTV/CAC > 3.0 indica negócio saudável
+            </div>
+          </div>
+        </details>
+
+        <details class="training-section">
+          <summary>🏪 7. Análise de Concorrência</summary>
+          <div class="training-content">
+            <h4>🔍 Como Usar:</h4>
+            <ol>
+              <li>Adicione preços dos <span class="highlight">concorrentes</span> por segmento</li>
+              <li>Escolha estratégia de posicionamento</li>
+              <li>Defina ajuste manual se necessário</li>
+              <li>Clique em <span class="highlight">"Analisar"</span></li>
+            </ol>
+            
+            <h4>📊 Estratégias Disponíveis:</h4>
+            <ul>
+              <li><strong>Competitivo:</strong> Preços similares ao mercado</li>
+              <li><strong>Agressivo:</strong> 10% abaixo da concorrência</li>
+              <li><strong>Premium:</strong> 15% acima da concorrência</li>
+            </ul>
+            
+            <div class="warning">
+              <strong>⚠️ Cuidado:</strong> Preços muito baixos podem comprometer a sustentabilidade do negócio.
+            </div>
+          </div>
+        </details>
+
+        <details class="training-section">
+          <summary>💼 8. Gerador de Orçamentos</summary>
+          <div class="training-content">
+            <h4>📝 Passo a Passo:</h4>
+            <ol>
+              <li>Preencha dados do <span class="highlight">cliente</span></li>
+              <li>Selecione o <span class="highlight">plano</span> adequado</li>
+              <li>Escolha <span class="highlight">adicionais</span> necessários</li>
+              <li>Aplique <span class="highlight">ajustes</span> se necessário</li>
+              <li>Defina <span class="highlight">vigência</span> da proposta</li>
+              <li>Gere o orçamento</li>
+            </ol>
+            
+            <h4>💰 Descontos Especiais:</h4>
+            <p>Para ajustes <span class="highlight">negativos</span>, as observações são obrigatórias para justificar o desconto.</p>
+            
+            <div class="example">
+              <strong>💡 Dica:</strong> Use observações para destacar benefícios como "Desconto para contrato anual" ou "Treinamento incluído".
+            </div>
+          </div>
+        </details>
+
+        <details class="training-section">
+          <summary>📄 9. Relatórios e Exportação</summary>
+          <div class="training-content">
+            <h4>📊 Tipos de Relatório:</h4>
+            <ul>
+              <li><strong>PDF Analítico:</strong> Relatório completo com métricas</li>
+              <li><strong>PDF Orçamento:</strong> Proposta comercial para cliente</li>
+              <li><strong>JSON:</strong> Dados técnicos para backup/integração</li>
+            </ul>
+            
+            <h4>🎯 Quando Usar Cada Um:</h4>
+            <ul>
+              <li><strong>Analítico:</strong> Análise interna, reuniões estratégicas</li>
+              <li><strong>Orçamento:</strong> Apresentação para clientes</li>
+              <li><strong>JSON:</strong> Backup de configurações</li>
+            </ul>
+            
+            <div class="example">
+              <strong>💼 Profissional:</strong> Use o relatório analítico para justificar preços internamente e o orçamento para apresentar ao cliente.
+            </div>
+          </div>
+        </details>
+
+        <details class="training-section">
+          <summary>🔧 10. Dicas e Melhores Práticas</summary>
+          <div class="training-content">
+            <h4>✅ Boas Práticas:</h4>
+            <ul>
+              <li>Revise custos <span class="highlight">mensalmente</span></li>
+              <li>Monitore churn rate <span class="highlight">semanalmente</span></li>
+              <li>Analise concorrência <span class="highlight">trimestralmente</span></li>
+              <li>Teste diferentes estratégias de preço</li>
+              <li>Documente justificativas de desconto</li>
+            </ul>
+            
+            <h4>⚠️ Erros Comuns:</h4>
+            <ul>
+              <li>Subestimar custos de suporte</li>
+              <li>Não considerar sazonalidade</li>
+              <li>CAC irrealista para o perfil</li>
+              <li>Margem muito baixa</li>
+              <li>Distribuição de clientes incorreta</li>
+            </ul>
+            
+            <h4>🎯 Métricas de Sucesso:</h4>
+            <ul>
+              <li><strong>LTV/CAC > 3.0:</strong> Negócio saudável</li>
+              <li><strong>Churn < 5%:</strong> Boa retenção</li>
+              <li><strong>Margem > 20%:</strong> Rentabilidade adequada</li>
+            </ul>
+            
+            <div class="example">
+              <strong>🏆 Objetivo Final:</strong> Preços competitivos que garantam lucratividade sustentável e crescimento consistente.
+            </div>
+          </div>
+        </details>
+
+      </div>
+    </div>
+  </div>
 
   <div class="wrap">
     <div class="hero">
@@ -2221,4 +2657,29 @@
 
         alert("🐛 Debug completo executado! Verifique o console do navegador (F12) para informações detalhadas.");
     }
+
+    // Funções do Modal de Treinamento
+    function abrirTreinamento() {
+        document.getElementById('modalTreinamento').style.display = 'flex';
+        document.body.style.overflow = 'hidden'; // Previne scroll do body
+    }
+
+    function fecharTreinamento() {
+        document.getElementById('modalTreinamento').style.display = 'none';
+        document.body.style.overflow = 'auto'; // Restaura scroll do body
+    }
+
+    // Fechar modal clicando fora do conteúdo
+    document.getElementById('modalTreinamento').addEventListener('click', function(e) {
+        if (e.target === this) {
+            fecharTreinamento();
+        }
+    });
+
+    // Fechar modal com tecla ESC
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            fecharTreinamento();
+        }
+    });
   </script>
