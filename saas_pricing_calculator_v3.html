@@ -64,62 +64,148 @@
     .hint{font-size:12px;color:var(--muted)}
     .right{text-align:right}
     .center{text-align:center}
+    select{
+      width:100%; background:#0a0f1a; color:#e5e7eb; border:1px solid rgba(255,255,255,.12);
+      border-radius:10px; padding:10px 12px; font-size:14px; outline:none;
+    }
+    select:focus{border-color:var(--brand)}
+    input[type="text"]{
+      width:100%; background:#0a0f1a; color:#e5e7eb; border:1px solid rgba(255,255,255,.12);
+      border-radius:10px; padding:10px 12px; font-size:14px; outline:none;
+    }
+    input[type="text"]:focus{border-color:var(--brand)}
+    h3{font-size:16px; margin:15px 0 10px; font-weight:600; color:#fff}
+    textarea{
+      width:100%; background:#0a0f1a; color:#e5e7eb; border:1px solid rgba(255,255,255,.12);
+      border-radius:10px; padding:10px 12px; font-size:14px; outline:none; resize:vertical;
+    }
+    textarea:focus{border-color:var(--brand)}
+    input[type="checkbox"]{
+      width:16px; height:16px; margin-right:8px; accent-color:var(--brand);
+    }
+    .alert{
+      padding:12px; border-radius:8px; margin:10px 0; font-size:13px;
+    }
+    .alert-warn{background:rgba(245,158,11,.15); border:1px solid rgba(245,158,11,.35); color:#f59e0b}
+    .alert-danger{background:rgba(239,68,68,.15); border:1px solid rgba(239,68,68,.35); color:#ef4444}
+    .alert-info{background:rgba(34,211,238,.15); border:1px solid rgba(34,211,238,.35); color:#22d3ee}
+    .auto-correct{background:rgba(34,197,94,.1); border:1px solid rgba(34,197,94,.3)}
+    .validation-error{border-color:var(--danger) !important}
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="hero">
-      <h1>💰 Calculadora de Precificação SaaS — Info Ágil (White Label + Próprio)</h1>
-      <p class="subtle">Ajuste custos, taxas e margens. A calculadora usa o custo base Avante + % White Label sobre receita e entrega métricas SaaS (MRR, LTV, Break-even, LTV/CAC).</p>
+      <h1>💰 Calculadora de Precificação SaaS — Info Ágil</h1>
+      <p class="subtle">validações matemáticas, análise de cohort, segmentação de CAC e projeções realistas</p>
     </div>
 
-    <div class="grid">
-      <section class="card">
-        <h2>📊 Custos Fixos Mensais</h2>
-        <div class="row">
-          <div>
-            <label>Contador (R$)</label>
-            <input id="contador" type="number" min="0" step="50" value="800"/>
-          </div>
-          <div>
-            <label>Marketing Digital (R$)</label>
-            <input id="marketing" type="number" min="0" step="100" value="2000"/>
-          </div>
-        </div>
-        <div class="row">
-          <div>
-            <label>VPS + Infra (R$)</label>
-            <input id="infraestrutura" type="number" min="0" step="50" value="800"/>
-          </div>
-          <div>
-            <label>Domínios + Certificados (R$)</label>
-            <input id="dominios" type="number" min="0" step="10" value="300"/>
-          </div>
-        </div>
-        <div class="row">
-          <div>
-            <label>Telefone + Internet (R$)</label>
-            <input id="comunicacao" type="number" min="0" step="10" value="250"/>
-          </div>
-          <div>
-            <label>Pró-labore (R$)</label>
-            <input id="prolabore" type="number" min="0" step="100" value="4000"/>
-          </div>
-        </div>
-        <div class="row">
-          <div>
-            <label>Outros Custos (R$)</label>
-            <input id="outros" type="number" min="0" step="50" value="350"/>
-          </div>
-          <div>
-            <label>Setup Avante — amortização (R$ 9.500 / 12)</label>
-            <input id="setupAvante" type="number" min="0" step="50" value="9500"/>
-          </div>
-        </div>
-      </section>
+    <!-- Alertas de Validação -->
+    <div id="alertasValidacao"></div>
 
-      <section class="card">
-        <h2>🎯 Parâmetros</h2>
+    <section class="card" style="margin-bottom:16px; background:linear-gradient(135deg, rgba(34,211,238,.08), rgba(124,58,237,.08)); border:1px solid rgba(34,211,238,.25)">
+      <h2>🏢 Modelo de Negócio</h2>
+      <div class="row">
+        <div>
+          <label>Tipo de Operação</label>
+          <select id="tipoOperacao">
+            <option value="white_label">White Label (Avante)</option>
+            <option value="proprio">Desenvolvimento Próprio</option>
+            <option value="hibrido">Híbrido (White + Próprio)</option>
+          </select>
+        </div>
+        <div>
+          <label>Segmento Principal</label>
+          <select id="segmentoPrincipal">
+            <option value="contabil">Contábil/Fiscal</option>
+            <option value="geral">Gestão Empresarial</option>
+            <option value="especializado">Nicho Especializado</option>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>Região de Atuação</label>
+          <select id="regiaoAtuacao">
+            <option value="local">Local/Regional</option>
+            <option value="nacional">Nacional</option>
+            <option value="internacional">Internacional</option>
+          </select>
+        </div>
+        <div>
+          <label>Estratégia de Crescimento</label>
+          <select id="estrategiaCrescimento">
+            <option value="organico">Orgânico</option>
+            <option value="agressivo">Agressivo (Investimento)</option>
+            <option value="conservador">Conservador</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <div class="grid">
+    <section class="card">
+      <h2>📊 Custos Fixos Mensais Detalhados</h2>
+      <div class="row">
+        <div>
+          <label>Pessoal (Salários + Encargos) (R$)</label>
+          <input id="custosPessoal" type="number" min="0" step="100" value="8000"/>
+        </div>
+        <div>
+          <label>Infraestrutura (Servidores + TI) (R$)</label>
+          <input id="infraestrutura" type="number" min="0" step="50" value="800"/>
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>Marketing Digital (R$)</label>
+          <input id="marketing" type="number" min="0" step="100" value="2000"/>
+        </div>
+        <div>
+          <label>Administrativo (Contador, Jurídico) (R$)</label>
+          <input id="contador" type="number" min="0" step="100" value="800"/>
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>Comunicação (Telefone, Internet) (R$)</label>
+          <input id="comunicacao" type="number" min="0" step="10" value="250"/>
+        </div>
+        <div>
+          <label>Outros (Escritório, Diversos) (R$)</label>
+          <input id="outros" type="number" min="0" step="50" value="350"/>
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>Licenciamento/White Label (R$)</label>
+          <input id="setupAvante" type="number" min="0" step="50" value="792"/>
+        </div>
+        <div>
+          <label>Reserva de Contingência (R$)</label>
+          <input id="custosContingencia" type="number" min="0" step="100" value="500"/>
+        </div>
+      </div>
+      
+      <h3 style="margin-top:20px; margin-bottom:10px">💰 Custos Variáveis por Cliente/Mês</h3>
+      <div class="subtle" style="margin-bottom:10px">Base + Suporte diferenciados por plano</div>
+      <div class="row5">
+        <div><label class="hint">MEI - Base (R$)</label><input id="custoMei" type="number" min="0" step="1" value="25"/></div>
+        <div><label class="hint">Contador - Base (R$)</label><input id="custoContador" type="number" min="0" step="1" value="30"/></div>
+        <div><label class="hint">Básico - Base (R$)</label><input id="custoBasico" type="number" min="0" step="1" value="36"/></div>
+        <div><label class="hint">Inter - Base (R$)</label><input id="custoInter" type="number" min="0" step="1" value="56"/></div>
+        <div><label class="hint">Premium - Base (R$)</label><input id="custoPremium" type="number" min="0" step="1" value="130"/></div>
+      </div>
+      <div class="row5" style="margin-top:10px">
+        <div><label class="hint">MEI - Suporte (R$)</label><input id="suporteMei" type="number" min="0" step="5" value="20"/></div>
+        <div><label class="hint">Contador - Suporte (R$)</label><input id="suporteContador" type="number" min="0" step="5" value="30"/></div>
+        <div><label class="hint">Básico - Suporte (R$)</label><input id="suporteBasico" type="number" min="0" step="5" value="35"/></div>
+        <div><label class="hint">Inter - Suporte (R$)</label><input id="suporteInter" type="number" min="0" step="5" value="50"/></div>
+        <div><label class="hint">Premium - Suporte (R$)</label><input id="suportePremium" type="number" min="0" step="5" value="80"/></div>
+      </div>
+    </section>      <section class="card">
+        <h2>🎯 Parâmetros de Negócio</h2>
+        <div class="subtle" style="margin-bottom:10px">Valores com validação automática e auto-correção</div>
 
         <div class="row">
           <div>
@@ -132,27 +218,37 @@
           </div>
         </div>
 
-        <label>Distribuição de Planos (%)</label>
+        <label>Distribuição de Planos (%) <span class="subtle" id="somaDistribuicao">Total: 100%</span></label>
         <div class="row5">
-          <div><label class="hint">MEI</label><input id="distribMei" type="number" min="0" max="100" step="1" value="15"/></div>
-          <div><label class="hint">Contador</label><input id="distribContador" type="number" min="0" max="100" step="1" value="20"/></div>
-          <div><label class="hint">Básico</label><input id="distribBasico" type="number" min="0" max="100" step="1" value="30"/></div>
-          <div><label class="hint">Inter</label><input id="distribInter" type="number" min="0" max="100" step="1" value="25"/></div>
-          <div><label class="hint">Premium</label><input id="distribPremium" type="number" min="0" max="100" step="1" value="10"/></div>
+          <div><label class="hint">MEI</label><input id="distribMei" type="number" min="0" max="100" step="1" value="15" oninput="validarDistribuicao()"/></div>
+          <div><label class="hint">Contador</label><input id="distribContador" type="number" min="0" max="100" step="1" value="20" oninput="validarDistribuicao()"/></div>
+          <div><label class="hint">Básico</label><input id="distribBasico" type="number" min="0" max="100" step="1" value="30" oninput="validarDistribuicao()"/></div>
+          <div><label class="hint">Inter</label><input id="distribInter" type="number" min="0" max="100" step="1" value="25" oninput="validarDistribuicao()"/></div>
+          <div><label class="hint">Premium</label><input id="distribPremium" type="number" min="0" max="100" step="1" value="10" oninput="validarDistribuicao()"/></div>
         </div>
+        <button class="ghost" onclick="autoCorrigirDistribuicao()" style="margin-top:5px; padding:5px 10px; font-size:12px">⚡ Auto-corrigir para 100%</button>
 
-        <div class="row">
+        <div class="row" style="margin-top:15px">
           <div>
-            <label>Churn Rate Estimado (%/mês)</label>
+            <label>Churn Rate Médio (%/mês)</label>
             <input id="churnRate" type="number" min="0" max="50" step="0.1" value="4"/>
           </div>
           <div>
-            <label>CAC — Custo de Aquisição (R$)</label>
-            <input id="cac" type="number" min="0" step="10" value="200"/>
+            <label>Churn Melhorado após 6 meses (%/mês)</label>
+            <input id="churnMelhorado" type="number" min="0" max="50" step="0.1" value="2.5"/>
           </div>
         </div>
 
-        <div class="row">
+        <h3 style="margin-top:15px">CAC Segmentado por Plano</h3>
+        <div class="row5">
+          <div><label class="hint">MEI - CAC (R$)</label><input id="cacMei" type="number" min="0" step="10" value="150"/></div>
+          <div><label class="hint">Contador - CAC (R$)</label><input id="cacContador" type="number" min="0" step="10" value="200"/></div>
+          <div><label class="hint">Básico - CAC (R$)</label><input id="cacBasico" type="number" min="0" step="10" value="250"/></div>
+          <div><label class="hint">Inter - CAC (R$)</label><input id="cacInter" type="number" min="0" step="10" value="350"/></div>
+          <div><label class="hint">Premium - CAC (R$)</label><input id="cacPremium" type="number" min="0" step="10" value="500"/></div>
+        </div>
+
+        <div class="row" style="margin-top:15px">
           <div>
             <label>Impostos (% sobre preço)</label>
             <input id="impostos" type="number" min="0" max="50" step="0.5" value="8.5"/>
@@ -165,17 +261,19 @@
 
         <div class="row">
           <div>
-            <label>White Label — Avante (% sobre receita)</label>
+            <label>White Label — Taxa sobre Receita (%)</label>
             <input id="whiteLabelPct" type="number" min="0" max="100" step="1" value="30"/>
           </div>
           <div>
-            <label>Suporte (R$/cliente/mês)</label>
-            <input id="suporte" type="number" min="0" step="5" value="35"/>
+            <label>Sazonalidade Contábil - Multiplicador</label>
+            <input id="sazonalidade" type="number" min="1" max="3" step="0.1" value="1.5"/>
           </div>
         </div>
 
         <div class="actions">
           <button onclick="calcular()">🔄 Calcular Preços</button>
+          <button class="ghost" onclick="resetarPadrao()">🔄 Resetar Padrão</button>
+          <button class="ghost" onclick="testeRapido()">🔧 Debug</button>
           <button class="ghost" onclick="exportarJSON()">📤 Exportar JSON</button>
         </div>
       </section>
@@ -200,19 +298,44 @@
 
     <section class="card" style="margin-top:16px">
       <h2>🎁 Catálogo de Adicionais — Upsell</h2>
-      <p class="subtle">Os preços sugeridos abaixo aplicam a <b>margem de adicionais</b> definida aqui.</p>
+      <p class="subtle">Configure seus próprios adicionais e suas margens de lucro.</p>
       <div class="row">
         <div>
           <label>Margem sobre Adicionais (%)</label>
           <input id="margemAdicionais" type="number" min="0" max="200" step="1" value="50"/>
         </div>
         <div>
-          <label>Adesão média (para métricas) — Muito/Moderado/Opcional</label>
+          <label>Adesão média (para métricas) — Muito/Moderado/Opcional (%)</label>
           <div class="row3">
             <input id="txMuito" type="number" min="0" max="100" step="1" value="70"/>
             <input id="txMod" type="number" min="0" max="100" step="1" value="40"/>
             <input id="txOpc" type="number" min="0" max="100" step="1" value="20"/>
           </div>
+        </div>
+      </div>
+
+      <h3 style="margin-top:15px">✏️ Adicionais Customizáveis</h3>
+      <div class="row">
+        <div>
+          <label>Adicionar Novo Item</label>
+          <input id="novoAdicional" type="text" placeholder="Nome do adicional"/>
+        </div>
+        <div>
+          <label>Custo (R$)</label>
+          <input id="novoCusto" type="number" min="0" step="1" value="20"/>
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>Categoria</label>
+          <select id="novaCategoria" style="width:100%; background:#0a0f1a; color:#e5e7eb; border:1px solid rgba(255,255,255,.12); border-radius:10px; padding:10px 12px; font-size:14px;">
+            <option value="muito">Muito Recomendado</option>
+            <option value="moderado">Moderado</option>
+            <option value="opcional">Opcional</option>
+          </select>
+        </div>
+        <div style="display:flex; align-items:end;">
+          <button onclick="adicionarItem()" style="width:100%">➕ Adicionar</button>
         </div>
       </div>
 
@@ -224,230 +347,659 @@
         <div class="metric"><div class="val" id="ticketMedioComAdicionais">R$ 0</div><div class="subtle">Ticket Médio com Adicionais</div></div>
       </div>
     </section>
+
+    <section class="card" style="margin-top:16px">
+      <h2>📈 Projeções e Cenários</h2>
+      <div class="row">
+        <div>
+          <label>Crescimento Mensal de Clientes (%)</label>
+          <input id="crescimentoMensal" type="number" min="0" max="100" step="1" value="8"/>
+        </div>
+        <div>
+          <label>Período de Projeção (meses)</label>
+          <input id="periodoProjecao" type="number" min="1" max="60" step="1" value="12"/>
+        </div>
+      </div>
+      
+      <div class="row">
+        <div>
+          <label>Meta Receita Mensal no Final do Período (R$)</label>
+          <input id="metaReceitaFinal" type="number" min="0" step="1000" value="50000"/>
+        </div>
+        <div>
+          <label>Churn Melhorado após 6 meses (%/mês)</label>
+          <input id="churnMelhorado" type="number" min="0" max="50" step="0.1" value="2.5"/>
+        </div>
+      </div>
+
+      <div class="actions" style="margin-top:10px">
+        <button onclick="calcularProjecoes()">📊 Calcular Projeções</button>
+        <button class="ghost" onclick="resetarPadrao()">🔄 Resetar Padrão</button>
+      </div>
+
+      <div id="projecaoResults" style="margin-top:15px; display:none">
+        <h3>Resultados da Projeção</h3>
+        <div class="metric-grid">
+          <div class="metric"><div class="val" id="clientesProjetados">0</div><div class="subtle">Clientes no Final</div></div>
+          <div class="metric"><div class="val" id="mrrProjetado">R$ 0</div><div class="subtle">MRR Projetado Final</div></div>
+          <div class="metric"><div class="val" id="breakEvenProjetado">0</div><div class="subtle">Break-even (mês)</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" style="margin-top:16px; background:linear-gradient(135deg, rgba(34,211,238,.12), rgba(124,58,237,.12)); border:2px solid rgba(34,211,238,.3)">
+      <h2>💼 Gerador de Orçamento para Cliente</h2>
+      <p class="subtle">Configure um orçamento personalizado para apresentar ao seu cliente</p>
+      
+      <div class="row">
+        <div>
+          <label>👤 Nome do Cliente</label>
+          <input id="nomeCliente" type="text" placeholder="Ex: Empresa ABC Ltda"/>
+        </div>
+        <div>
+          <label>📧 Email do Cliente</label>
+          <input id="emailCliente" type="text" placeholder="contato@empresaabc.com"/>
+        </div>
+      </div>
+
+      <h3>📦 Seleção de Plano Base</h3>
+      <div class="row">
+        <div>
+          <label>Plano Escolhido</label>
+          <select id="planoEscolhido" style="width:100%; background:#0a0f1a; color:#e5e7eb; border:1px solid rgba(255,255,255,.12); border-radius:10px; padding:10px 12px; font-size:14px;">
+            <option value="mei">👶 MEI</option>
+            <option value="contador">📊 Contador</option>
+            <option value="basico">📦 Básico</option>
+            <option value="inter">⚡ Intermediário</option>
+            <option value="premium">🚀 Premium</option>
+          </select>
+        </div>
+        <div>
+          <label>🎯 Ajuste de Preço (%)</label>
+          <input id="ajustePreco" type="number" min="-50" max="100" step="1" value="0" placeholder="Ex: -10 para desconto de 10%"/>
+        </div>
+      </div>
+
+      <h3>🎁 Adicionais Selecionados</h3>
+      <div id="seletorAdicionais" class="row" style="max-height:200px; overflow-y:auto; border:1px solid rgba(255,255,255,.1); border-radius:8px; padding:10px; margin-bottom:10px;">
+        <!-- Será preenchido dinamicamente -->
+      </div>
+
+      <div class="row">
+        <div>
+          <label>💳 Desconto Adicional (R$)</label>
+          <input id="descontoAdicional" type="number" min="0" step="10" value="0" placeholder="Desconto em reais"/>
+        </div>
+        <div>
+          <label>📅 Vigência da Proposta (dias)</label>
+          <input id="vigenciaProposta" type="number" min="1" max="365" step="1" value="30"/>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>📝 Observações da Proposta</label>
+          <textarea id="observacoesProposta" style="width:100%; background:#0a0f1a; color:#e5e7eb; border:1px solid rgba(255,255,255,.12); border-radius:10px; padding:10px 12px; font-size:14px; height:80px; resize:vertical;" placeholder="Ex: Desconto especial para contrato anual, treinamento incluído, etc."></textarea>
+        </div>
+      </div>
+
+      <div class="actions" style="margin-top:15px">
+        <button onclick="gerarOrcamento()">💼 Gerar Orçamento</button>
+        <button class="ghost" onclick="exportarOrcamentoPDF()">📄 Exportar PDF</button>
+        <button class="ghost" onclick="limparOrcamento()">🗑️ Limpar</button>
+      </div>
+
+      <!-- Resultado do Orçamento -->
+      <div id="resultadoOrcamento" style="margin-top:20px; display:none; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.15); border-radius:12px; padding:20px;">
+        <h3 style="text-align:center; color:var(--brand)">💰 Proposta Comercial - Info Ágil Sistemas</h3>
+        
+        <div class="row" style="margin-bottom:15px">
+          <div><strong>Cliente:</strong> <span id="orcamentoNome">-</span></div>
+          <div><strong>Email:</strong> <span id="orcamentoEmail">-</span></div>
+        </div>
+        <div class="row" style="margin-bottom:15px">
+          <div><strong>Data:</strong> <span id="orcamentoData">-</span></div>
+          <div><strong>Validade:</strong> <span id="orcamentoValidade">-</span> dias</div>
+        </div>
+
+        <table style="width:100%; margin:15px 0; border:1px solid rgba(255,255,255,.2)">
+          <thead>
+            <tr style="background:rgba(255,255,255,.1)">
+              <th style="padding:12px; text-align:left">Item</th>
+              <th style="padding:12px; text-align:center">Qtd</th>
+              <th style="padding:12px; text-align:right">Valor Unit.</th>
+              <th style="padding:12px; text-align:right">Total</th>
+            </tr>
+          </thead>
+          <tbody id="tabelaOrcamento">
+            <!-- Será preenchido dinamicamente -->
+          </tbody>
+          <tfoot>
+            <tr style="background:rgba(255,255,255,.1); font-weight:bold">
+              <td colspan="3" style="padding:12px; text-align:right">VALOR TOTAL MENSAL:</td>
+              <td style="padding:12px; text-align:right; color:var(--brand); font-size:18px" id="valorTotalOrcamento">R$ 0,00</td>
+            </tr>
+          </tfoot>
+        </table>
+
+        <div id="observacoesOrcamento" style="margin-top:15px; padding:10px; background:rgba(255,255,255,.05); border-radius:8px; display:none;">
+          <strong>📋 Observações:</strong>
+          <p id="textoObservacoes" style="margin:5px 0 0 0; color:var(--muted)"></p>
+        </div>
+
+        <div class="metric-grid" style="margin-top:15px">
+          <div class="metric"><div class="val" id="valorAnual">R$ 0</div><div class="subtle">Valor Anual</div></div>
+          <div class="metric"><div class="val" id="economiaAnual">R$ 0</div><div class="subtle">Economia vs Tabela</div></div>
+          <div class="metric"><div class="val" id="roiCliente">0%</div><div class="subtle">ROI Estimado Cliente</div></div>
+        </div>
+      </div>
+    </section>
   </div>
+<script>
+    // Variáveis globais
+    let dadosCalculados = {};
+    let adicionaisSelecionados = {};
 
-  <script>
-    const custosAvanteBase = { mei:25, contador:30, basico:36, inter:56, premium:130 };
-
-    const adicionaisRaw = [
+    // DADOS PADRÃO PARA ADICIONAIS
+    let adicionaisRaw = [
       // Muito recomendado
-      {nome:"WhatsApp",     custo:20,   tipo:"muito"},
-      {nome:"Boleto",       custo:25,   tipo:"muito"},
-      {nome:"Integração Pix",custo:17,  tipo:"muito"},
-      {nome:"Assinador",    custo:25,   tipo:"muito"},
-      {nome:"Força de Vendas", custo:15,tipo:"muito"},
-
+      {nome:"WhatsApp",     custo:20,   tipo:"muito", id: "addon_1"},
+      {nome:"Boleto",       custo:25,   tipo:"muito", id: "addon_2"},
+      {nome:"Integração Pix",custo:17,  tipo:"muito", id: "addon_3"},
+      {nome:"Assinador",    custo:25,   tipo:"muito", id: "addon_4"},
+      {nome:"Força de Vendas", custo:15,tipo:"muito", id: "addon_5"},
       // Moderado
-      {nome:"Contrato",     custo:30,   tipo:"moderado"},
-      {nome:"Lote",         custo:25,   tipo:"moderado"},
-      {nome:"SEUPOS",       custo:20,   tipo:"moderado"},
-      {nome:"Averbação",    custo:18,   tipo:"moderado"},
-      {nome:"Promoção",     custo:20,   tipo:"moderado"},
-
+      {nome:"Contrato",     custo:30,   tipo:"moderado", id: "addon_6"},
+      {nome:"Lote",         custo:25,   tipo:"moderado", id: "addon_7"},
+      {nome:"SEUPOS",       custo:20,   tipo:"moderado", id: "addon_8"},
+      {nome:"Averbação",    custo:18,   tipo:"moderado", id: "addon_9"},
+      {nome:"Promoção",     custo:20,   tipo:"moderado", id: "addon_10"},
       // Opcional
-      {nome:"TEF Sitef",    custo:130,  tipo:"opcional"},
-      {nome:"TEF Adicional",custo:32,   tipo:"opcional"},
-      {nome:"SEUPOS + STONE", custo:25, tipo:"opcional"},
-      {nome:"Cardápio Digital", custo:15, tipo:"opcional"},
-      {nome:"Declaração de Importação", custo:20, tipo:"opcional"}
+      {nome:"TEF Sitef",    custo:130,  tipo:"opcional", id: "addon_11"},
+      {nome:"TEF Adicional",custo:32,   tipo:"opcional", id: "addon_12"},
+      {nome:"SEUPOS + STONE", custo:25, tipo:"opcional", id: "addon_13"},
+      {nome:"Cardápio Digital", custo:15, tipo:"opcional", id: "addon_14"},
+      {nome:"Declaração de Importação", custo:20, tipo:"opcional", id: "addon_15"}
     ];
 
-    function money(v){ return "R$ " + Math.round(v).toLocaleString("pt-BR"); }
+    // VALIDAÇÕES E AUTO-CORREÇÕES
+    function validarDistribuicao() {
+      const inputs = ['distribMei', 'distribContador', 'distribBasico', 'distribInter', 'distribPremium'];
+      const valores = inputs.map(id => parseFloat(document.getElementById(id).value) || 0);
+      const soma = valores.reduce((a, b) => a + b, 0);
+      
+      const somaEl = document.getElementById('somaDistribuicao');
+      somaEl.textContent = `Total: ${soma.toFixed(1)}%`;
+      
+      if (Math.abs(soma - 100) > 0.1) {
+        somaEl.style.color = 'var(--danger)';
+        inputs.forEach(id => document.getElementById(id).classList.add('validation-error'));
+      } else {
+        somaEl.style.color = 'var(--ok)';
+        inputs.forEach(id => document.getElementById(id).classList.remove('validation-error'));
+      }
+    }
+
+    function autoCorrigirDistribuicao() {
+      const inputs = ['distribMei', 'distribContador', 'distribBasico', 'distribInter', 'distribPremium'];
+      const valores = inputs.map(id => parseFloat(document.getElementById(id).value) || 0);
+      const soma = valores.reduce((a, b) => a + b, 0);
+      
+      if (soma === 0) return;
+      
+      const fator = 100 / soma;
+      let somaCorrigida = 0;
+      inputs.forEach((id, i) => {
+        let novoValor = valores[i] * fator;
+        document.getElementById(id).value = novoValor.toFixed(1);
+        somaCorrigida += parseFloat(novoValor.toFixed(1));
+      });
+
+      // Ajuste fino para garantir que a soma seja exatamente 100
+      let diferenca = 100 - somaCorrigida;
+      if (diferenca !== 0) {
+          let ultimoInput = document.getElementById(inputs[inputs.length - 1]);
+          ultimoInput.value = (parseFloat(ultimoInput.value) + diferenca).toFixed(1);
+      }
+      
+      validarDistribuicao();
+    }
+
+    function validarCAC() {
+        if (!dadosCalculados?.resultados?.planos) return;
+        const inputs = ['cacMei', 'cacContador', 'cacBasico', 'cacInter', 'cacPremium'];
+        const planos = ['mei', 'contador', 'basico', 'inter', 'premium'];
+        
+        inputs.forEach((cacId, i) => {
+            const cacEl = document.getElementById(cacId);
+            const cac = parseFloat(cacEl.value) || 0;
+            const planoData = dadosCalculados.resultados.planos[planos[i]];
+            
+            if (planoData && cac > planoData.preco * 3) {
+                cacEl.classList.add('validation-error');
+            } else {
+                cacEl.classList.remove('validation-error');
+            }
+        });
+    }
+
+    function mostrarAlertas() {
+      const container = document.getElementById('alertasValidacao');
+      container.innerHTML = '';
+      const alertas = [];
+      
+      const soma = ['distribMei', 'distribContador', 'distribBasico', 'distribInter', 'distribPremium']
+        .reduce((acc, id) => acc + (parseFloat(document.getElementById(id).value) || 0), 0);
+      
+      if (Math.abs(soma - 100) > 0.1) {
+        alertas.push({
+          tipo: 'warn',
+          mensagem: `Distribuição de planos soma ${soma.toFixed(1)}% (deve ser 100%). <button onclick="autoCorrigirDistribuicao()" style="margin-left:10px; padding:3px 8px; background:var(--ok); border:none; border-radius:4px; cursor:pointer">Auto-corrigir</button>`
+        });
+      }
+      
+      const margem = parseFloat(document.getElementById('margemLucro').value) || 0;
+      if (margem < 20) {
+        alertas.push({ tipo: 'warn', mensagem: `Margem de lucro baixa (${margem}%). Considere aumentar para sustentar crescimento.` });
+      }
+      
+      const churn = parseFloat(document.getElementById('churnRate').value) || 0;
+      if (churn > 8) {
+        alertas.push({ tipo: 'danger', mensagem: `Churn rate alto (${churn}%/mês). Pode inviabilizar o modelo SaaS.` });
+      }
+
+      alertas.forEach(alerta => {
+        const div = document.createElement('div');
+        div.className = `alert alert-${alerta.tipo}`;
+        div.innerHTML = `⚠️ ${alerta.mensagem}`;
+        container.appendChild(div);
+      });
+    }
+
+    // FUNÇÕES DE COLETA DE DADOS
+    const getValue = (id) => parseFloat(document.getElementById(id)?.value) || 0;
+
+    function getCustosBase() {
+      return {
+        mei: getValue('custoMei'), contador: getValue('custoContador'), basico: getValue('custoBasico'),
+        inter: getValue('custoInter'), premium: getValue('custoPremium')
+      };
+    }
+
+    function getSuporte() {
+      return {
+        mei: getValue('suporteMei'), contador: getValue('suporteContador'), basico: getValue('suporteBasico'),
+        inter: getValue('suporteInter'), premium: getValue('suportePremium')
+      };
+    }
+
+    function getCAC() {
+      return {
+        mei: getValue('cacMei'), contador: getValue('cacContador'), basico: getValue('cacBasico'),
+        inter: getValue('cacInter'), premium: getValue('cacPremium')
+      };
+    }
 
     function getInputs(){
-      const v = (id)=> parseFloat(document.getElementById(id).value);
       const custoFixo = {
-        contador: v('contador'),
-        marketing: v('marketing'),
-        infraestrutura: v('infraestrutura'),
-        dominios: v('dominios'),
-        comunicacao: v('comunicacao'),
-        prolabore: v('prolabore'),
-        outros: v('outros'),
-        setupAvante: v('setupAvante')/12
+        pessoal: getValue('custosPessoal'), marketing: getValue('marketing'), infraestrutura: getValue('infraestrutura'),
+        contador: getValue('contador'), comunicacao: getValue('comunicacao'), outros: getValue('outros'),
+        setupAvante: getValue('setupAvante'), contingencia: getValue('custosContingencia')
       };
+      
       const parametros = {
-        margemLucro: v('margemLucro')/100,
-        metaClientes: v('metaClientes'),
-        distribMei: v('distribMei')/100,
-        distribContador: v('distribContador')/100,
-        distribBasico: v('distribBasico')/100,
-        distribInter: v('distribInter')/100,
-        distribPremium: v('distribPremium')/100,
-        churnRate: v('churnRate')/100,
-        cac: v('cac'),
-        impostos: v('impostos')/100,
-        comissoes: v('comissoes')/100,
-        whiteLabelPct: v('whiteLabelPct')/100,
-        suporte: v('suporte'),
-        margemAdicionais: v('margemAdicionais')/100,
-        txMuito: v('txMuito')/100,
-        txMod: v('txMod')/100,
-        txOpc: v('txOpc')/100
+        tipoOperacao: document.getElementById('tipoOperacao')?.value,
+        margemLucro: getValue('margemLucro') / 100,
+        metaClientes: getValue('metaClientes'),
+        distribuicao: {
+            mei: getValue('distribMei') / 100, contador: getValue('distribContador') / 100, basico: getValue('distribBasico') / 100,
+            inter: getValue('distribInter') / 100, premium: getValue('distribPremium') / 100
+        },
+        churnRate: getValue('churnRate') / 100,
+        churnMelhorado: getValue('churnMelhorado') / 100,
+        impostos: getValue('impostos') / 100,
+        comissoes: getValue('comissoes') / 100,
+        whiteLabelPct: getValue('whiteLabelPct') / 100,
+        sazonalidade: getValue('sazonalidade'),
+        margemAdicionais: getValue('margemAdicionais') / 100,
+        txAdesao: {
+            muito: getValue('txMuito') / 100, moderado: getValue('txMod') / 100, opcional: getValue('txOpc') / 100
+        }
       };
+      
       return {custoFixo, parametros};
     }
 
-    function calcularPrecoPlano(custoAvante, custoFixoTotal, p){
-      const custoFixoPorCliente = custoFixoTotal / p.metaClientes;
-      const custoDireto = custoAvante + custoFixoPorCliente + p.suporte;
-      const percSobrePreco = p.impostos + p.comissoes + p.whiteLabelPct;
-      const preco = (custoDireto / (1 - p.margemLucro)) / (1 - percSobrePreco);
-      const margem = preco - custoDireto - (preco * (p.impostos + p.comissoes + p.whiteLabelPct));
-      const roi = margem / (custoDireto || 1);
-      return { preco: Math.round(preco), custoDireto: Math.round(custoDireto), margem: Math.round(margem), roi: Math.round(roi*100) };
+    // FUNÇÕES DE CÁLCULO
+    function calcularPrecoPlano(plano, custoBase, suporte, custoFixoTotal, p, cac){
+      const custoFixoPorCliente = custoFixoTotal / Math.max(1, p.metaClientes);
+      const custoDireto = custoBase + suporte + custoFixoPorCliente;
+      
+      let percSobrePreco = p.impostos + p.comissoes;
+      if (p.tipoOperacao === 'white_label' || p.tipoOperacao === 'hibrido') {
+          percSobrePreco += p.whiteLabelPct;
+      }
+
+      const denominador = (1 - p.margemLucro) * (1 - percSobrePreco);
+      const preco = custoDireto / Math.max(0.01, denominador);
+      
+      const margem = preco - custoDireto - (preco * percSobrePreco);
+      const roi = custoDireto > 0 ? margem / custoDireto : 0;
+      
+      const churnEfetivo = Math.max(0.001, (p.churnRate + p.churnMelhorado) / 2);
+      const ltv = (preco - (custoBase + suporte)) / churnEfetivo; // LTV sobre a margem de contribuição
+      const ltvCac = cac > 0 ? ltv / cac : 0;
+      
+      return {
+        preco: Math.round(preco), custoDireto: Math.round(custoDireto), margem: Math.round(margem), 
+        roi: Math.round(roi * 100), ltv: Math.round(ltv), ltvCac: Math.round(ltvCac * 10) / 10, cac: cac
+      };
+    }
+
+    // FUNÇÕES DE RENDERIZAÇÃO E UI
+    function money(v){ 
+      if (isNaN(v) || v === null || v === undefined) return "R$ 0";
+      return "R$ " + Math.round(v).toLocaleString("pt-BR", { minimumFractionDigits: 0, maximumFractionDigits: 0 }); 
     }
 
     function desenharCards(res){
+      const custosBase = getCustosBase();
+      const suporte = getSuporte();
       const map = [
-        {k:'mei', titulo:'👶 MEI', base:custosAvanteBase.mei},
-        {k:'contador', titulo:'📊 Contador', base:custosAvanteBase.contador},
-        {k:'basico', titulo:'📦 Básico', base:custosAvanteBase.basico},
-        {k:'inter', titulo:'⚡ Intermediário', base:custosAvanteBase.inter},
-        {k:'premium', titulo:'🚀 Premium', base:custosAvanteBase.premium},
+        {k:'mei', titulo:'👶 MEI', base:custosBase.mei, sup:suporte.mei},
+        {k:'contador', titulo:'📊 Contador', base:custosBase.contador, sup:suporte.contador},
+        {k:'basico', titulo:'📦 Básico', base:custosBase.basico, sup:suporte.basico},
+        {k:'inter', titulo:'⚡ Intermediário', base:custosBase.inter, sup:suporte.inter},
+        {k:'premium', titulo:'🚀 Premium', base:custosBase.premium, sup:suporte.premium},
       ];
+      
       const el = document.getElementById('cards');
       el.innerHTML = '';
-      map.forEach(({k,titulo,base}) => {
+      
+      map.forEach(({k,titulo,base,sup}) => {
         const i = res.planos[k];
-        const html = `
+        const ltvCacColor = i.ltvCac >= 3 ? 'var(--ok)' : i.ltvCac >= 2 ? 'var(--warn)' : 'var(--danger)';
+        
+        el.innerHTML += `
           <div class="card">
-            <div class="mut">Custo Avante: ${money(base)}/mês</div>
+            <div class="mut">Custo: ${money(base)} + ${money(sup)}</div>
             <div class="price">${money(i.preco)}</div>
             <div class="mut">${titulo}</div>
             <table style="margin-top:6px">
               <tr><td>Margem</td><td class="right">${money(i.margem)}</td></tr>
               <tr><td>ROI</td><td class="right">${i.roi}%</td></tr>
-              <tr><td>Custo Direto</td><td class="right">${money(i.custoDireto)}</td></tr>
+              <tr><td>LTV</td><td class="right">${money(i.ltv)}</td></tr>
+              <tr><td>LTV/CAC</td><td class="right" style="color:${ltvCacColor}">${i.ltvCac}x</td></tr>
+              <tr><td>CAC</td><td class="right">${money(i.cac)}</td></tr>
             </table>
           </div>`;
-        el.insertAdjacentHTML('beforeend', html);
       });
     }
 
-    function tabelaAddons(id, titulo, filtro, corClass){
-      const {parametros} = getInputs();
-      const itens = adicionaisRaw.filter(a => a.tipo===filtro).map(a => {
-        const venda = Math.round(a.custo * (1 + parametros.margemAdicionais));
-        return {...a, venda};
-      });
-      const tHead = `<tr><th class="left">Adicional</th><th class="right">Custo</th><th class="right">Preço sugerido</th></tr>`;
-      const rows = itens.map(it => `<tr>
-        <td>${it.nome}</td>
-        <td class="right">${money(it.custo)}</td>
-        <td class="right"><b>${money(it.venda)}</b></td>
-      </tr>`).join('');
-      const badge = filtro==='muito' ? '<span class="badge b-ok">Muito recomendado</span>' :
-                    filtro==='moderado' ? '<span class="badge b-warn">Moderado</span>' :
-                    '<span class="badge b-dang">Opcional</span>';
-      const html = `
-        <div class="card">
-          <h3 style="margin:0 0 6px">${titulo} ${badge}</h3>
-          <table>${tHead}${rows}</table>
-        </div>`;
-      document.getElementById(id).insertAdjacentHTML('beforeend', html);
-      return itens;
+    function tabelaAddons(id, titulo, filtro, parametros){
+        const itens = adicionaisRaw.filter(a => a.tipo === filtro).map(a => ({
+            ...a,
+            venda: Math.round(a.custo * (1 + parametros.margemAdicionais))
+        }));
+        
+        let rows = itens.map(it => `<tr>
+            <td>${it.nome}</td>
+            <td class="right">${money(it.custo)}</td>
+            <td class="right"><b>${money(it.venda)}</b></td>
+            <td class="center"><button onclick="removerItem('${it.id}')" style="padding:4px 8px; font-size:12px; background:#ef4444">🗑️</button></td>
+        </tr>`).join('');
+
+        const badgeMap = {
+            'muito': '<span class="badge b-ok">Muito recomendado</span>',
+            'moderado': '<span class="badge b-warn">Moderado</span>',
+            'opcional': '<span class="badge b-dang">Opcional</span>'
+        };
+        
+        document.getElementById(id).innerHTML += `
+            <div class="card">
+              <h3 style="margin:0 0 6px">${titulo} ${badgeMap[filtro]}</h3>
+              <table>
+                <thead><tr><th class="left">Adicional</th><th class="right">Custo</th><th class="right">Preço sugerido</th><th class="center">Ação</th></tr></thead>
+                <tbody>${rows}</tbody>
+              </table>
+            </div>`;
+        return itens;
     }
 
-    let dadosCalculados = {};
-
+    // FUNÇÃO PRINCIPAL DE CÁLCULO
     function calcular(){
-      const {custoFixo, parametros} = getInputs();
-      const custoFixoTotal = Object.values(custoFixo).reduce((a,b)=>a+b,0);
+      try {
+        const {custoFixo, parametros} = getInputs();
+        
+        const custoFixoTotal = Object.values(custoFixo).reduce((a,b)=>a+b,0);
+        const custoFixoComSazonalidade = custoFixoTotal * (parametros.sazonalidade || 1);
+        
+        const custosBase = getCustosBase();
+        const suporte = getSuporte();
+        const cac = getCAC();
 
-      // planos
-      const planos = {};
-      planos.mei = calcularPrecoPlano(custosAvanteBase.mei, custoFixoTotal, parametros);
-      planos.contador = calcularPrecoPlano(custosAvanteBase.contador, custoFixoTotal, parametros);
-      planos.basico = calcularPrecoPlano(custosAvanteBase.basico, custoFixoTotal, parametros);
-      planos.inter = calcularPrecoPlano(custosAvanteBase.inter, custoFixoTotal, parametros);
-      planos.premium = calcularPrecoPlano(custosAvanteBase.premium, custoFixoTotal, parametros);
+        const planos = {
+            mei: calcularPrecoPlano('mei', custosBase.mei, suporte.mei, custoFixoComSazonalidade, parametros, cac.mei),
+            contador: calcularPrecoPlano('contador', custosBase.contador, suporte.contador, custoFixoComSazonalidade, parametros, cac.contador),
+            basico: calcularPrecoPlano('basico', custosBase.basico, suporte.basico, custoFixoComSazonalidade, parametros, cac.basico),
+            inter: calcularPrecoPlano('inter', custosBase.inter, suporte.inter, custoFixoComSazonalidade, parametros, cac.inter),
+            premium: calcularPrecoPlano('premium', custosBase.premium, suporte.premium, custoFixoComSazonalidade, parametros, cac.premium)
+        };
+        
+        const clientesPorPlano = {
+            mei: parametros.metaClientes * parametros.distribuicao.mei,
+            contador: parametros.metaClientes * parametros.distribuicao.contador,
+            basico: parametros.metaClientes * parametros.distribuicao.basico,
+            inter: parametros.metaClientes * parametros.distribuicao.inter,
+            premium: parametros.metaClientes * parametros.distribuicao.premium
+        };
 
-      // distribuição clientes
-      const cMei = parametros.metaClientes * parametros.distribMei;
-      const cCont = parametros.metaClientes * parametros.distribContador;
-      const cBas = parametros.metaClientes * parametros.distribBasico;
-      const cInt = parametros.metaClientes * parametros.distribInter;
-      const cPre = parametros.metaClientes * parametros.distribPremium;
+        const mrrPlanos = Object.keys(planos).reduce((sum, key) => sum + (clientesPorPlano[key] * planos[key].preco), 0);
 
-      // MRR dos planos
-      const mrrPlanos = (cMei*planos.mei.preco) + (cCont*planos.contador.preco) + (cBas*planos.basico.preco) + (cInt*planos.inter.preco) + (cPre*planos.premium.preco);
+        // Adicionais
+        document.getElementById('addonsTables').innerHTML='';
+        const addMuito = tabelaAddons('addonsTables','Pack — Muito Recomendado','muito', parametros);
+        const addMod   = tabelaAddons('addonsTables','Pack — Moderado','moderado', parametros);
+        const addOpc   = tabelaAddons('addonsTables','Pack — Opcional','opcional', parametros);
 
-      // Addons (preço sugerido com margem)
-      const container = document.getElementById('addonsTables'); container.innerHTML='';
-      const addMuito = tabelaAddons('addonsTables','Pack — Muito Recomendado','muito');
-      const addMod   = tabelaAddons('addonsTables','Pack — Moderado','moderado');
-      const addOpc   = tabelaAddons('addonsTables','Pack — Opcional','opcional');
+        const calcularReceitaAdicionais = (arr, tx, itensPorCliente) => {
+            const mediaVenda = arr.length ? arr.reduce((s,i)=>s+i.venda,0)/arr.length : 0;
+            return parametros.metaClientes * tx * mediaVenda * itensPorCliente;
+        };
 
-      // médias por categoria para projeção (itens/cliente)
-      const mediaVenda = arr => arr.reduce((s,i)=>s+i.venda,0)/arr.length;
-      const mediaCusto = arr => arr.reduce((s,i)=>s+i.custo,0)/arr.length;
+        const receitaAdicionais = calcularReceitaAdicionais(addMuito, parametros.txAdesao.muito, 1.5) +
+                                  calcularReceitaAdicionais(addMod, parametros.txAdesao.moderado, 1.0) +
+                                  calcularReceitaAdicionais(addOpc, parametros.txAdesao.opcional, 0.5);
+        
+        const mrrTotal = mrrPlanos + receitaAdicionais;
+        const ticketMedio = mrrTotal / Math.max(1, parametros.metaClientes);
+        const breakEven = custoFixoTotal / Math.max(1, ticketMedio - (Object.values(custosBase).reduce((a,b)=>a+b,0) / Object.keys(custosBase).length));
+        
+        const ltvPonderado = Object.keys(planos).reduce((sum, key) => sum + (planos[key].ltv * parametros.distribuicao[key]), 0);
+        const cacPonderado = Object.keys(cac).reduce((sum, key) => sum + (cac[key] * parametros.distribuicao[key]), 0);
+        const ltvCacRatioPonderado = cacPonderado > 0 ? ltvPonderado / cacPonderado : 0;
 
-      const mediaV_M = mediaVenda(addMuito), mediaV_m = mediaVenda(addMod), mediaV_o = mediaVenda(addOpc);
-      const mediaC_M = mediaCusto(addMuito), mediaC_m = mediaCusto(addMod), mediaC_o = mediaCusto(addOpc);
+        // Atualizar UI
+        desenharCards({planos});
+        document.getElementById('mrrTotal').textContent = money(mrrTotal);
+        document.getElementById('custosFixosTotal').textContent = money(custoFixoTotal);
+        document.getElementById('breakEven').textContent = Math.ceil(breakEven);
+        document.getElementById('ltv').textContent = money(ltvPonderado);
+        document.getElementById('ltvCacRatio').textContent = ltvCacRatioPonderado.toFixed(1) + "x";
+        document.getElementById('receitaAnual').textContent = money(mrrTotal * 12);
+        document.getElementById('receitaAdicionaisMensal').textContent = money(receitaAdicionais);
+        document.getElementById('ticketMedioComAdicionais').textContent = money(ticketMedio);
+        
+        dadosCalculados = { inputs: { custoFixo, parametros, custosBase, suporte, cac }, resultados: { planos, mrrTotal, breakEven, ltvPonderado, ltvCacRatioPonderado } };
+        
+        mostrarAlertas();
+        validarCAC();
 
-      // suposições de quantidade de itens/cliente por categoria
-      const itens_M = 1.5, itens_m = 1.0, itens_o = 0.5;
+      } catch (error) {
+        console.error('Erro no cálculo:', error);
+      }
+    }
 
-      const receitaAdicionais = (parametros.metaClientes * parametros.txMuito * mediaV_M * itens_M) +
-                                (parametros.metaClientes * parametros.txMod   * mediaV_m * itens_m) +
-                                (parametros.metaClientes * parametros.txOpc   * mediaV_o * itens_o);
-
-      const custoAdicionais   = (parametros.metaClientes * parametros.txMuito * mediaC_M * itens_M) +
-                                (parametros.metaClientes * parametros.txMod   * mediaC_m * itens_m) +
-                                (parametros.metaClientes * parametros.txOpc   * mediaC_o * itens_o);
-
-      const margemAdd = receitaAdicionais - custoAdicionais;
-
-      const mrrTotal = mrrPlanos + receitaAdicionais;
-      const ticketMedio = mrrTotal / Math.max(1,parametros.metaClientes);
-      const ltv = ticketMedio * (1/Math.max(0.0001,parametros.churnRate)) * 12;
-      const ltvCac = ltv / Math.max(1,parametros.cac);
-      const breakEven = Math.ceil(custoFixoTotal / Math.max(1,ticketMedio));
-
-      // atualizar UI
-      desenharCards({planos});
-      document.getElementById('mrrTotal').textContent = money(mrrTotal);
-      document.getElementById('custosFixosTotal').textContent = money(custoFixoTotal);
-      document.getElementById('breakEven').textContent = breakEven;
-      document.getElementById('ltv').textContent = money(ltv);
-      document.getElementById('ltvCacRatio').textContent = Math.round(ltvCac) + "x";
-      document.getElementById('receitaAnual').textContent = money(mrrTotal*12);
-
-      document.getElementById('receitaAdicionaisMensal').textContent = money(receitaAdicionais);
-      document.getElementById('margemAdicionaisMensal').textContent = money(margemAdd);
-      document.getElementById('ticketMedioComAdicionais').textContent = money(ticketMedio);
-
-      // salvar estrutura para exportação
-      dadosCalculados = {
-        inputs: { custoFixo, parametros },
-        planos,
-        metricas: { mrrPlanos, receitaAdicionais, mrrTotal, ticketMedio, ltv, ltvCac, breakEven, custoFixoTotal },
-        adicionais: {
-          muito: addMuito,
-          moderado: addMod,
-          opcional: addOpc,
-          suposicoes: { itens_M, itens_m, itens_o }
-        }
+    // FUNÇÕES AUXILIARES E EVENTOS
+    function resetarPadrao() {
+      const defaults = {
+        'custosPessoal': 8000, 'infraestrutura': 800, 'marketing': 2000, 'contador': 800,
+        'comunicacao': 250, 'outros': 350, 'setupAvante': 792, 'custosContingencia': 500,
+        'custoMei': 25, 'custoContador': 30, 'custoBasico': 36, 'custoInter': 56, 'custoPremium': 130,
+        'suporteMei': 20, 'suporteContador': 30, 'suporteBasico': 35, 'suporteInter': 50, 'suportePremium': 80,
+        'margemLucro': 40, 'metaClientes': 120,
+        'distribMei': 15, 'distribContador': 20, 'distribBasico': 30, 'distribInter': 25, 'distribPremium': 10,
+        'churnRate': 4, 'churnMelhorado': 2.5,
+        'cacMei': 150, 'cacContador': 200, 'cacBasico': 250, 'cacInter': 350, 'cacPremium': 500,
+        'impostos': 8.5, 'comissoes': 7, 'whiteLabelPct': 30, 'sazonalidade': 1.5,
+        'margemAdicionais': 50, 'txMuito': 70, 'txMod': 40, 'txOpc': 20,
+        'crescimentoMensal': 8, 'periodoProjecao': 12, 'metaReceitaFinal': 50000
       };
+      for (const [id, value] of Object.entries(defaults)) {
+        const el = document.getElementById(id);
+        if (el) el.value = value;
+      }
+      validarDistribuicao();
+      calcular();
+    }
+
+    function adicionarItem() {
+      const nome = document.getElementById('novoAdicional').value.trim();
+      const custo = parseFloat(document.getElementById('novoCusto').value) || 0;
+      const categoria = document.getElementById('novaCategoria').value;
+      if (!nome || custo <= 0) return;
+      
+      adicionaisRaw.push({ nome, custo, tipo: categoria, id: `addon_${Date.now()}` });
+      document.getElementById('novoAdicional').value = '';
+      document.getElementById('novoCusto').value = '20';
+      calcular();
+    }
+
+    function removerItem(id) {
+      adicionaisRaw = adicionaisRaw.filter(item => item.id !== id);
+      calcular();
     }
 
     function exportarJSON(){
       if(!Object.keys(dadosCalculados).length){ alert("Calcule primeiro."); return; }
-      const blob = new Blob([JSON.stringify(dadosCalculados,null,2)], {type:"application/json"});
+      const blob = new Blob([JSON.stringify(dadosCalculados, null, 2)], {type:"application/json"});
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = "precificacao_saas_infoagil.json";
+      a.download = `precificacao_saas_${new Date().toISOString().slice(0,10)}.json`;
       a.click();
-      setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
+      URL.revokeObjectURL(a.href);
+    }
+    
+    function testeRapido() {
+      console.clear();
+      console.log("--- DEBUG INICIADO ---");
+      console.log("Valores de Input:", getInputs());
+      console.log("Dados Calculados:", dadosCalculados);
+      console.log("--- DEBUG FINALIZADO ---");
     }
 
+    // INICIALIZAÇÃO
     window.addEventListener("load", ()=>{
-      calcular();
-      document.addEventListener("input", (e)=>{
-        if(e.target && e.target.tagName === "INPUT"){ calcular(); }
-      });
+      resetarPadrao(); // Popula com valores padrão e já faz o primeiro cálculo
+      criarSeletorAdicionais(); // Cria a lista de checkboxes para o orçamento
     });
+
+    // --- SEÇÃO DO GERADOR DE ORÇAMENTO ---
+
+    function criarSeletorAdicionais() {
+      const container = document.getElementById('seletorAdicionais');
+      container.innerHTML = '';
+      const { parametros } = getInputs();
+      
+      adicionaisRaw.forEach(item => {
+        const precoVenda = Math.round(item.custo * (1 + parametros.margemAdicionais));
+        const badge = item.tipo === 'muito' ? 'b-ok' : item.tipo === 'moderado' ? 'b-warn' : 'b-dang';
+        
+        container.innerHTML += `
+          <div style="display:flex; align-items:center; margin:5px 0; padding:8px; background:rgba(255,255,255,.03); border-radius:6px">
+            <input type="checkbox" id="adicional_${item.id}" onchange="toggleAdicional('${item.id}')" style="margin-right:10px">
+            <label for="adicional_${item.id}" style="flex:1; cursor:pointer; margin:0">
+              <span class="badge ${badge}" style="margin-right:8px">${item.nome}</span>
+              <span style="color:var(--muted); font-size:12px">${money(precoVenda)}/mês</span>
+            </label>
+          </div>`;
+      });
+    }
+
+    function toggleAdicional(id) {
+      const checkbox = document.getElementById(`adicional_${id}`);
+      if (checkbox.checked) {
+        adicionaisSelecionados[id] = adicionaisRaw.find(a => a.id === id);
+      } else {
+        delete adicionaisSelecionados[id];
+      }
+    }
+
+    function gerarOrcamento() {
+      if (!dadosCalculados.resultados) {
+        alert("Execute o cálculo principal primeiro.");
+        return;
+      }
+      const { parametros } = getInputs();
+      
+      const nomeCliente = document.getElementById('nomeCliente').value.trim() || 'Não informado';
+      const planoEscolhido = document.getElementById('planoEscolhido').value;
+      const ajustePreco = getValue('ajustePreco') / 100;
+      const descontoAdicional = getValue('descontoAdicional');
+      
+      const precoOriginalPlano = dadosCalculados.resultados.planos[planoEscolhido].preco;
+      const precoPlanoComAjuste = precoOriginalPlano * (1 + ajustePreco);
+
+      const tbody = document.getElementById('tabelaOrcamento');
+      tbody.innerHTML = `<tr>
+        <td>Plano ${planoEscolhido.charAt(0).toUpperCase() + planoEscolhido.slice(1)}</td>
+        <td class="center">1</td>
+        <td class="right">${money(precoPlanoComAjuste)}</td>
+        <td class="right">${money(precoPlanoComAjuste)}</td>
+      </tr>`;
+      
+      let totalAdicionais = 0;
+      Object.values(adicionaisSelecionados).forEach(item => {
+        const precoVenda = Math.round(item.custo * (1 + parametros.margemAdicionais));
+        totalAdicionais += precoVenda;
+        tbody.innerHTML += `<tr>
+          <td>+ ${item.nome}</td>
+          <td class="center">1</td>
+          <td class="right">${money(precoVenda)}</td>
+          <td class="right">${money(precoVenda)}</td>
+        </tr>`;
+      });
+      
+      const valorFinal = precoPlanoComAjuste + totalAdicionais - descontoAdicional;
+
+      document.getElementById('orcamentoNome').textContent = nomeCliente;
+      document.getElementById('orcamentoData').textContent = new Date().toLocaleDateString('pt-BR');
+      document.getElementById('valorTotalOrcamento').textContent = money(valorFinal);
+      document.getElementById('valorAnual').textContent = money(valorFinal * 12);
+      
+      document.getElementById('resultadoOrcamento').style.display = 'block';
+    }
+
+    function limparOrcamento() {
+        document.getElementById('nomeCliente').value = '';
+        document.getElementById('emailCliente').value = '';
+        document.getElementById('planoEscolhido').value = 'mei';
+        document.getElementById('ajustePreco').value = '0';
+        document.getElementById('descontoAdicional').value = '0';
+        adicionaisSelecionados = {};
+        document.querySelectorAll('#seletorAdicionais input[type="checkbox"]').forEach(cb => cb.checked = false);
+        document.getElementById('resultadoOrcamento').style.display = 'none';
+    }
+
+    function exportarOrcamentoPDF() {
+        const orcamentoHtml = document.getElementById('resultadoOrcamento').innerHTML;
+        const win = window.open('', '', 'height=700,width=700');
+        win.document.write('<html><head><title>Orçamento</title>');
+        win.document.write('<style>body{font-family: sans-serif;} table{width:100%; border-collapse:collapse;} td,th{border:1px solid #ddd; padding:8px;} .right{text-align:right;} .center{text-align:center;}</style>');
+        win.document.write('</head><body>');
+        win.document.write(orcamentoHtml);
+        win.document.write('</body></html>');
+        win.document.close();
+        win.print();
+    }
   </script>
-</body>
-</html>
