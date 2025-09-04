@@ -1,36 +1,47 @@
 # 🚀 Guia Rápido: Deploy no Vercel
 
-## ✅ Checklist de Configuração
+## ⚡ Deploy Imediato (Primeira Vez)
 
-### Passo 1: Criar Projeto no Vercel
-- [ ] Acesse [vercel.com](https://vercel.com)
-- [ ] Faça login com GitHub
-- [ ] Clique "New Project"
-- [ ] Selecione repositório `Precificacao-Info-Agil`
-- [ ] Framework: `Other`
-- [ ] Build Command: deixe vazio
-- [ ] Output Directory: `./`
-- [ ] Clique "Deploy"
+### 🎯 **Passo 1: Deploy Manual (OBRIGATÓRIO na primeira vez)**
+1. Acesse [vercel.com](https://vercel.com)
+2. Faça login com sua conta GitHub
+3. Clique **"New Project"**
+4. Selecione repositório **`Precificacao-Info-Agil`**
+5. Configure:
+   - **Framework Preset**: `Other`
+   - **Root Directory**: `./` (deixe padrão)
+   - **Build Command**: deixe vazio OU `echo "Static"`
+   - **Output Directory**: `./` (deixe padrão)
+6. Clique **"Deploy"** 
+7. ✅ **Pronto!** Sua aplicação estará no ar
 
-### Passo 2: Coletar Informações
-Após criar o projeto, vá para Settings > General:
+> 📋 **Arquivo Principal**: `saas_pricing_calculator_v3.html`
 
-- [ ] **Project ID**: `prj_xxxxxxxxx`
-- [ ] **Team/Org ID**: `team_xxxxxxx` 
+---
 
-### Passo 3: Criar Token
-Em Vercel Settings > Tokens:
+## 🔄 Deploy Automático (Opcional)
 
-- [ ] Clique "Create Token"
-- [ ] Nome: "GitHub Actions"
-- [ ] Copie o token: `vercel_xxxxxxxxx`
+Para deploys automáticos nos próximos commits:
 
-### Passo 4: Configurar GitHub Secrets
-No GitHub repo > Settings > Secrets and variables > Actions:
+### **Passo 2: Coletar Informações**
+Após o primeiro deploy, no Vercel Dashboard:
+- Vá para **Settings > General** do seu projeto
+- Anote o **Project ID**: `prj_xxxxxxxxx`
+- Anote o **Team/Org ID**: `team_xxxxxxx` 
 
-- [ ] `VERCEL_TOKEN` = `vercel_xxxxxxxxx`
-- [ ] `PROJECT_ID` = `prj_xxxxxxxxx`
-- [ ] `ORG_ID` = `team_xxxxxxx`
+### **Passo 3: Criar Token**
+- Vá para **Vercel Settings > Tokens**
+- Clique **"Create Token"**
+- Nome: `GitHub Actions`
+- Copie o token: `vercel_xxxxxxxxx`
+
+### **Passo 4: Configurar GitHub Secrets**
+No GitHub: **repo > Settings > Secrets and variables > Actions**
+
+Adicione estes 3 secrets:
+- `VERCEL_TOKEN` = `vercel_xxxxxxxxx`
+- `PROJECT_ID` = `prj_xxxxxxxxx`  
+- `ORG_ID` = `team_xxxxxxx`
 
 ### Passo 5: Testar Deploy
 - [ ] Faça um commit qualquer
