@@ -1,25 +1,25 @@
 {
-  "name": "precificacao-info-agil",
-  "version": "1.0.0",
-  "description": "Sistema de Precificação SaaS da InfoÁgil - Deploy via GitHub Pages",
-  "main": "saas_pricing_calculator_v3.html",
-  "scripts": {
-    "dev": "python -m http.server 8000",
-    "build": "echo 'Build completo - projeto estático'",
-    "preview": "echo 'Disponível em: https://info-agil-sistemas.github.io/Precificacao-Info-Agil/'"
-  },
-  "homepage": "https://info-agil-sistemas.github.io/Precificacao-Info-Agil/",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Info-Agil-Sistemas/Precificacao-Info-Agil.git"
-  },
-  "keywords": [
-    "saas",
-    "pricing",
-    "calculator",
-    "infoagil",
-    "github-pages"
-  ],
-  "author": "InfoÁgil Sistemas",
-  "license": "ISC"
+    "name": "precificacao-info-agil",
+    "version": "1.0.0",
+    "description": "Sistema de Precificação SaaS da InfoÁgil - Deploy via GitHub Pages",
+    "main": "saas_pricing_calculator_v3.html",
+    "scripts": {
+        "dev": "python -m http.server 8000",
+        "build": "echo 'Build completo - projeto estático'",
+        "preview": "echo 'Disponível em: https://info-agil-sistemas.github.io/Precificacao-Info-Agil/'"
+    },
+    "homepage": "https://info-agil-sistemas.github.io/Precificacao-Info-Agil/",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Info-Agil-Sistemas/Precificacao-Info-Agil.git"
+    },
+    "keywords": [
+        "saas",
+        "pricing",
+        "calculator",
+        "infoagil",
+        "github-pages"
+    ],
+    "author": "InfoÁgil Sistemas",
+    "license": "ISC"
 }
