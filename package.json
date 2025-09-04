@@ -1,0 +1,22 @@
+{
+  "name": "precificacao-info-agil",
+  "version": "1.0.0",
+  "description": "Sistema de Precificação SaaS da InfoÁgil",
+  "main": "saas_pricing_calculator_v3.html",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'Build completo - projeto estático'",
+    "deploy": "vercel --prod"
+  },
+  "keywords": [
+    "saas",
+    "pricing",
+    "calculator",
+    "infoagil"
+  ],
+  "author": "InfoÁgil Sistemas",
+  "license": "ISC",
+  "devDependencies": {
+    "vercel": "^32.0.0"
+  }
+}
